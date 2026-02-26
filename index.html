@@ -221,7 +221,7 @@ const LOAD_LIST = [
   { key: 'g_idle',    file: 'gojo_standing_Pose.fbx' },
   { key: 'g_walk',    file: 'gojo_walking.fbx'       },
   { key: 'g_run',     file: 'gojo_sprint.fbx'        },
-  { key: 'g_attack',  file: 'attackgojo.fbx'         },
+  { key: 'g_attack',  file: 'https://drive.google.com/uc?export=download&id=1SXzzjXgyMqFF7WIn3VVGk6qfwW_EWl3P' },
   { key: 'g_sword',   file: 'gojo_get_sword.fbx'     },
   { key: 'n_idle',    file: 'ninja_standing.fbx'     },
   { key: 'n_walk',    file: 'ninja_walk.fbx'         },
@@ -682,7 +682,7 @@ function tickEnemies(dt) {
       e.nShow('attack');
       e.atkTimer-=dt;
       if (e.atkTimer<=0) {
-        e.atkTimer=0.9; // hit every 0.9 seconds
+        e.atkTimer=6.0; // hit every 6 seconds
         if (!domainOn) {
           hp-=10; shakeAmt=0.4;
           if (hp<=0){hp=0;triggerOver();}
@@ -694,7 +694,7 @@ function tickEnemies(dt) {
     /* ── ENTER ATTACK ── */
     if (dist<2.2&&!domainOn) {
       e.state='attack';
-      e.atkTimer=0.35; // short wind-up
+      e.atkTimer=1.0; // short wind-up
       e.nShow('attack'); return;
     }
 
