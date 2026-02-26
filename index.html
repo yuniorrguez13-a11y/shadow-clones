@@ -250,7 +250,19 @@ LOAD_LIST.forEach(({ key, file }) => {
 
 /* ── helpers ── */
 function setupShadows(obj) {
-  obj.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
+  obj.traverse(c => {
+    if (!c.isMesh) return;
+    c.castShadow = true; c.receiveShadow = true;
+    // Kill blown-out emissive values that cause white-screen on some FBX exports
+    const mats = Array.isArray(c.material) ? c.material : [c.material];
+    mats.forEach(m => {
+      if (!m) return;
+      if (m.emissive)       m.emissive.set(0,0,0);
+      if (m.emissiveMap)    m.emissiveMap = null;
+      m.emissiveIntensity = 0;
+      m.toneMapped        = true;
+    });
+  });
 }
 function fitHeight(obj, h) {
   const box = new THREE.Box3().setFromObject(obj);
@@ -528,8 +540,7 @@ function tickDomain(dt) {
       _dv.normalize();
       playerGroup.position.x+=_dv.x*52*dt;
       playerGroup.position.z+=_dv.z*52*dt;
-      // Face movement direction — +PI because FBX models face +Z by default
-      playerGroup.rotation.y = Math.atan2(_dv.x,_dv.z)+Math.PI;
+      playerGroup.rotation.y = Math.atan2(_dv.x,_dv.z);
       showGojo('run');
     }
   } else {
@@ -598,9 +609,9 @@ function tickPlayer(dt) {
     const bx=playerGroup.position.x, bz=playerGroup.position.z;
     slide(playerGroup.position, nx, nz, 0.55);
     const mdx=playerGroup.position.x-bx, mdz=playerGroup.position.z-bz;
-    // Face actual movement direction — +PI for Mixamo characters (they default face +Z, camera is behind)
+    // Face actual movement direction — atan2(dx,dz) alone for +Z-forward FBX characters
     if (Math.abs(mdx)+Math.abs(mdz)>0.0005) {
-      playerGroup.rotation.y = Math.atan2(mdx,mdz)+Math.PI;
+      playerGroup.rotation.y = Math.atan2(mdx,mdz);
     }
     showGojo(sprinting ? 'run' : 'walk');
   } else if (!atkActive) {
@@ -609,10 +620,10 @@ function tickPlayer(dt) {
 
   // Sword hit detection
   if (atkWindow) {
-    // Forward = direction character is facing
+    // For +Z-forward model: facing = +Z rotated by playerGroup.rotation.y
     const facing=new THREE.Vector3(
-      -Math.sin(playerGroup.rotation.y),0,
-      -Math.cos(playerGroup.rotation.y)
+      Math.sin(playerGroup.rotation.y), 0,
+      Math.cos(playerGroup.rotation.y)
     );
     enemies.forEach(e=>{
       if (!e.alive||hitSet.has(e)) return;
@@ -632,11 +643,22 @@ function tickPlayer(dt) {
 ══════════════════════════════════════ */
 const _toP=new THREE.Vector3();
 
+// Helper: face a world-space direction (dx,dz) for a +Z-forward FBX character
+function faceDir(group, dx, dz) {
+  group.rotation.y = Math.atan2(dx, dz);
+}
+// Helper: face toward a world-space point
+function facePoint(group, tx, tz) {
+  const dx = tx - group.position.x;
+  const dz = tz - group.position.z;
+  group.rotation.y = Math.atan2(dx, dz);
+}
+
 function tickEnemies(dt) {
   const pp=playerGroup.position;
-  enemies.forEach(e=>{
-    if (!e.alive) return;
+  const living=enemies.filter(e=>e.alive);
 
+  living.forEach(e=>{
     // Tick all mixer for current ninja state
     Object.values(e.NS).forEach(slot=>{ if(slot) slot.mixer.update(dt); });
     // Kill FBX root bone rotation override
@@ -650,19 +672,17 @@ function tickEnemies(dt) {
 
     /* ── ATTACK STATE ──
        Stay in attack as long as player is within reach.
-       Deal damage on a 1.2s tick — NO state flip-flopping.
+       Deal damage every 0.9s — fast and relentless.
     ── */
     if (e.state==='attack') {
-      if (dist>2.8) {
-        // Player escaped — go back to chase
-        e.state='chase'; e.atkTimer=0;
-        e.nShow('walk'); return;
+      if (dist>3.0) {
+        e.state='chase'; e.atkTimer=0; e.nShow('walk'); return;
       }
-      e.group.lookAt(pp.x, e.group.position.y, pp.z);
+      facePoint(e.group, pp.x, pp.z);
       e.nShow('attack');
       e.atkTimer-=dt;
       if (e.atkTimer<=0) {
-        e.atkTimer=1.2; // damage tick every 1.2s
+        e.atkTimer=0.9; // hit every 0.9 seconds
         if (!domainOn) {
           hp-=10; shakeAmt=0.4;
           if (hp<=0){hp=0;triggerOver();}
@@ -672,57 +692,76 @@ function tickEnemies(dt) {
     }
 
     /* ── ENTER ATTACK ── */
-    if (dist<2.0&&!domainOn) {
-      e.state='attack'; e.atkTimer=0.6; // short wind-up before first hit
+    if (dist<2.2&&!domainOn) {
+      e.state='attack';
+      e.atkTimer=0.35; // short wind-up
       e.nShow('attack'); return;
     }
 
-    /* ── CHASE with wall avoidance ── */
-    if (dist>60) { e.nShow('idle'); e.group.lookAt(pp.x,e.group.position.y,pp.z); return; }
+    /* ── CHASE with smart avoidance ── */
+    if (dist>62) { e.nShow('idle'); facePoint(e.group,pp.x,pp.z); return; }
 
     const desired=_toP.clone().normalize();
 
     // Stuck detection
     e.stuckT+=dt;
-    if (e.stuckT>0.45) {
-      if (e.group.position.distanceTo(e.lastPos)<0.1) e.wanderA+=(Math.PI/3)*(Math.random()>.5?1:-1);
+    if (e.stuckT>0.4) {
+      if (e.group.position.distanceTo(e.lastPos)<0.1)
+        e.wanderA+=(Math.PI*0.45)*(Math.random()>.5?1:-1);
       e.lastPos.copy(e.group.position); e.stuckT=0;
     }
 
-    // 5-ray probe — pick least-blocked direction
+    // Separation: steer away from other nearby ninjas
+    let sepX=0, sepZ=0;
+    living.forEach(other=>{
+      if (other===e||!other.alive) return;
+      const ox=e.group.position.x-other.group.position.x;
+      const oz=e.group.position.z-other.group.position.z;
+      const d2=ox*ox+oz*oz;
+      if (d2<4&&d2>0.0001) { const inv=1/Math.sqrt(d2); sepX+=ox*inv; sepZ+=oz*inv; }
+    });
+
+    // 7-ray probe — pick least-blocked direction toward player
     let bestDir=desired.clone(), bestScore=-Infinity;
-    for (let ai=0;ai<5;ai++) {
-      const ang=Math.atan2(desired.x,desired.z)+(ai-2)*(Math.PI/5);
+    for (let ai=0;ai<7;ai++) {
+      const ang=Math.atan2(desired.x,desired.z)+(ai-3)*(Math.PI/7);
       const d=new THREE.Vector3(Math.sin(ang),0,Math.cos(ang));
-      const pr=e.group.position.clone().addScaledVector(d,1.6);
-      const score=desired.dot(d)-(isBlocked(pr.x,pr.z,.65)?2:0);
+      const pr=e.group.position.clone().addScaledVector(d,1.8);
+      const blocked_penalty = isBlocked(pr.x,pr.z,.65) ? 3.5 : 0;
+      const score=desired.dot(d)-blocked_penalty;
       if (score>bestScore){bestScore=score;bestDir=d;}
     }
-    const wander=new THREE.Vector3(Math.sin(e.wanderA),0,Math.cos(e.wanderA));
-    const finalDir=bestDir.clone().lerp(wander,.12).normalize();
-    const spd=e.speed*(dist<10?.65:1)*dt;
 
-    const bx=e.group.position.x,bz=e.group.position.z;
+    // Blend: 70% probe result + 20% wander + 10% separation
+    const wander=new THREE.Vector3(Math.sin(e.wanderA),0,Math.cos(e.wanderA));
+    const sep=new THREE.Vector3(sepX,0,sepZ);
+    const finalDir=bestDir.clone()
+      .multiplyScalar(0.7)
+      .addScaledVector(wander, 0.2)
+      .addScaledVector(sep,    0.1)
+      .normalize();
+
+    // Speed: full speed far away, slower near player to avoid jitter
+    const spd=e.speed*(dist<8?0.6:dist<16?0.85:1)*dt;
+
+    const bx=e.group.position.x, bz=e.group.position.z;
     slide(e.group.position,finalDir.x*spd,finalDir.z*spd,.55);
-    const mdx=e.group.position.x-bx,mdz=e.group.position.z-bz;
+    const mdx=e.group.position.x-bx, mdz=e.group.position.z-bz;
 
     if (Math.abs(mdx)+Math.abs(mdz)<.0005) {
-      e.wanderA+=Math.PI/4;
+      e.wanderA+=Math.PI/3; // forced rotate when fully stuck
     } else {
+      // Decay wander toward desired direction
       const ta=Math.atan2(desired.x,desired.z);
       let diff=ta-e.wanderA;
       while(diff>Math.PI)diff-=Math.PI*2; while(diff<-Math.PI)diff+=Math.PI*2;
-      e.wanderA+=diff*.04;
+      e.wanderA+=diff*.05;
+      // Face actual movement direction (no +PI for +Z-forward models)
+      faceDir(e.group, mdx, mdz);
     }
 
-    if (Math.abs(mdx)+Math.abs(mdz)>.0005) {
-      // +PI: ninjas also default face +Z
-      e.group.rotation.y=Math.atan2(mdx,mdz)+Math.PI;
-    } else {
-      e.group.lookAt(pp.x,e.group.position.y,pp.z);
-    }
-
-    e.nShow(dist>14?'run':'walk');
+    // Pick anim: run when far, walk when close
+    e.nShow(dist>16?'run':'walk');
   });
 }
 
