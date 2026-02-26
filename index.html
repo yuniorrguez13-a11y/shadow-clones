@@ -4,76 +4,71 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GOJO VS SHADOW CLAN</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
 #c{display:block;width:100vw;height:100vh}
 
 #loading{position:fixed;inset:0;background:#000010;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:300}
-#loading h2{font-size:12px;letter-spacing:6px;color:#334488;margin-bottom:18px}
+#loading h2{font-size:11px;letter-spacing:7px;color:#334488;margin-bottom:18px}
 #lbar-bg{width:240px;height:2px;background:#0a1230}
-#lbar{height:100%;width:0%;background:linear-gradient(90deg,#0044ff,#00ccff);transition:width .3s}
+#lbar{height:100%;width:0%;background:linear-gradient(90deg,#0044ff,#00ccff);transition:width .25s}
 #lpct{font-size:10px;letter-spacing:4px;color:#223366;margin-top:10px}
-#load-file{font-size:9px;letter-spacing:3px;color:#1a2255;margin-top:6px;min-height:12px}
+#lfile{font-size:9px;letter-spacing:2px;color:#182240;margin-top:5px;min-height:11px}
 
 #start-screen{position:fixed;inset:0;background:radial-gradient(ellipse,#0a0022 0%,#000 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200}
-.jp-sub{font-size:12px;letter-spacing:10px;color:#334488;margin-bottom:14px}
-.main-title{font-family:'Cinzel Decorative',cursive;font-size:clamp(32px,5vw,68px);color:#fff;text-shadow:0 0 40px #0055ff,0 0 80px #003399;letter-spacing:6px;text-align:center}
-.vs-title{font-size:clamp(12px,2vw,18px);letter-spacing:10px;color:#4488bb;margin-top:8px}
-.glow-line{width:260px;height:1px;background:linear-gradient(90deg,transparent,#0055ff,transparent);margin:26px 0;box-shadow:0 0 15px #0044ff}
-.ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px 28px;font-size:11px;letter-spacing:2px;color:#445577;margin-bottom:32px}
-.ctrl-grid span{color:#5588bb}
+.jp{font-size:12px;letter-spacing:10px;color:#334488;margin-bottom:14px}
+.title{font-family:'Cinzel Decorative',cursive;font-size:clamp(30px,5vw,66px);color:#fff;text-shadow:0 0 40px #0055ff,0 0 80px #003399;letter-spacing:6px;text-align:center}
+.sub{font-size:clamp(11px,2vw,17px);letter-spacing:10px;color:#4488bb;margin-top:8px}
+.gline{width:260px;height:1px;background:linear-gradient(90deg,transparent,#0055ff,transparent);margin:26px 0;box-shadow:0 0 15px #0044ff}
+.cg{display:grid;grid-template-columns:auto auto;gap:7px 24px;font-size:11px;letter-spacing:2px;color:#445577;margin-bottom:32px}
+.cg span{color:#5588bb;text-align:right}
 .btn{padding:13px 46px;border:1px solid #0044ff;color:#88ccff;font-family:'Cinzel',serif;font-size:12px;letter-spacing:6px;cursor:pointer;background:rgba(0,40,100,.3);transition:all .3s}
 .btn:hover{background:rgba(0,60,180,.4);box-shadow:0 0 30px #0033ff;color:#fff;border-color:#0088ff}
-.bg-hex{position:absolute;inset:0;pointer-events:none;opacity:.07}
-.bg-hex svg{width:100%;height:100%}
+.bg-hex{position:absolute;inset:0;pointer-events:none;opacity:.06}
 
 #over-screen{position:fixed;inset:0;background:radial-gradient(ellipse,#200010 0%,#000 100%);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200}
 #over-screen h1{font-size:13px;letter-spacing:8px;color:#aa3355;margin-bottom:8px}
-#over-screen h2{font-family:'Cinzel Decorative',cursive;font-size:clamp(42px,6vw,80px);color:#ff3355;text-shadow:0 0 40px #ff0033;letter-spacing:6px}
-.death-line{width:200px;height:1px;background:linear-gradient(90deg,transparent,#ff0033,transparent);margin:18px 0;box-shadow:0 0 15px #ff0033}
-#final-score{font-size:20px;color:#fff;letter-spacing:4px;margin-bottom:32px}
+#over-screen h2{font-family:'Cinzel Decorative',cursive;font-size:clamp(40px,6vw,78px);color:#ff3355;text-shadow:0 0 40px #ff0033;letter-spacing:6px}
+.dline{width:200px;height:1px;background:linear-gradient(90deg,transparent,#ff0033,transparent);margin:18px 0;box-shadow:0 0 15px #ff0033}
+#fscore{font-size:19px;color:#fff;letter-spacing:4px;margin-bottom:32px}
 
+/* HUD */
 #hud{position:fixed;inset:0;pointer-events:none;display:none}
 #hp-wrap{position:absolute;bottom:72px;left:32px;width:260px}
-#hp-label{font-size:10px;letter-spacing:4px;color:#88ccff;margin-bottom:5px;text-shadow:0 0 10px #44aaff}
-#hp-track{height:7px;background:rgba(0,20,60,.8);border:1px solid #1155aa;border-radius:2px;overflow:hidden}
-#hp-fill{height:100%;background:linear-gradient(90deg,#0066ff,#00ccff);box-shadow:0 0 10px #0099ff;transition:width .15s;border-radius:2px}
-
+#hp-lbl{font-size:10px;letter-spacing:4px;color:#88ccff;margin-bottom:5px;text-shadow:0 0 10px #44aaff}
+#hp-bg{height:7px;background:rgba(0,20,60,.8);border:1px solid #1155aa;border-radius:2px;overflow:hidden}
+#hp-fg{height:100%;width:100%;background:linear-gradient(90deg,#0066ff,#00ccff);box-shadow:0 0 10px #0099ff;transition:width .15s;border-radius:2px}
 #de-wrap{position:absolute;bottom:100px;left:32px;width:260px}
-#de-label{font-size:9px;letter-spacing:3px;color:#aa88ff;margin-bottom:5px;text-shadow:0 0 10px #8855ff}
-#de-track{height:6px;background:rgba(20,0,60,.8);border:1px solid #550099;border-radius:2px;overflow:hidden}
-#de-fill{height:100%;width:0%;background:linear-gradient(90deg,#6600ff,#cc44ff);box-shadow:0 0 8px #9900ff;border-radius:2px}
-#de-ready{font-size:9px;letter-spacing:4px;color:#cc88ff;margin-top:4px;opacity:0;transition:opacity .5s;text-shadow:0 0 12px #9900ff}
+#de-lbl{font-size:9px;letter-spacing:3px;color:#aa88ff;margin-bottom:5px;text-shadow:0 0 10px #8855ff}
+#de-bg{height:6px;background:rgba(20,0,60,.8);border:1px solid #550099;border-radius:2px;overflow:hidden}
+#de-fg{height:100%;width:0%;background:linear-gradient(90deg,#6600ff,#cc44ff);box-shadow:0 0 8px #9900ff;border-radius:2px;transition:width .25s}
+#de-tip{font-size:9px;letter-spacing:4px;color:#cc88ff;margin-top:4px;opacity:0;transition:opacity .5s;text-shadow:0 0 12px #9900ff}
+#hint{position:absolute;bottom:46px;left:32px;font-size:9px;letter-spacing:2px;color:rgba(80,110,170,.45)}
+#sw-wrap{position:absolute;top:26px;right:32px;text-align:right}
+#sw-lbl{font-size:10px;letter-spacing:5px;color:#aaaacc}
+#sw-val{font-family:'Cinzel Decorative',cursive;font-size:36px;color:#fff;line-height:1;text-shadow:0 0 20px #4488ff}
+#wv-wrap{position:absolute;top:26px;left:32px}
+#wv-num{font-size:13px;letter-spacing:6px;color:#88ccff;text-shadow:0 0 15px #0066ff}
+#ec{font-size:10px;letter-spacing:3px;color:#5577aa;margin-top:4px}
+#ann{position:absolute;top:36%;left:50%;transform:translateX(-50%);font-family:'Cinzel Decorative',cursive;font-size:40px;color:#fff;letter-spacing:8px;text-shadow:0 0 40px #0066ff,0 0 80px #0033ff;opacity:0;transition:opacity .4s;white-space:nowrap;pointer-events:none;text-align:center}
+#itxt{position:absolute;top:44%;left:50%;transform:translateX(-50%);font-size:13px;letter-spacing:5px;color:#88aaff;opacity:0;transition:opacity 1s;white-space:nowrap;pointer-events:none}
+#xhair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;pointer-events:none}
+#xhair::before,#xhair::after{content:'';position:absolute;background:rgba(0,200,255,.6);border-radius:1px}
+#xhair::before{width:2px;height:100%;left:50%;transform:translateX(-50%)}
+#xhair::after{width:100%;height:2px;top:50%;transform:translateY(-50%)}
+/* slash VFX */
+#slash{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100px;height:3px;background:linear-gradient(90deg,transparent,rgba(0,210,255,.9),transparent);border-radius:2px;opacity:0;pointer-events:none;box-shadow:0 0 10px #00ccff;transition:opacity .12s}
 
-#hint-bar{position:absolute;bottom:48px;left:32px;font-size:9px;letter-spacing:2px;color:rgba(80,110,170,.5)}
-
-#score-wrap{position:absolute;top:26px;right:32px;text-align:right}
-#score-label{font-size:10px;letter-spacing:5px;color:#aaaacc}
-#score-val{font-family:'Cinzel Decorative',cursive;font-size:38px;color:#fff;line-height:1;text-shadow:0 0 20px #4488ff}
-
-#wave-wrap{position:absolute;top:26px;left:32px}
-#wave-num{font-size:13px;letter-spacing:6px;color:#88ccff;text-shadow:0 0 15px #0066ff}
-#enemy-count{font-size:10px;letter-spacing:3px;color:#5577aa;margin-top:4px}
-
-#announce{position:absolute;top:36%;left:50%;transform:translateX(-50%);font-family:'Cinzel Decorative',cursive;font-size:42px;color:#fff;letter-spacing:8px;text-shadow:0 0 40px #0066ff,0 0 80px #0033ff;opacity:0;transition:opacity .5s;white-space:nowrap;pointer-events:none;text-align:center}
-#intro-txt{position:absolute;top:44%;left:50%;transform:translateX(-50%);font-size:13px;letter-spacing:6px;color:#88aaff;opacity:0;transition:opacity 1s;white-space:nowrap;pointer-events:none}
-
-#crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px}
-#crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(0,200,255,.65);border-radius:1px}
-#crosshair::before{width:2px;height:100%;left:50%;transform:translateX(-50%)}
-#crosshair::after{width:100%;height:2px;top:50%;transform:translateY(-50%)}
-
-#de-overlay{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:50;transition:opacity 1.2s;background:radial-gradient(ellipse,rgba(80,0,180,.45) 0%,rgba(0,0,50,.85) 100%)}
-#de-overlay.on{opacity:1}
-.de-ring{position:absolute;top:50%;left:50%;border:1px solid rgba(140,60,255,.4);border-radius:50%;animation:pring 1.6s ease-out infinite}
-.de-ring:nth-child(1){width:200px;height:200px;margin:-100px 0 0 -100px}
-.de-ring:nth-child(2){width:450px;height:450px;margin:-225px 0 0 -225px;animation-delay:.4s}
-.de-ring:nth-child(3){width:800px;height:800px;margin:-400px 0 0 -400px;animation-delay:.8s}
-@keyframes pring{0%{opacity:.7;transform:scale(.82)}100%{opacity:0;transform:scale(1.18)}}
-
-#sword-slash{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:4px;background:linear-gradient(90deg,transparent,rgba(0,200,255,.9),transparent);opacity:0;border-radius:2px;pointer-events:none;box-shadow:0 0 12px #00ccff}
+/* Domain */
+#de-ov{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:50;transition:opacity 1.2s;background:radial-gradient(ellipse,rgba(80,0,180,.45) 0%,rgba(0,0,50,.88) 100%)}
+#de-ov.on{opacity:1}
+.dr{position:absolute;top:50%;left:50%;border:1px solid rgba(140,60,255,.38);border-radius:50%;animation:pr 1.6s ease-out infinite}
+.dr:nth-child(1){width:180px;height:180px;margin:-90px 0 0 -90px}
+.dr:nth-child(2){width:420px;height:420px;margin:-210px 0 0 -210px;animation-delay:.38s}
+.dr:nth-child(3){width:780px;height:780px;margin:-390px 0 0 -390px;animation-delay:.76s}
+@keyframes pr{0%{opacity:.7;transform:scale(.84)}100%{opacity:0;transform:scale(1.16)}}
 </style>
 </head>
 <body>
@@ -82,76 +77,68 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
   <h2>LOADING ASSETS</h2>
   <div id="lbar-bg"><div id="lbar"></div></div>
   <div id="lpct">0%</div>
-  <div id="load-file"></div>
+  <div id="lfile"></div>
 </div>
 <canvas id="c"></canvas>
 
 <div id="hud">
-  <div id="wave-wrap">
-    <div id="wave-num">WAVE 1</div>
-    <div id="enemy-count">ENEMIES: 0</div>
-  </div>
-  <div id="score-wrap">
-    <div id="score-label">SCORE</div>
-    <div id="score-val">0</div>
-  </div>
-  <div id="hp-wrap">
-    <div id="hp-label">LIMITLESS HP</div>
-    <div id="hp-track"><div id="hp-fill" style="width:100%"></div></div>
-  </div>
+  <div id="wv-wrap"><div id="wv-num">WAVE 1</div><div id="ec">ENEMIES: 0</div></div>
+  <div id="sw-wrap"><div id="sw-lbl">SCORE</div><div id="sw-val">0</div></div>
+  <div id="hp-wrap"><div id="hp-lbl">LIMITLESS</div><div id="hp-bg"><div id="hp-fg"></div></div></div>
   <div id="de-wrap">
-    <div id="de-label">DOMAIN EXPANSION (30 kills)</div>
-    <div id="de-track"><div id="de-fill"></div></div>
-    <div id="de-ready">PRESS E TO ACTIVATE</div>
+    <div id="de-lbl">DOMAIN EXPANSION (30 kills)</div>
+    <div id="de-bg"><div id="de-fg"></div></div>
+    <div id="de-tip">PRESS  E  TO ACTIVATE</div>
   </div>
-  <div id="hint-bar">WASD MOVE &nbsp;|&nbsp; SHIFT SPRINT &nbsp;|&nbsp; CLICK ATTACK &nbsp;|&nbsp; E DOMAIN &nbsp;|&nbsp; SCROLL ZOOM</div>
-  <div id="crosshair"></div>
-  <div id="announce"></div>
-  <div id="intro-txt">Acquiring Sword...</div>
-  <div id="sword-slash"></div>
+  <div id="hint">WASD MOVE &nbsp;|&nbsp; SHIFT SPRINT &nbsp;|&nbsp; CLICK ATTACK &nbsp;|&nbsp; E DOMAIN &nbsp;|&nbsp; SCROLL ZOOM</div>
+  <div id="xhair"></div>
+  <div id="ann"></div>
+  <div id="itxt">Acquiring Sword...</div>
+  <div id="slash"></div>
 </div>
 
-<div id="de-overlay">
-  <div class="de-ring"></div><div class="de-ring"></div><div class="de-ring"></div>
-</div>
+<div id="de-ov"><div class="dr"></div><div class="dr"></div><div class="dr"></div></div>
 
 <div id="start-screen">
-  <div class="bg-hex"><svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"><defs><pattern id="hex" width="60" height="52" patternUnits="userSpaceOnUse"><polygon points="30,2 58,17 58,47 30,62 2,47 2,17" fill="none" stroke="#0044ff" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#hex)"/></svg></div>
-  <div class="jp-sub">JUJUTSU KAISEN</div>
-  <div class="main-title">SATORU GOJO</div>
-  <div class="vs-title">VS THE SHADOW CLAN</div>
-  <div class="glow-line"></div>
-  <div class="ctrl-grid">
+  <div class="bg-hex">
+    <svg style="width:100%;height:100%" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+      <defs><pattern id="hp" width="60" height="52" patternUnits="userSpaceOnUse"><polygon points="30,2 58,17 58,47 30,62 2,47 2,17" fill="none" stroke="#0044ff" stroke-width="0.5"/></pattern></defs>
+      <rect width="100%" height="100%" fill="url(#hp)"/>
+    </svg>
+  </div>
+  <div class="jp">JUJUTSU KAISEN</div>
+  <div class="title">SATORU GOJO</div>
+  <div class="sub">VS THE SHADOW CLAN</div>
+  <div class="gline"></div>
+  <div class="cg">
     <span>WASD</span><div>Move</div>
     <span>SHIFT</span><div>Sprint</div>
-    <span>MOUSE</span><div>Rotate Camera</div>
+    <span>MOUSE</span><div>Camera</div>
     <span>CLICK</span><div>Sword Attack</div>
     <span>E</span><div>Domain Expansion</div>
-    <span>SCROLL</span><div>Zoom In/Out</div>
+    <span>SCROLL</span><div>Zoom In / Out</div>
   </div>
   <div class="btn" id="start-btn">BEGIN</div>
 </div>
 
 <div id="over-screen">
-  <h1>The Weakest</h1>
-  <h2>YOU FELL</h2>
-  <div class="death-line"></div>
-  <div id="final-score"></div>
+  <h1>The Weakest</h1><h2>YOU FELL</h2>
+  <div class="dline"></div>
+  <div id="fscore"></div>
   <div class="btn" id="restart-btn" style="pointer-events:all">TRY AGAIN</div>
 </div>
 
 <script type="importmap">
-{"imports":{
-  "three":"https://unpkg.com/three@0.152.2/build/three.module.js",
-  "three/addons/":"https://unpkg.com/three@0.152.2/examples/jsm/"
-}}
+{"imports":{"three":"https://unpkg.com/three@0.152.2/build/three.module.js","three/addons/":"https://unpkg.com/three@0.152.2/examples/jsm/"}}
 </script>
 <script type="module">
 import * as THREE from 'three';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
-import { clone as skeletonClone } from 'three/addons/utils/SkeletonUtils.js';
+import { clone as skelClone } from 'three/addons/utils/SkeletonUtils.js';
 
-/* ════════════ RENDERER ════════════ */
+/* ══════════════════════════════════════
+   RENDERER
+══════════════════════════════════════ */
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -167,760 +154,711 @@ scene.background = new THREE.Color(0x050010);
 
 const camera = new THREE.PerspectiveCamera(65, innerWidth / innerHeight, 0.1, 400);
 
-/* ════════════ LIGHTS ════════════ */
-scene.add(new THREE.AmbientLight(0x2233aa, 1.8));
+/* ── lights ── */
+scene.add(new THREE.AmbientLight(0x2233aa, 1.9));
 const sun = new THREE.DirectionalLight(0x99aaff, 3);
-sun.position.set(30, 60, 20);
-sun.castShadow = true;
+sun.position.set(30, 60, 20); sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 sun.shadow.camera.near = 1; sun.shadow.camera.far = 220;
-[-80,80].forEach(v => {
-  sun.shadow.camera.left = -80; sun.shadow.camera.right = 80;
-  sun.shadow.camera.top  =  80; sun.shadow.camera.bottom = -80;
-});
+sun.shadow.camera.left = -85; sun.shadow.camera.right = 85;
+sun.shadow.camera.top  =  85; sun.shadow.camera.bottom = -85;
 scene.add(sun);
 const pLight = new THREE.PointLight(0x0055ff, 5, 35);
 scene.add(pLight);
 
-/* ════════════ MAP + COLLIDERS ════════════ */
+/* ══════════════════════════════════════
+   MAP + COLLIDERS
+══════════════════════════════════════ */
 const MAP = 75;
-const COLS = []; // {minX,maxX,minZ,maxZ}
+const COLS = [];
 
-function addCol(cx, cz, hw, hd) {
-  COLS.push({ minX: cx-hw, maxX: cx+hw, minZ: cz-hd, maxZ: cz+hd });
-}
-
-function blocked(px, pz, r) {
-  for (const c of COLS) {
-    if (px+r > c.minX && px-r < c.maxX && pz+r > c.minZ && pz-r < c.maxZ) return true;
-  }
-  return false;
-}
+const addCol = (cx, cz, hw, hd) => COLS.push({ minX:cx-hw, maxX:cx+hw, minZ:cz-hd, maxZ:cz+hd });
+const isBlocked = (px, pz, r) => COLS.some(c => px+r>c.minX && px-r<c.maxX && pz+r>c.minZ && pz-r<c.maxZ);
 
 function slide(pos, dx, dz, r) {
-  if (!blocked(pos.x+dx, pos.z+dz, r))     { pos.x+=dx; pos.z+=dz; }
-  else if (!blocked(pos.x+dx, pos.z,    r)) { pos.x+=dx; }
-  else if (!blocked(pos.x,    pos.z+dz, r)) { pos.z+=dz; }
+  if (!isBlocked(pos.x+dx, pos.z+dz, r))     { pos.x+=dx; pos.z+=dz; }
+  else if (!isBlocked(pos.x+dx, pos.z, r))    { pos.x+=dx; }
+  else if (!isBlocked(pos.x, pos.z+dz, r))    { pos.z+=dz; }
   pos.x = Math.max(-MAP+2, Math.min(MAP-2, pos.x));
   pos.z = Math.max(-MAP+2, Math.min(MAP-2, pos.z));
 }
 
 (function buildMap() {
-  // Ground
-  const g = new THREE.Mesh(
-    new THREE.PlaneGeometry(MAP*2, MAP*2),
-    new THREE.MeshLambertMaterial({ color: 0x070818 })
-  );
-  g.rotation.x = -Math.PI/2; g.receiveShadow = true;
-  scene.add(g);
+  const g = new THREE.Mesh(new THREE.PlaneGeometry(MAP*2, MAP*2), new THREE.MeshLambertMaterial({ color: 0x070818 }));
+  g.rotation.x = -Math.PI/2; g.receiveShadow = true; scene.add(g);
   const grid = new THREE.GridHelper(MAP*2, 64, 0x001144, 0x001133);
   grid.position.y = 0.02; scene.add(grid);
-
-  // Floor accent lines
-  for (let i = 0; i < 12; i++) {
-    const lm = new THREE.Mesh(new THREE.PlaneGeometry(MAP*1.85, 0.06),
-      new THREE.MeshBasicMaterial({ color: 0x002299, transparent: true, opacity: 0.14 }));
-    lm.rotation.x = -Math.PI/2; lm.rotation.z = (i/12)*Math.PI; lm.position.y = 0.03;
-    scene.add(lm);
+  for (let i=0;i<12;i++) {
+    const lm = new THREE.Mesh(new THREE.PlaneGeometry(MAP*1.85,0.06), new THREE.MeshBasicMaterial({color:0x002299,transparent:true,opacity:.13}));
+    lm.rotation.x=-Math.PI/2; lm.rotation.z=(i/12)*Math.PI; lm.position.y=0.03; scene.add(lm);
   }
-
-  // Boundary walls
-  const wm = new THREE.MeshLambertMaterial({ color: 0x0d1640 });
-  [
-    { p:[0,5,-MAP],  s:[MAP*2+4,10,3] },
-    { p:[0,5, MAP],  s:[MAP*2+4,10,3] },
-    { p:[-MAP,5,0],  s:[3,10,MAP*2]   },
-    { p:[ MAP,5,0],  s:[3,10,MAP*2]   },
-  ].forEach(({ p, s }) => {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(...s), wm);
-    m.position.set(...p); m.receiveShadow = true; scene.add(m);
-    addCol(p[0], p[2], s[0]/2, s[2]/2);
-  });
-
-  // Cover pillars
-  const pm = new THREE.MeshLambertMaterial({ color: 0x101850 });
-  const tm = new THREE.MeshBasicMaterial({ color: 0x0033cc });
-  const spots = [
-    [18,18],[-18,18],[18,-18],[-18,-18],
-    [34,0],[-34,0],[0,34],[0,-34],
-    [28,28],[-28,28],[28,-28],[-28,-28],
-    [48,14],[-48,14],[48,-14],[-48,-14],
-    [16,46],[-16,46],[16,-46],[-16,-46],
-    [52,0],[-52,0],[0,52],[0,-52],
-    [40,40],[-40,40],[40,-40],[-40,-40],
-    [60,20],[-60,20],[60,-20],[-60,-20],
-  ];
-  spots.forEach(([x,z]) => {
-    const h = 4 + Math.random()*5;
-    const sw = 2 + Math.random()*2, sd = 2 + Math.random()*2;
-    const m = new THREE.Mesh(new THREE.BoxGeometry(sw,h,sd), pm);
-    m.position.set(x,h/2,z); m.castShadow = m.receiveShadow = true; scene.add(m);
-    const top = new THREE.Mesh(new THREE.BoxGeometry(sw+0.15, 0.14, sd+0.15), tm);
-    top.position.set(x,h,z); scene.add(top);
-    addCol(x, z, sw/2+0.35, sd/2+0.35);
+  const wm = new THREE.MeshLambertMaterial({color:0x0d1640});
+  [{p:[0,5,-MAP],s:[MAP*2+4,10,3]},{p:[0,5,MAP],s:[MAP*2+4,10,3]},{p:[-MAP,5,0],s:[3,10,MAP*2]},{p:[MAP,5,0],s:[3,10,MAP*2]}]
+    .forEach(({p,s})=>{ const m=new THREE.Mesh(new THREE.BoxGeometry(...s),wm); m.position.set(...p); m.receiveShadow=true; scene.add(m); addCol(p[0],p[2],s[0]/2,s[2]/2); });
+  const pm=new THREE.MeshLambertMaterial({color:0x101850}), tm=new THREE.MeshBasicMaterial({color:0x0033cc});
+  [[18,18],[-18,18],[18,-18],[-18,-18],[34,0],[-34,0],[0,34],[0,-34],[28,28],[-28,28],[28,-28],[-28,-28],
+   [48,14],[-48,14],[48,-14],[-48,-14],[16,46],[-16,46],[16,-46],[-16,-46],
+   [52,0],[-52,0],[0,52],[0,-52],[40,40],[-40,40],[40,-40],[-40,-40],[60,20],[-60,20],[60,-20],[-60,-20]]
+  .forEach(([x,z])=>{
+    const h=4+Math.random()*5, sw=2+Math.random()*2, sd=2+Math.random()*2;
+    const m=new THREE.Mesh(new THREE.BoxGeometry(sw,h,sd),pm); m.position.set(x,h/2,z); m.castShadow=m.receiveShadow=true; scene.add(m);
+    const top=new THREE.Mesh(new THREE.BoxGeometry(sw+.15,.14,sd+.15),tm); top.position.set(x,h,z); scene.add(top);
+    addCol(x,z,sw/2+.4,sd/2+.4);
   });
 })();
 
-/* ════════════ STATE ════════════ */
+/* ══════════════════════════════════════
+   ASSET LOADING
+   Strategy: load each FBX as a complete self-contained scene.
+   Each FBX has its own mesh + skeleton + animation.
+   We swap mesh visibility for animation states (100% reliable).
+══════════════════════════════════════ */
+const fbxL = new FBXLoader();
+let loadDone = 0;
+
+// Files to load — key: internal name, file: filename
+const LOAD_LIST = [
+  { key: 'g_idle',    file: 'gojo_standing_Pose.fbx' },
+  { key: 'g_walk',    file: 'gojo_walking.fbx'       },
+  { key: 'g_run',     file: 'gojo_sprint.fbx'        },
+  { key: 'g_attack',  file: 'attackgojo.fbx'         },
+  { key: 'g_sword',   file: 'gojo_get_sword.fbx'     },
+  { key: 'n_idle',    file: 'ninja_standing.fbx'     },
+  { key: 'n_walk',    file: 'ninja_walk.fbx'         },
+  { key: 'n_run',     file: 'ninja_run.fbx'          },
+  { key: 'n_attack',  file: 'ninja_attack__made_it_as_goofy_as_possible_.fbx' },
+];
+const TOTAL = LOAD_LIST.length;
+const RAW = {}; // key -> THREE.Group (loaded FBX)
+
+function onEachLoaded() {
+  loadDone++;
+  const p = Math.round(loadDone / TOTAL * 100);
+  document.getElementById('lbar').style.width = p + '%';
+  document.getElementById('lpct').textContent  = p + '%';
+  if (loadDone >= TOTAL) setTimeout(onAllLoaded, 200);
+}
+
+LOAD_LIST.forEach(({ key, file }) => {
+  document.getElementById('lfile').textContent = file;
+  fbxL.load(file,
+    obj  => { RAW[key] = obj;  onEachLoaded(); },
+    undefined,
+    ()   => { RAW[key] = null; console.warn('missing:', file); onEachLoaded(); }
+  );
+});
+
+/* ── helpers ── */
+function setupShadows(obj) {
+  obj.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
+}
+function fitHeight(obj, h) {
+  const box = new THREE.Box3().setFromObject(obj);
+  const oh  = Math.max(box.max.y - box.min.y, 0.01);
+  obj.scale.setScalar(h / oh);
+}
+function groundObj(obj) {
+  const box = new THREE.Box3().setFromObject(obj);
+  obj.position.y = -box.min.y;
+}
+// Build a "slot" from a raw FBX: { scene, mixer, action, duration }
+function makeSlot(raw, looping, targetH = 1.82) {
+  if (!raw) return null;
+  const s = raw; // the loaded group IS the scene
+  setupShadows(s);
+  fitHeight(s, targetH);
+  groundObj(s);
+  s.visible = false;
+  // Cancel any baked root-bone rotation — we control rotation via the group
+  s.rotation.set(0, 0, 0);
+  const mixer  = new THREE.AnimationMixer(s);
+  const clip   = s.animations?.[0];
+  let action   = null;
+  if (clip) {
+    action = mixer.clipAction(clip);
+    if (looping) {
+      action.setLoop(THREE.LoopRepeat, Infinity);
+    } else {
+      action.setLoop(THREE.LoopOnce, 1);
+      action.clampWhenFinished = true;
+    }
+    action.play();
+    if (!looping) action.paused = true; // wait for trigger
+  }
+  return { scene: s, mixer, action, duration: clip?.duration ?? 1 };
+}
+
+/* ══════════════════════════════════════
+   PLAYER
+══════════════════════════════════════ */
+const playerGroup = new THREE.Group();
+scene.add(playerGroup);
+
+// Gojo state slots — filled after loading
+let G = {}; // { idle, walk, run, attack, sword }
+let gCur = null; // currently visible slot key
+
+function showGojo(key) {
+  if (gCur === key) return;
+  if (gCur && G[gCur]) G[gCur].scene.visible = false;
+  gCur = key;
+  const slot = G[key];
+  if (!slot) return;
+  slot.scene.visible = true;
+  if (slot.action) {
+    slot.action.reset();
+    slot.action.paused = false;
+    slot.action.play();
+  }
+}
+
+/* ══════════════════════════════════════
+   NINJA TEMPLATE  
+   We store cloneable base for each ninja state.
+   Ninjas use SkeletonUtils.clone so skinned meshes work.
+══════════════════════════════════════ */
+let nTemplates = {}; // { idle, walk, run, attack } -> raw FBX (template only)
+
+/* ══════════════════════════════════════
+   GAME STATE
+══════════════════════════════════════ */
 let started=false, over=false, introPlaying=false;
 let score=0, wave=1, hp=100;
-const MAX_HP=100, DE_KILLS_NEEDED=30;
+const MAX_HP=100, DE_KILLS_NEED=30;
 let deKills=0, deReady=false, domainOn=false;
 let enemies=[], vfx=[];
 
-/* ════════════ INPUT ════════════ */
+/* ── INPUT ── */
 const keys = {};
-let yaw=0, pitch=0.30, locked=false, clickedNow=false;
-let camDist = 16; // scrollable
+let yaw=0, pitch=0.28, locked=false;
+let clickNow=false;
+let camDist=16;
 
-addEventListener('keydown', e => { keys[e.code]=true;  e.preventDefault(); });
-addEventListener('keyup',   e => { keys[e.code]=false; });
-canvas.addEventListener('click', () => { if (started && !over) canvas.requestPointerLock(); });
-document.addEventListener('pointerlockchange', () => { locked = document.pointerLockElement === canvas; });
-document.addEventListener('mousemove', e => {
+addEventListener('keydown', e=>{ keys[e.code]=true; e.preventDefault(); });
+addEventListener('keyup',   e=>{ keys[e.code]=false; });
+canvas.addEventListener('click', ()=>{ if (started&&!over) canvas.requestPointerLock(); });
+document.addEventListener('pointerlockchange', ()=>{ locked=document.pointerLockElement===canvas; });
+document.addEventListener('mousemove', e=>{
   if (!locked) return;
   yaw   -= e.movementX * 0.0022;
   pitch += e.movementY * 0.0022;
   pitch  = Math.max(-0.08, Math.min(0.72, pitch));
 });
-document.addEventListener('mousedown', e => { if (e.button===0) clickedNow=true; });
-// Zoom via scroll
-document.addEventListener('wheel', e => {
-  camDist = Math.max(5, Math.min(40, camDist + e.deltaY * 0.02));
+document.addEventListener('mousedown', e=>{ if (e.button===0) clickNow=true; });
+document.addEventListener('wheel', e=>{
+  camDist = Math.max(5, Math.min(40, camDist + e.deltaY * 0.022));
 }, { passive: true });
 
-/* ════════════ PLAYER ════════════ */
-const playerGroup = new THREE.Group();
-scene.add(playerGroup);
-
-// Gojo clips + mixer
-let gojoRoot=null, gojoMixer=null;
-let aIdle=null, aWalk=null, aRun=null, aAttack=null, aGetSword=null;
-let curAct=null;
-
-// Attack state
+/* ── ATTACK STATE ── */
 let atkActive=false, atkWindow=false, atkCD=0;
 let hitSet=new Set();
 let shakeAmt=0;
 
-function sw(next, fade=0.18) { // switchAnim
-  if (!next || next===curAct) return;
-  curAct?.fadeOut(fade);
-  next.reset().fadeIn(fade).play();
-  curAct = next;
-}
-
-/* ════════════ NINJA TEMPLATE ════════════ */
-// ninjaRoot = the loaded FBX scene (used as template)
-let ninjaRoot=null, nClipWalk=null, nClipAttack=null;
-
-/* ════════════ ASSET LOADING ════════════ */
-/*
-  ACTUAL FILE MAPPING (only files that exist):
-  gojo_standing_Pose.fbx  -> Gojo mesh + idle
-  Strut_Walking.fbx       -> Gojo walk
-  gojo_sprint.fbx         -> Gojo sprint
-  SatoruGojo.fbx          -> Gojo "get sword" intro (original model)
-  Fast_Run.fbx            -> Gojo attack (dynamic motion placeholder)
-  ninja_walk.fbx          -> Ninja mesh + walk anim
-  ninja_attack__...fbx    -> Ninja attack anim
-*/
-const fbxL = new FBXLoader();
-const assets = {}; // label -> loaded FBX obj
-let loadDone = 0;
-
-const FILES = [
-  { key: 'gojo_base',    file: 'gojo_standing_Pose.fbx' },
-  { key: 'gojo_walk',    file: 'Strut_Walking.fbx'      },
-  { key: 'gojo_sprint',  file: 'gojo_sprint.fbx'        },
-  { key: 'gojo_sword',   file: 'SatoruGojo.fbx'         },
-  { key: 'gojo_attack',  file: 'Fast_Run.fbx'           },
-  { key: 'ninja_base',   file: 'ninja_walk.fbx'         },
-  { key: 'ninja_attack', file: 'ninja_attack__made_it_as_goofy_as_possible_.fbx' },
-];
-const TOTAL = FILES.length;
-
-function onProgress(key) {
-  document.getElementById('load-file').textContent = key;
-}
-function onLoaded() {
-  loadDone++;
-  const p = Math.round(loadDone/TOTAL*100);
-  document.getElementById('lbar').style.width = p + '%';
-  document.getElementById('lpct').textContent  = p + '%';
-  if (loadDone >= TOTAL) {
-    setTimeout(onAllLoaded, 200);
-  }
-}
-
-FILES.forEach(({ key, file }) => {
-  onProgress(file);
-  fbxL.load(file,
-    obj => { assets[key] = obj; onLoaded(); },
-    undefined,
-    ()  => { console.warn('Failed:', file); assets[key] = null; onLoaded(); }
-  );
-});
-
-function fitToHeight(obj, h) {
-  const box = new THREE.Box3().setFromObject(obj);
-  const oh  = box.max.y - box.min.y || 1;
-  obj.scale.setScalar(h / oh);
-}
-function floorObj(obj) {
-  const box = new THREE.Box3().setFromObject(obj);
-  obj.position.y = -box.min.y;
-}
-function setupShadows(obj) {
-  obj.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
-}
-
+/* ══════════════════════════════════════
+   AFTER ALL ASSETS LOADED
+══════════════════════════════════════ */
 function onAllLoaded() {
-  /* ── Build Gojo ── */
-  const base = assets['gojo_base'];
-  if (base) {
-    setupShadows(base);
-    fitToHeight(base, 1.82);
-    floorObj(base);
-    playerGroup.add(base);
-    gojoRoot  = base;
-    gojoMixer = new THREE.AnimationMixer(base);
-    if (base.animations?.[0]) aIdle = gojoMixer.clipAction(base.animations[0]);
-  } else {
-    // Fallback capsule
-    const fb = new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.4,1.8,8), new THREE.MeshLambertMaterial({color:0xeeeeee}));
-    fb.position.y = 0.9; playerGroup.add(fb); gojoRoot = fb;
-    gojoMixer = new THREE.AnimationMixer(fb);
-  }
+  /* Build Gojo slots */
+  G.idle   = makeSlot(RAW['g_idle'],   true,  1.82);
+  G.walk   = makeSlot(RAW['g_walk'],   true,  1.82);
+  G.run    = makeSlot(RAW['g_run'],    true,  1.82);
+  G.attack = makeSlot(RAW['g_attack'], false, 1.82);
+  G.sword  = makeSlot(RAW['g_sword'],  false, 1.82);
 
-  const bindClip = (key, setter) => {
-    const a = assets[key];
-    if (a?.animations?.[0]) setter(gojoMixer.clipAction(a.animations[0]));
-  };
-  bindClip('gojo_walk',   act => { aWalk    = act; });
-  bindClip('gojo_sprint', act => { aRun     = act; });
-  bindClip('gojo_attack', act => { aAttack  = act; });
-  bindClip('gojo_sword',  act => { aGetSword = act; });
+  // Add all Gojo scenes to playerGroup
+  Object.values(G).forEach(slot => { if (slot) playerGroup.add(slot.scene); });
 
-  if (aIdle) sw(aIdle);
+  /* Build Ninja templates */
+  nTemplates.idle   = RAW['n_idle'];
+  nTemplates.walk   = RAW['n_walk'];
+  nTemplates.run    = RAW['n_run'];
+  nTemplates.attack = RAW['n_attack'];
 
-  /* ── Build Ninja template ── */
-  const nb = assets['ninja_base'];
-  if (nb) {
-    setupShadows(nb);
-    fitToHeight(nb, 1.76);
-    ninjaRoot = nb;
-    if (nb.animations?.[0]) nClipWalk = nb.animations[0];
-  }
-  const na = assets['ninja_attack'];
-  if (na?.animations?.[0]) nClipAttack = na.animations[0];
+  // Pre-scale templates
+  Object.values(nTemplates).forEach(t => {
+    if (!t) return;
+    setupShadows(t);
+    fitHeight(t, 1.76);
+    t.rotation.set(0, 0, 0);
+  });
 
-  // Show start screen
   document.getElementById('loading').style.display = 'none';
   document.getElementById('start-screen').style.display = 'flex';
 }
 
-/* ════════════ SPAWN ENEMY ════════════ */
+/* ══════════════════════════════════════
+   SPAWN NINJA
+   Each ninja has 4 mesh clones (one per anim state).
+   Only one visible at a time — same reliable swap system as Gojo.
+══════════════════════════════════════ */
 let spawnQ=0, spawnT=0;
 
 function spawnEnemy() {
   const group = new THREE.Group();
 
-  let clonedMesh, nMixer, na_walk=null, na_attack=null, nCur=null;
+  // Build per-state slots for this ninja
+  const NS = {};
+  ['idle','walk','run','attack'].forEach(k => {
+    const tmpl = nTemplates[k];
+    if (!tmpl) return;
+    const clone = skelClone(tmpl);
+    setupShadows(clone);
+    // Ground it inside the group
+    const box = new THREE.Box3().setFromObject(clone);
+    clone.position.y = -box.min.y;
+    clone.visible = false;
+    clone.rotation.set(0,0,0);
+    const mixer = new THREE.AnimationMixer(clone);
+    const clip  = tmpl.animations?.[0];
+    let action  = null;
+    if (clip) {
+      action = mixer.clipAction(clip);
+      action.setLoop(k==='attack' ? THREE.LoopRepeat : THREE.LoopRepeat, Infinity);
+      action.play();
+    }
+    NS[k] = { scene: clone, mixer, action };
+    group.add(clone);
+  });
 
-  if (ninjaRoot) {
-    // SkeletonUtils.clone for proper skinned mesh duplication
-    clonedMesh = skeletonClone(ninjaRoot);
-    setupShadows(clonedMesh);
-    // Feet at y=0 inside group
-    const box = new THREE.Box3().setFromObject(clonedMesh);
-    clonedMesh.position.y = -box.min.y;
-    group.add(clonedMesh);
-
-    nMixer = new THREE.AnimationMixer(clonedMesh);
-    if (nClipWalk)   na_walk   = nMixer.clipAction(nClipWalk);
-    if (nClipAttack) na_attack = nMixer.clipAction(nClipAttack);
-  } else {
-    // Fallback: simple capsule so we can still test gameplay
-    const fb = new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.4,1.7,8),
-      new THREE.MeshLambertMaterial({ color: 0x334455 }));
-    fb.position.y = 0.85; group.add(fb);
-    nMixer = new THREE.AnimationMixer(fb);
+  // Fallback: if no templates loaded, plain box
+  if (Object.keys(NS).length === 0) {
+    const fb = new THREE.Mesh(new THREE.CylinderGeometry(.4,.4,1.7,8), new THREE.MeshLambertMaterial({color:0x334455}));
+    fb.position.y=.85; group.add(fb);
   }
 
-  function ns(next, fade=0.2) {
-    if (!next || next===nCur) return;
-    nCur?.fadeOut(fade); next.reset().fadeIn(fade).play(); nCur=next;
+  let nCurSlot = null;
+  function nShow(k) {
+    const slot = NS[k] || NS['walk'] || NS['idle'] || null;
+    if (!slot || slot === nCurSlot) return;
+    if (nCurSlot) nCurSlot.scene.visible = false;
+    nCurSlot = slot;
+    slot.scene.visible = true;
   }
-  ns(na_walk); // default state
+  nShow('idle');
 
-  // HP bar (billboard)
-  const hpBg = new THREE.Mesh(new THREE.PlaneGeometry(1.4,0.13),
-    new THREE.MeshBasicMaterial({ color:0x330000, side:THREE.DoubleSide }));
-  const hpFg = new THREE.Mesh(new THREE.PlaneGeometry(1.4,0.13),
-    new THREE.MeshBasicMaterial({ color:0xff1133, side:THREE.DoubleSide }));
-  hpBg.position.y = 2.8; hpFg.position.set(0,2.8,0.012);
-  hpBg.renderOrder = 1; hpFg.renderOrder = 2;
+  // HP bar
+  const hpBg = new THREE.Mesh(new THREE.PlaneGeometry(1.4,.13), new THREE.MeshBasicMaterial({color:0x330000,side:THREE.DoubleSide}));
+  const hpFg = new THREE.Mesh(new THREE.PlaneGeometry(1.4,.13), new THREE.MeshBasicMaterial({color:0xff1133,side:THREE.DoubleSide}));
+  hpBg.position.y=2.9; hpFg.position.set(0,2.9,.012);
+  hpBg.renderOrder=1; hpFg.renderOrder=2;
   group.add(hpBg); group.add(hpFg);
 
-  // Spawn on map edge
-  const side = Math.floor(Math.random()*4);
-  const t = (Math.random()-.5)*(MAP-14)*2, M = MAP-8;
-  const pts = [[t,0,M],[t,0,-M],[M,0,t],[-M,0,t]];
-  group.position.set(...pts[side]);
+  // Spawn edge
+  const side=Math.floor(Math.random()*4);
+  const t=(Math.random()-.5)*(MAP-14)*2, M=MAP-8;
+  group.position.set(...[[t,0,M],[t,0,-M],[M,0,t],[-M,0,t]][side]);
   scene.add(group);
 
   enemies.push({
-    group, nMixer, hpFg, hpBg, ns, na_walk, na_attack,
+    group, NS, nShow, hpFg, hpBg,
+    nCurKey: 'idle',
     hp:60, maxHp:60, alive:true,
-    state:'chase',
-    atkCd: 1.3 + Math.random(),
-    speed: 3.2 + Math.random()*1.6,
+    state:'chase',      // 'chase' | 'attack'
+    atkTimer:0,         // time until next damage tick in attack state
+    speed: 3.2+Math.random()*1.6,
     lastPos: group.position.clone(),
     stuckT: 0,
     wanderA: Math.random()*Math.PI*2,
   });
 }
 
-/* ════════════ VFX ════════════ */
+/* ══════════════════════════════════════
+   VFX
+══════════════════════════════════════ */
 function spawnHit(pos, col=0xff3300) {
   for (let i=0;i<8;i++) {
-    const m = new THREE.Mesh(new THREE.SphereGeometry(.07,4,4),
-      new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:1 }));
+    const m=new THREE.Mesh(new THREE.SphereGeometry(.07,4,4),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:1}));
     m.position.copy(pos);
-    const v = new THREE.Vector3((Math.random()-.5)*14, Math.random()*10, (Math.random()-.5)*14);
-    scene.add(m);
-    vfx.push({ mesh:m, vel:v, life:.55, max:.55 });
+    const v=new THREE.Vector3((Math.random()-.5)*14, Math.random()*10, (Math.random()-.5)*14);
+    scene.add(m); vfx.push({mesh:m,vel:v,life:.55,max:.55});
   }
 }
 function tickVFX(dt) {
-  vfx = vfx.filter(v => {
-    v.life -= dt;
-    if (v.life <= 0) { scene.remove(v.mesh); return false; }
-    v.mesh.position.addScaledVector(v.vel, dt);
-    v.vel.y -= 18*dt;
-    v.mesh.material.opacity = v.life/v.max;
-    return true;
+  vfx=vfx.filter(v=>{
+    v.life-=dt; if(v.life<=0){scene.remove(v.mesh);return false;}
+    v.mesh.position.addScaledVector(v.vel,dt); v.vel.y-=18*dt;
+    v.mesh.material.opacity=v.life/v.max; return true;
   });
 }
 
-/* ════════════ KILL ════════════ */
+/* ══════════════════════════════════════
+   KILL
+══════════════════════════════════════ */
 function killEnemy(e, silent=false) {
   if (!e.alive) return;
-  e.alive=false; e.state='dead';
-  scene.remove(e.group);
-  score += 100;
+  e.alive=false; scene.remove(e.group); score+=100;
   if (!silent) spawnHit(e.group.position.clone().add(new THREE.Vector3(0,1,0)));
   deKills++;
-  if (deKills >= DE_KILLS_NEEDED && !deReady && !domainOn) {
-    deReady = true;
-    announce('DOMAIN EXPANSION READY  [ E ]', 3.5);
-  }
+  if (deKills>=DE_KILLS_NEED&&!deReady&&!domainOn) { deReady=true; announce('DOMAIN EXPANSION READY  [ E ]',3.5); }
 }
 
-/* ════════════ DOMAIN EXPANSION ════════════ */
-let dQueue=[], dTarget=null, dPhase='', dStrikeT=0;
+/* ══════════════════════════════════════
+   DOMAIN EXPANSION
+══════════════════════════════════════ */
+let dQueue=[], dTarget=null, dPhase='moving', dStrikeT=0;
+const _dv=new THREE.Vector3();
 
 function activateDomain() {
-  if (!deReady || domainOn) return;
+  if (!deReady||domainOn) return;
   domainOn=true; deReady=false; deKills=0;
-  document.getElementById('de-overlay').classList.add('on');
-  scene.fog = new THREE.FogExp2(0x1a0040, .022);
-  announce('DOMAIN EXPANSION — INFINITE VOID', 4);
-  dQueue   = enemies.filter(e=>e.alive);
-  dTarget  = null; dPhase = 'moving';
+  document.getElementById('de-ov').classList.add('on');
+  scene.fog=new THREE.FogExp2(0x1a0040,.022);
+  announce('DOMAIN EXPANSION — INFINITE VOID',4);
+  dQueue=[...enemies.filter(e=>e.alive)]; dTarget=null; dPhase='moving';
 }
 
-const _dv = new THREE.Vector3();
 function tickDomain(dt) {
   if (!domainOn) return;
-  if (!dTarget || !dTarget.alive) {
-    dQueue = dQueue.filter(e=>e.alive);
-    if (dQueue.length === 0) {
-      // Done
-      domainOn = false;
-      document.getElementById('de-overlay').classList.remove('on');
-      scene.fog = new THREE.FogExp2(0x050010, .013);
-      setTimeout(() => { wave++; startWave(wave); announce('WAVE '+wave, 2); }, 1200);
+  if (!dTarget||!dTarget.alive) {
+    dQueue=dQueue.filter(e=>e.alive);
+    if (dQueue.length===0) {
+      domainOn=false;
+      document.getElementById('de-ov').classList.remove('on');
+      scene.fog=new THREE.FogExp2(0x050010,.013);
+      setTimeout(()=>{ wave++; startWave(wave); announce('WAVE '+wave,2); },1200);
       return;
     }
-    // Pick nearest
-    dQueue.sort((a,b) => a.group.position.distanceTo(playerGroup.position) - b.group.position.distanceTo(playerGroup.position));
-    dTarget = dQueue.shift();
-    dPhase  = 'moving';
+    dQueue.sort((a,b)=>a.group.position.distanceTo(playerGroup.position)-b.group.position.distanceTo(playerGroup.position));
+    dTarget=dQueue.shift(); dPhase='moving';
   }
-
-  if (dPhase === 'moving') {
+  if (dPhase==='moving') {
     _dv.copy(dTarget.group.position).sub(playerGroup.position); _dv.y=0;
-    if (_dv.length() < 1.8) {
-      dPhase='striking'; dStrikeT=0.4;
-      sw(aAttack||aRun, .08);
-    } else {
+    if (_dv.length()<1.8) { dPhase='striking'; dStrikeT=0.4; showGojo('attack'); }
+    else {
       _dv.normalize();
-      playerGroup.position.x += _dv.x*52*dt;
-      playerGroup.position.z += _dv.z*52*dt;
-      // Face movement direction
-      playerGroup.rotation.y = Math.atan2(_dv.x, _dv.z);
-      sw(aRun, .08);
+      playerGroup.position.x+=_dv.x*52*dt;
+      playerGroup.position.z+=_dv.z*52*dt;
+      // Face movement direction — +PI because FBX models face +Z by default
+      playerGroup.rotation.y = Math.atan2(_dv.x,_dv.z)+Math.PI;
+      showGojo('run');
     }
   } else {
-    dStrikeT -= dt;
-    if (dStrikeT <= 0) {
-      spawnHit(dTarget.group.position.clone().add(new THREE.Vector3(0,1.2,0)), 0x9900ff);
-      killEnemy(dTarget, true);
-      dTarget = null;
-    }
+    dStrikeT-=dt;
+    if (dStrikeT<=0) { spawnHit(dTarget.group.position.clone().add(new THREE.Vector3(0,1.2,0)),0x9900ff); killEnemy(dTarget,true); dTarget=null; }
   }
 }
 
-/* ════════════ ATTACK ════════════ */
+/* ══════════════════════════════════════
+   ATTACK
+══════════════════════════════════════ */
 function doAttack() {
-  atkActive=true; atkWindow=false; atkCD=0.8;
-  hitSet.clear();
+  atkActive=true; atkWindow=false; hitSet.clear();
+  atkCD=0.75;
 
-  if (aAttack) {
-    aAttack.setLoop(THREE.LoopOnce, 1);
-    aAttack.clampWhenFinished = false;
-    sw(aAttack, .1);
-  } else {
-    sw(aRun||aIdle, .1);
-  }
+  showGojo('attack');
 
-  // Slash VFX on screen
-  const slash = document.getElementById('sword-slash');
-  slash.style.opacity='1'; slash.style.transform='translate(-50%,-50%) rotate('+(Math.random()*40-20)+'deg)';
-  setTimeout(()=>slash.style.opacity='0', 180);
+  // Screen slash flash
+  const sl=document.getElementById('slash');
+  sl.style.opacity='1'; sl.style.transform=`translate(-50%,-50%) rotate(${(Math.random()*50-25).toFixed(1)}deg)`;
+  setTimeout(()=>sl.style.opacity='0',160);
 
-  setTimeout(()=>{ atkWindow=true;  }, 160);
-  setTimeout(()=>{ atkWindow=false; }, 560);
-  setTimeout(()=>{ atkActive=false; sw(aIdle||aWalk, .15); }, 700);
+  setTimeout(()=>{ atkWindow=true;  },150);
+  setTimeout(()=>{ atkWindow=false; },540);
+  setTimeout(()=>{
+    atkActive=false;
+    showGojo('idle');
+  }, 680);
 }
 
-/* ════════════ PLAYER UPDATE ════════════ */
-const _fwd   = new THREE.Vector3();
-const _right = new THREE.Vector3();
+/* ══════════════════════════════════════
+   PLAYER UPDATE
+══════════════════════════════════════ */
+const _fwd=new THREE.Vector3(), _rt=new THREE.Vector3();
 
 function tickPlayer(dt) {
+  // Tick all Gojo mixers
+  Object.values(G).forEach(slot=>{ if(slot) slot.mixer.update(dt); });
+  // Prevent any FBX baked root bone from overriding group rotation
+  Object.values(G).forEach(slot=>{ if(slot&&slot.scene.visible) slot.scene.rotation.y=0; });
+
   if (domainOn) { tickDomain(dt); return; }
   if (introPlaying) return;
 
-  if (atkCD > 0) atkCD -= dt;
-  if (clickedNow && atkCD<=0 && !atkActive) doAttack();
-  if (keys['KeyE'] && deReady && !domainOn) activateDomain();
+  if (atkCD>0) atkCD-=dt;
+  if (clickNow && atkCD<=0 && !atkActive) doAttack();
+  if (keys['KeyE']&&deReady&&!domainOn) activateDomain();
 
-  // Camera-relative movement vectors
-  _fwd.set(  -Math.sin(yaw), 0, -Math.cos(yaw));
-  _right.set( Math.cos(yaw), 0, -Math.sin(yaw));
+  // Camera-relative direction vectors
+  _fwd.set(-Math.sin(yaw),0,-Math.cos(yaw));
+  _rt.set(  Math.cos(yaw),0,-Math.sin(yaw));
 
-  let dx=0, dz=0;
-  if (keys['KeyW']||keys['ArrowUp'])    { dx+=_fwd.x;   dz+=_fwd.z;   }
-  if (keys['KeyS']||keys['ArrowDown'])  { dx-=_fwd.x;   dz-=_fwd.z;   }
-  if (keys['KeyD']||keys['ArrowRight']) { dx+=_right.x;  dz+=_right.z; }
-  if (keys['KeyA']||keys['ArrowLeft'])  { dx-=_right.x;  dz-=_right.z; }
+  let dx=0,dz=0;
+  if (keys['KeyW']||keys['ArrowUp'])    { dx+=_fwd.x; dz+=_fwd.z; }
+  if (keys['KeyS']||keys['ArrowDown'])  { dx-=_fwd.x; dz-=_fwd.z; }
+  if (keys['KeyD']||keys['ArrowRight']) { dx+=_rt.x;  dz+=_rt.z;  }
+  if (keys['KeyA']||keys['ArrowLeft'])  { dx-=_rt.x;  dz-=_rt.z;  }
 
   const moving    = dx!==0||dz!==0;
-  const sprinting = (keys['ShiftLeft']||keys['ShiftRight']) && moving;
+  const sprinting = (keys['ShiftLeft']||keys['ShiftRight'])&&moving;
   const spd       = sprinting ? 13 : 6;
 
-  if (moving) {
-    const len = Math.sqrt(dx*dx+dz*dz);
-    const ndx = dx/len * spd * dt;
-    const ndz = dz/len * spd * dt;
-
-    // Track position before move for facing
-    const px = playerGroup.position.x, pz = playerGroup.position.z;
-    slide(playerGroup.position, ndx, ndz, 0.55);
-    const mdx = playerGroup.position.x - px;
-    const mdz = playerGroup.position.z - pz;
-
-    // Face actual movement direction (not input direction — avoids wall-slide glitch)
-    if (Math.abs(mdx)+Math.abs(mdz) > 0.0005) {
-      playerGroup.rotation.y = Math.atan2(mdx, mdz);
+  if (moving && !atkActive) {
+    const len=Math.sqrt(dx*dx+dz*dz);
+    const nx=dx/len*spd*dt, nz=dz/len*spd*dt;
+    const bx=playerGroup.position.x, bz=playerGroup.position.z;
+    slide(playerGroup.position, nx, nz, 0.55);
+    const mdx=playerGroup.position.x-bx, mdz=playerGroup.position.z-bz;
+    // Face actual movement direction — +PI for Mixamo characters (they default face +Z, camera is behind)
+    if (Math.abs(mdx)+Math.abs(mdz)>0.0005) {
+      playerGroup.rotation.y = Math.atan2(mdx,mdz)+Math.PI;
     }
-
-    if (!atkActive) {
-      if (sprinting && aRun)  sw(aRun);
-      else if (aWalk)         sw(aWalk);
-      else if (aIdle)         sw(aIdle);
-    }
-  } else if (!atkActive && aIdle) {
-    sw(aIdle);
+    showGojo(sprinting ? 'run' : 'walk');
+  } else if (!atkActive) {
+    showGojo('idle');
   }
 
-  // Sword hit detection during window
+  // Sword hit detection
   if (atkWindow) {
-    const facing = new THREE.Vector3(Math.sin(playerGroup.rotation.y), 0, Math.cos(playerGroup.rotation.y));
-    enemies.forEach(e => {
-      if (!e.alive || hitSet.has(e)) return;
-      const toE = e.group.position.clone().sub(playerGroup.position); toE.y=0;
-      if (toE.length()<3.4 && toE.clone().normalize().dot(facing)>0.08) {
-        hitSet.add(e);
-        e.hp -= 35;
+    // Forward = direction character is facing
+    const facing=new THREE.Vector3(
+      -Math.sin(playerGroup.rotation.y),0,
+      -Math.cos(playerGroup.rotation.y)
+    );
+    enemies.forEach(e=>{
+      if (!e.alive||hitSet.has(e)) return;
+      const toE=e.group.position.clone().sub(playerGroup.position); toE.y=0;
+      if (toE.length()<3.5 && toE.clone().normalize().dot(facing)>0.05) {
+        hitSet.add(e); e.hp-=35;
         spawnHit(e.group.position.clone().add(new THREE.Vector3(0,1.2,0)));
         if (e.hp<=0) killEnemy(e);
-        else {
-          const pct = Math.max(0, e.hp/e.maxHp);
-          e.hpFg.scale.x = pct;
-          e.hpFg.position.x = -(1-pct)*0.7;
-        }
+        else { const pct=Math.max(0,e.hp/e.maxHp); e.hpFg.scale.x=pct; e.hpFg.position.x=-(1-pct)*.7; }
       }
     });
   }
 }
 
-/* ════════════ ENEMY AI ════════════ */
-const _toP = new THREE.Vector3();
+/* ══════════════════════════════════════
+   ENEMY AI
+══════════════════════════════════════ */
+const _toP=new THREE.Vector3();
 
 function tickEnemies(dt) {
-  const pp = playerGroup.position;
-
-  enemies.forEach(e => {
+  const pp=playerGroup.position;
+  enemies.forEach(e=>{
     if (!e.alive) return;
-    e.nMixer.update(dt);
 
-    // Billboard HP bars toward camera
-    e.hpFg.lookAt(camera.position);
-    e.hpBg.lookAt(camera.position);
+    // Tick all mixer for current ninja state
+    Object.values(e.NS).forEach(slot=>{ if(slot) slot.mixer.update(dt); });
+    // Kill FBX root bone rotation override
+    Object.values(e.NS).forEach(slot=>{ if(slot&&slot.scene.visible) slot.scene.rotation.y=0; });
+
+    // Billboard HP bars
+    e.hpFg.lookAt(camera.position); e.hpBg.lookAt(camera.position);
 
     _toP.copy(pp).sub(e.group.position); _toP.y=0;
-    const dist = _toP.length();
+    const dist=_toP.length();
 
-    /* ── ATTACK STATE ── */
+    /* ── ATTACK STATE ──
+       Stay in attack as long as player is within reach.
+       Deal damage on a 1.2s tick — NO state flip-flopping.
+    ── */
     if (e.state==='attack') {
-      e.atkCd -= dt;
-      e.ns(e.na_attack||e.na_walk);
+      if (dist>2.8) {
+        // Player escaped — go back to chase
+        e.state='chase'; e.atkTimer=0;
+        e.nShow('walk'); return;
+      }
       e.group.lookAt(pp.x, e.group.position.y, pp.z);
-      if (e.atkCd<=0) {
-        e.atkCd = 1.8+Math.random()*.6;
-        e.state = 'chase';
+      e.nShow('attack');
+      e.atkTimer-=dt;
+      if (e.atkTimer<=0) {
+        e.atkTimer=1.2; // damage tick every 1.2s
         if (!domainOn) {
-          hp -= 12; shakeAmt=0.45;
-          if (hp<=0) { hp=0; triggerOver(); }
+          hp-=10; shakeAmt=0.4;
+          if (hp<=0){hp=0;triggerOver();}
         }
       }
       return;
     }
 
     /* ── ENTER ATTACK ── */
-    if (dist<1.85 && !domainOn) {
-      e.state='attack'; e.atkCd=0.55;
-      e.ns(e.na_attack||e.na_walk); return;
+    if (dist<2.0&&!domainOn) {
+      e.state='attack'; e.atkTimer=0.6; // short wind-up before first hit
+      e.nShow('attack'); return;
     }
 
     /* ── CHASE with wall avoidance ── */
-    if (dist>58) { e.ns(e.na_walk); e.group.lookAt(pp.x,e.group.position.y,pp.z); return; }
+    if (dist>60) { e.nShow('idle'); e.group.lookAt(pp.x,e.group.position.y,pp.z); return; }
 
-    const desired = _toP.clone().normalize();
+    const desired=_toP.clone().normalize();
 
-    // Stuck detection every 0.4s
-    e.stuckT += dt;
-    if (e.stuckT > 0.4) {
-      if (e.group.position.distanceTo(e.lastPos) < 0.1) {
-        e.wanderA += (Math.PI/3) * (Math.random()>.5?1:-1);
-      }
-      e.lastPos.copy(e.group.position);
-      e.stuckT = 0;
+    // Stuck detection
+    e.stuckT+=dt;
+    if (e.stuckT>0.45) {
+      if (e.group.position.distanceTo(e.lastPos)<0.1) e.wanderA+=(Math.PI/3)*(Math.random()>.5?1:-1);
+      e.lastPos.copy(e.group.position); e.stuckT=0;
     }
 
-    // Probe 5 directions, pick least blocked
+    // 5-ray probe — pick least-blocked direction
     let bestDir=desired.clone(), bestScore=-Infinity;
-    for (let ai=0; ai<5; ai++) {
-      const ang = Math.atan2(desired.x,desired.z) + (ai-2)*(Math.PI/5);
-      const d   = new THREE.Vector3(Math.sin(ang),0,Math.cos(ang));
-      const probe = e.group.position.clone().addScaledVector(d, 1.6);
-      const score = desired.dot(d) - (blocked(probe.x,probe.z,0.6) ? 2 : 0);
-      if (score>bestScore) { bestScore=score; bestDir=d; }
+    for (let ai=0;ai<5;ai++) {
+      const ang=Math.atan2(desired.x,desired.z)+(ai-2)*(Math.PI/5);
+      const d=new THREE.Vector3(Math.sin(ang),0,Math.cos(ang));
+      const pr=e.group.position.clone().addScaledVector(d,1.6);
+      const score=desired.dot(d)-(isBlocked(pr.x,pr.z,.65)?2:0);
+      if (score>bestScore){bestScore=score;bestDir=d;}
     }
+    const wander=new THREE.Vector3(Math.sin(e.wanderA),0,Math.cos(e.wanderA));
+    const finalDir=bestDir.clone().lerp(wander,.12).normalize();
+    const spd=e.speed*(dist<10?.65:1)*dt;
 
-    // Blend with wander
-    const wander = new THREE.Vector3(Math.sin(e.wanderA),0,Math.cos(e.wanderA));
-    const final  = bestDir.clone().lerp(wander,0.12).normalize();
-    const spd    = e.speed * (dist<10?0.6:1) * dt;
+    const bx=e.group.position.x,bz=e.group.position.z;
+    slide(e.group.position,finalDir.x*spd,finalDir.z*spd,.55);
+    const mdx=e.group.position.x-bx,mdz=e.group.position.z-bz;
 
-    const px=e.group.position.x, pz=e.group.position.z;
-    slide(e.group.position, final.x*spd, final.z*spd, 0.55);
-
-    if (e.group.position.x===px && e.group.position.z===pz) {
-      e.wanderA += Math.PI/4; // full stuck — rotate wander
+    if (Math.abs(mdx)+Math.abs(mdz)<.0005) {
+      e.wanderA+=Math.PI/4;
     } else {
-      // Decay wander toward direct path
-      const targetA = Math.atan2(desired.x,desired.z);
-      let diff = targetA-e.wanderA;
-      while (diff >  Math.PI) diff -= Math.PI*2;
-      while (diff < -Math.PI) diff += Math.PI*2;
-      e.wanderA += diff*0.04;
+      const ta=Math.atan2(desired.x,desired.z);
+      let diff=ta-e.wanderA;
+      while(diff>Math.PI)diff-=Math.PI*2; while(diff<-Math.PI)diff+=Math.PI*2;
+      e.wanderA+=diff*.04;
     }
 
-    // Face actual movement direction
-    const mdx=e.group.position.x-px, mdz=e.group.position.z-pz;
-    if (Math.abs(mdx)+Math.abs(mdz)>0.0005) {
-      e.group.rotation.y = Math.atan2(mdx,mdz);
+    if (Math.abs(mdx)+Math.abs(mdz)>.0005) {
+      // +PI: ninjas also default face +Z
+      e.group.rotation.y=Math.atan2(mdx,mdz)+Math.PI;
     } else {
       e.group.lookAt(pp.x,e.group.position.y,pp.z);
     }
 
-    e.ns(dist>12 ? e.na_walk : e.na_walk);
+    e.nShow(dist>14?'run':'walk');
   });
 }
 
-/* ════════════ WAVE & HUD ════════════ */
+/* ══════════════════════════════════════
+   WAVE + HUD + ANNOUNCE
+══════════════════════════════════════ */
 let waveClear=false, annTmr=0;
 
 function startWave(n) {
   spawnQ=5+(n-1)*3; spawnT=0.5; waveClear=false;
-  document.getElementById('wave-num').textContent='WAVE '+n;
+  document.getElementById('wv-num').textContent='WAVE '+n;
 }
 
 function checkWave(dt) {
-  if (spawnQ>0) {
-    spawnT-=dt;
-    if (spawnT<=0) { spawnEnemy(); spawnQ--; spawnT=0.6; }
-  }
+  if (spawnQ>0){ spawnT-=dt; if(spawnT<=0){spawnEnemy();spawnQ--;spawnT=0.55;} }
   if (waveClear||domainOn) return;
-  if (spawnQ===0 && enemies.filter(e=>e.alive).length===0) {
-    waveClear=true;
-    score += wave*500;
-    announce('WAVE '+wave+' CLEAR', 2.5);
-    setTimeout(()=>{ wave++; startWave(wave); announce('WAVE '+wave,2); }, 3200);
+  if (spawnQ===0&&enemies.filter(e=>e.alive).length===0) {
+    waveClear=true; score+=wave*500;
+    announce('WAVE '+wave+' CLEAR',2.5);
+    setTimeout(()=>{wave++;startWave(wave);announce('WAVE '+wave,2);},3200);
   }
 }
 
 function updateHUD() {
-  document.getElementById('hp-fill').style.width = Math.max(0,hp/MAX_HP*100)+'%';
-  document.getElementById('score-val').textContent = score;
-  document.getElementById('enemy-count').textContent = 'ENEMIES: '+(enemies.filter(e=>e.alive).length+spawnQ);
-  document.getElementById('de-fill').style.width = Math.min(1,deKills/DE_KILLS_NEEDED)*100+'%';
-  document.getElementById('de-ready').style.opacity = deReady&&!domainOn?'1':'0';
+  document.getElementById('hp-fg').style.width=Math.max(0,hp/MAX_HP*100)+'%';
+  document.getElementById('sw-val').textContent=score;
+  document.getElementById('ec').textContent='ENEMIES: '+(enemies.filter(e=>e.alive).length+spawnQ);
+  document.getElementById('de-fg').style.width=Math.min(1,deKills/DE_KILLS_NEED)*100+'%';
+  document.getElementById('de-tip').style.opacity=deReady&&!domainOn?'1':'0';
 }
 
-function announce(txt, dur=2.5) {
-  const el = document.getElementById('announce');
+function announce(txt,dur=2.5) {
+  const el=document.getElementById('ann');
   el.textContent=txt; el.style.opacity='1'; annTmr=dur;
 }
 
-/* ════════════ INTRO ════════════ */
+/* ══════════════════════════════════════
+   INTRO SEQUENCE
+══════════════════════════════════════ */
 function playIntro() {
   introPlaying=true;
-  const txt=document.getElementById('intro-txt');
+  const txt=document.getElementById('itxt');
   txt.style.opacity='1';
+  showGojo('sword');
 
-  function go() {
-    if (aGetSword) {
-      aGetSword.setLoop(THREE.LoopOnce,1);
-      aGetSword.clampWhenFinished=true;
-      sw(aGetSword, .2);
-      const dur = (aGetSword.getClip().duration+0.5)*1000;
-      setTimeout(end, Math.max(dur,1500));
-    } else {
-      setTimeout(end,1800);
-    }
-  }
-  function end() {
+  const slot=G.sword;
+  const dur=slot ? (slot.duration+0.5)*1000 : 2000;
+  setTimeout(()=>{
     txt.style.opacity='0';
     introPlaying=false;
-    if (aIdle) sw(aIdle,.3);
-  }
-  setTimeout(go, 300);
+    showGojo('idle');
+  }, Math.max(dur, 1500));
 }
 
-/* ════════════ GAME OVER ════════════ */
+/* ══════════════════════════════════════
+   GAME OVER + RESTART
+══════════════════════════════════════ */
 function triggerOver() {
   if (over) return; over=true;
   document.exitPointerLock();
   document.getElementById('hud').style.display='none';
   document.getElementById('over-screen').style.display='flex';
-  document.getElementById('final-score').textContent='SCORE: '+score+'  WAVE '+wave;
+  document.getElementById('fscore').textContent='SCORE: '+score+'  WAVE '+wave;
 }
 
 function doRestart() {
-  enemies.forEach(e=>scene.remove(e.group));
-  vfx.forEach(v=>scene.remove(v.mesh));
+  enemies.forEach(e=>scene.remove(e.group)); vfx.forEach(v=>scene.remove(v.mesh));
   enemies=[]; vfx=[];
-  score=0; wave=1; hp=MAX_HP;
-  deKills=0; deReady=false; domainOn=false;
-  spawnQ=0; atkActive=false; atkWindow=false; atkCD=0;
-  dTarget=null; dQueue=[];
-  playerGroup.position.set(0,0,0);
-  yaw=0; pitch=0.30; over=false; introPlaying=false;
-  document.getElementById('de-overlay').classList.remove('on');
-  scene.fog=new THREE.FogExp2(0x050010,.013);
-  scene.background.set(0x050010);
+  score=0;wave=1;hp=MAX_HP;deKills=0;deReady=false;domainOn=false;
+  spawnQ=0;atkActive=false;atkWindow=false;atkCD=0;dTarget=null;dQueue=[];
+  playerGroup.position.set(0,0,0); yaw=0;pitch=0.28;over=false;introPlaying=false;
+  document.getElementById('de-ov').classList.remove('on');
+  scene.fog=new THREE.FogExp2(0x050010,.013); scene.background.set(0x050010);
   document.getElementById('over-screen').style.display='none';
   document.getElementById('hud').style.display='block';
-  curAct=null; if (aIdle) sw(aIdle);
-  updateHUD();
-  canvas.requestPointerLock();
+  updateHUD(); canvas.requestPointerLock();
   playIntro();
-  setTimeout(()=>{ startWave(1); announce('WAVE 1',2); },300);
+  setTimeout(()=>{startWave(1);announce('WAVE 1',2);},300);
 }
 
-document.getElementById('start-btn').addEventListener('click', () => {
+document.getElementById('start-btn').addEventListener('click',()=>{
   document.getElementById('start-screen').style.display='none';
   document.getElementById('hud').style.display='block';
-  started=true;
-  canvas.requestPointerLock();
+  started=true; canvas.requestPointerLock();
   playIntro();
-  setTimeout(()=>{ startWave(1); announce('WAVE 1',2); },300);
+  setTimeout(()=>{startWave(1);announce('WAVE 1',2);},300);
 });
 document.getElementById('restart-btn').addEventListener('click', doRestart);
 
-/* ════════════ CAMERA ════════════ */
+/* ══════════════════════════════════════
+   CAMERA
+══════════════════════════════════════ */
 const camTgt=new THREE.Vector3(), camLook=new THREE.Vector3();
-
 function tickCamera() {
-  const bx = Math.sin(yaw)   * Math.cos(pitch) * camDist;
-  const by = Math.sin(pitch) * camDist + 1.5;
-  const bz = Math.cos(yaw)   * Math.cos(pitch) * camDist;
-  const sh = shakeAmt>0?(Math.random()-.5)*shakeAmt:0;
-
-  camTgt.set( playerGroup.position.x+bx+sh, playerGroup.position.y+by+sh*.4, playerGroup.position.z+bz );
+  const bx=Math.sin(yaw)*Math.cos(pitch)*camDist;
+  const by=Math.sin(pitch)*camDist+1.5;
+  const bz=Math.cos(yaw)*Math.cos(pitch)*camDist;
+  const sh=shakeAmt>0?(Math.random()-.5)*shakeAmt:0;
+  camTgt.set(playerGroup.position.x+bx+sh, playerGroup.position.y+by+sh*.4, playerGroup.position.z+bz);
   camLook.set(playerGroup.position.x, playerGroup.position.y+1.5, playerGroup.position.z);
-  camera.position.lerp(camTgt, .11);
+  camera.position.lerp(camTgt,.11);
   camera.lookAt(camLook);
-  if (shakeAmt>0) shakeAmt=Math.max(0,shakeAmt-.20);
+  if (shakeAmt>0) shakeAmt=Math.max(0,shakeAmt-.18);
 }
 
-/* ════════════ MAIN LOOP ════════════ */
-const clock = new THREE.Clock();
+/* ══════════════════════════════════════
+   MAIN LOOP
+══════════════════════════════════════ */
+const clock=new THREE.Clock();
 function loop() {
   requestAnimationFrame(loop);
-  const dt = Math.min(clock.getDelta(), .05);
+  const dt=Math.min(clock.getDelta(),.05);
 
-  if (started && !over) {
+  if (started&&!over) {
     tickPlayer(dt);
     tickEnemies(dt);
     tickVFX(dt);
     checkWave(dt);
     updateHUD();
-    if (annTmr>0){ annTmr-=dt; if(annTmr<=0) document.getElementById('announce').style.opacity='0'; }
-  }
-
-  if (gojoMixer) {
-    gojoMixer.update(dt);
-    // Cancel any root-bone Y-rotation baked into the FBX animation
-    // (prevents the model from flipping to face camera during sprint)
-    if (gojoRoot) gojoRoot.rotation.y = 0;
+    if (annTmr>0){annTmr-=dt;if(annTmr<=0)document.getElementById('ann').style.opacity='0';}
   }
 
   tickCamera();
 
-  pLight.intensity = 4+Math.sin(Date.now()*.0018)*2;
-  pLight.position.set(
-    playerGroup.position.x + Math.sin(Date.now()*.0008)*5,
-    4,
-    playerGroup.position.z + Math.cos(Date.now()*.0008)*5
-  );
+  pLight.intensity=4+Math.sin(Date.now()*.0018)*2;
+  pLight.position.set(playerGroup.position.x+Math.sin(Date.now()*.0008)*5,4,playerGroup.position.z+Math.cos(Date.now()*.0008)*5);
+  if (domainOn) scene.background.setRGB(.015+Math.sin(Date.now()*.003)*.006,0,.05);
 
-  if (domainOn) scene.background.setRGB(.016+Math.sin(Date.now()*.003)*.007, 0, .05);
-  renderer.render(scene, camera);
-
-  clickedNow = false;
+  renderer.render(scene,camera);
+  clickNow=false;
 }
 
-window.addEventListener('resize', () => {
-  camera.aspect = innerWidth/innerHeight;
+window.addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+  renderer.setSize(innerWidth,innerHeight);
 });
 
 loop();
