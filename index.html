@@ -9,11 +9,14 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
 #c{display:block;width:100vw;height:100vh}
+
 #loading{position:fixed;inset:0;background:#000010;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:300}
 #loading h2{font-size:12px;letter-spacing:6px;color:#334488;margin-bottom:18px}
 #lbar-bg{width:240px;height:2px;background:#0a1230}
 #lbar{height:100%;width:0%;background:linear-gradient(90deg,#0044ff,#00ccff);transition:width .3s}
 #lpct{font-size:10px;letter-spacing:4px;color:#223366;margin-top:10px}
+#load-file{font-size:9px;letter-spacing:3px;color:#1a2255;margin-top:6px;min-height:12px}
+
 #start-screen{position:fixed;inset:0;background:radial-gradient(ellipse,#0a0022 0%,#000 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200}
 .jp-sub{font-size:12px;letter-spacing:10px;color:#334488;margin-bottom:14px}
 .main-title{font-family:'Cinzel Decorative',cursive;font-size:clamp(32px,5vw,68px);color:#fff;text-shadow:0 0 40px #0055ff,0 0 80px #003399;letter-spacing:6px;text-align:center}
@@ -25,42 +28,52 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
 .btn:hover{background:rgba(0,60,180,.4);box-shadow:0 0 30px #0033ff;color:#fff;border-color:#0088ff}
 .bg-hex{position:absolute;inset:0;pointer-events:none;opacity:.07}
 .bg-hex svg{width:100%;height:100%}
+
 #over-screen{position:fixed;inset:0;background:radial-gradient(ellipse,#200010 0%,#000 100%);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200}
 #over-screen h1{font-size:13px;letter-spacing:8px;color:#aa3355;margin-bottom:8px}
 #over-screen h2{font-family:'Cinzel Decorative',cursive;font-size:clamp(42px,6vw,80px);color:#ff3355;text-shadow:0 0 40px #ff0033;letter-spacing:6px}
 .death-line{width:200px;height:1px;background:linear-gradient(90deg,transparent,#ff0033,transparent);margin:18px 0;box-shadow:0 0 15px #ff0033}
 #final-score{font-size:20px;color:#fff;letter-spacing:4px;margin-bottom:32px}
+
 #hud{position:fixed;inset:0;pointer-events:none;display:none}
-#hp-wrap{position:absolute;bottom:48px;left:32px;width:260px}
+#hp-wrap{position:absolute;bottom:72px;left:32px;width:260px}
 #hp-label{font-size:10px;letter-spacing:4px;color:#88ccff;margin-bottom:5px;text-shadow:0 0 10px #44aaff}
 #hp-track{height:7px;background:rgba(0,20,60,.8);border:1px solid #1155aa;border-radius:2px;overflow:hidden}
 #hp-fill{height:100%;background:linear-gradient(90deg,#0066ff,#00ccff);box-shadow:0 0 10px #0099ff;transition:width .15s;border-radius:2px}
-#de-wrap{position:absolute;bottom:80px;left:32px;width:260px}
+
+#de-wrap{position:absolute;bottom:100px;left:32px;width:260px}
 #de-label{font-size:9px;letter-spacing:3px;color:#aa88ff;margin-bottom:5px;text-shadow:0 0 10px #8855ff}
 #de-track{height:6px;background:rgba(20,0,60,.8);border:1px solid #550099;border-radius:2px;overflow:hidden}
-#de-fill{height:100%;width:0%;background:linear-gradient(90deg,#6600ff,#cc44ff);box-shadow:0 0 8px #9900ff;transition:width .3s;border-radius:2px}
+#de-fill{height:100%;width:0%;background:linear-gradient(90deg,#6600ff,#cc44ff);box-shadow:0 0 8px #9900ff;border-radius:2px}
 #de-ready{font-size:9px;letter-spacing:4px;color:#cc88ff;margin-top:4px;opacity:0;transition:opacity .5s;text-shadow:0 0 12px #9900ff}
-#hp-text{position:absolute;bottom:28px;left:32px;font-size:9px;letter-spacing:3px;color:#445577}
+
+#hint-bar{position:absolute;bottom:48px;left:32px;font-size:9px;letter-spacing:2px;color:rgba(80,110,170,.5)}
+
 #score-wrap{position:absolute;top:26px;right:32px;text-align:right}
 #score-label{font-size:10px;letter-spacing:5px;color:#aaaacc}
 #score-val{font-family:'Cinzel Decorative',cursive;font-size:38px;color:#fff;line-height:1;text-shadow:0 0 20px #4488ff}
+
 #wave-wrap{position:absolute;top:26px;left:32px}
 #wave-num{font-size:13px;letter-spacing:6px;color:#88ccff;text-shadow:0 0 15px #0066ff}
 #enemy-count{font-size:10px;letter-spacing:3px;color:#5577aa;margin-top:4px}
+
 #announce{position:absolute;top:36%;left:50%;transform:translateX(-50%);font-family:'Cinzel Decorative',cursive;font-size:42px;color:#fff;letter-spacing:8px;text-shadow:0 0 40px #0066ff,0 0 80px #0033ff;opacity:0;transition:opacity .5s;white-space:nowrap;pointer-events:none;text-align:center}
-#controls-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:3px;color:rgba(100,140,200,.35);text-align:center}
-#intro-text{position:absolute;top:44%;left:50%;transform:translateX(-50%);font-size:13px;letter-spacing:6px;color:#88aaff;opacity:0;transition:opacity 1s;white-space:nowrap;pointer-events:none}
-#de-overlay{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:50;transition:opacity 1.2s;background:radial-gradient(ellipse,rgba(80,0,180,.4) 0%,rgba(0,0,50,.8) 100%)}
-#de-overlay.active{opacity:1}
-.de-ring{position:absolute;top:50%;left:50%;border-style:solid;border-color:rgba(140,60,255,.4);border-radius:50%;animation:pring 1.6s ease-out infinite}
-.de-ring:nth-child(1){width:200px;height:200px;border-width:1px;margin:-100px 0 0 -100px}
-.de-ring:nth-child(2){width:450px;height:450px;border-width:1px;margin:-225px 0 0 -225px;animation-delay:.4s}
-.de-ring:nth-child(3){width:800px;height:800px;border-width:1px;margin:-400px 0 0 -400px;animation-delay:.8s}
-@keyframes pring{0%{opacity:.7;transform:scale(.85)}100%{opacity:0;transform:scale(1.15)}}
-#crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:20px;height:20px}
-#crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(0,200,255,.7);border-radius:1px}
+#intro-txt{position:absolute;top:44%;left:50%;transform:translateX(-50%);font-size:13px;letter-spacing:6px;color:#88aaff;opacity:0;transition:opacity 1s;white-space:nowrap;pointer-events:none}
+
+#crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px}
+#crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(0,200,255,.65);border-radius:1px}
 #crosshair::before{width:2px;height:100%;left:50%;transform:translateX(-50%)}
 #crosshair::after{width:100%;height:2px;top:50%;transform:translateY(-50%)}
+
+#de-overlay{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:50;transition:opacity 1.2s;background:radial-gradient(ellipse,rgba(80,0,180,.45) 0%,rgba(0,0,50,.85) 100%)}
+#de-overlay.on{opacity:1}
+.de-ring{position:absolute;top:50%;left:50%;border:1px solid rgba(140,60,255,.4);border-radius:50%;animation:pring 1.6s ease-out infinite}
+.de-ring:nth-child(1){width:200px;height:200px;margin:-100px 0 0 -100px}
+.de-ring:nth-child(2){width:450px;height:450px;margin:-225px 0 0 -225px;animation-delay:.4s}
+.de-ring:nth-child(3){width:800px;height:800px;margin:-400px 0 0 -400px;animation-delay:.8s}
+@keyframes pring{0%{opacity:.7;transform:scale(.82)}100%{opacity:0;transform:scale(1.18)}}
+
+#sword-slash{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:4px;background:linear-gradient(90deg,transparent,rgba(0,200,255,.9),transparent);opacity:0;border-radius:2px;pointer-events:none;box-shadow:0 0 12px #00ccff}
 </style>
 </head>
 <body>
@@ -69,6 +82,7 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
   <h2>LOADING ASSETS</h2>
   <div id="lbar-bg"><div id="lbar"></div></div>
   <div id="lpct">0%</div>
+  <div id="load-file"></div>
 </div>
 <canvas id="c"></canvas>
 
@@ -82,29 +96,28 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
     <div id="score-val">0</div>
   </div>
   <div id="hp-wrap">
-    <div id="hp-label">∞ LIMITLESS</div>
-    <div id="hp-track"><div id="hp-fill"></div></div>
+    <div id="hp-label">LIMITLESS HP</div>
+    <div id="hp-track"><div id="hp-fill" style="width:100%"></div></div>
   </div>
   <div id="de-wrap">
-    <div id="de-label">域展開 · DOMAIN EXPANSION</div>
+    <div id="de-label">DOMAIN EXPANSION (30 kills)</div>
     <div id="de-track"><div id="de-fill"></div></div>
-    <div id="de-ready">— PRESS E TO ACTIVATE —</div>
+    <div id="de-ready">PRESS E TO ACTIVATE</div>
   </div>
-  <div id="hp-text">WASD · SHIFT SPRINT · CLICK ATTACK · E DOMAIN (30 KILLS)</div>
+  <div id="hint-bar">WASD MOVE &nbsp;|&nbsp; SHIFT SPRINT &nbsp;|&nbsp; CLICK ATTACK &nbsp;|&nbsp; E DOMAIN &nbsp;|&nbsp; SCROLL ZOOM</div>
   <div id="crosshair"></div>
   <div id="announce"></div>
-  <div id="intro-text">六眼 — Acquiring Sword...</div>
+  <div id="intro-txt">Acquiring Sword...</div>
+  <div id="sword-slash"></div>
 </div>
 
 <div id="de-overlay">
-  <div class="de-ring"></div>
-  <div class="de-ring"></div>
-  <div class="de-ring"></div>
+  <div class="de-ring"></div><div class="de-ring"></div><div class="de-ring"></div>
 </div>
 
 <div id="start-screen">
   <div class="bg-hex"><svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"><defs><pattern id="hex" width="60" height="52" patternUnits="userSpaceOnUse"><polygon points="30,2 58,17 58,47 30,62 2,47 2,17" fill="none" stroke="#0044ff" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#hex)"/></svg></div>
-  <div class="jp-sub">呪術廻戦 · JUJUTSU KAISEN</div>
+  <div class="jp-sub">JUJUTSU KAISEN</div>
   <div class="main-title">SATORU GOJO</div>
   <div class="vs-title">VS THE SHADOW CLAN</div>
   <div class="glow-line"></div>
@@ -114,13 +127,13 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
     <span>MOUSE</span><div>Rotate Camera</div>
     <span>CLICK</span><div>Sword Attack</div>
     <span>E</span><div>Domain Expansion</div>
-    <span>30 KILLS</span><div>Charges Domain</div>
+    <span>SCROLL</span><div>Zoom In/Out</div>
   </div>
   <div class="btn" id="start-btn">BEGIN</div>
 </div>
 
 <div id="over-screen">
-  <h1>お前が最弱だ</h1>
+  <h1>The Weakest</h1>
   <h2>YOU FELL</h2>
   <div class="death-line"></div>
   <div id="final-score"></div>
@@ -128,13 +141,17 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
 </div>
 
 <script type="importmap">
-{"imports":{"three":"https://unpkg.com/three@0.152.2/build/three.module.js","three/addons/":"https://unpkg.com/three@0.152.2/examples/jsm/"}}
+{"imports":{
+  "three":"https://unpkg.com/three@0.152.2/build/three.module.js",
+  "three/addons/":"https://unpkg.com/three@0.152.2/examples/jsm/"
+}}
 </script>
 <script type="module">
 import * as THREE from 'three';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { clone as skeletonClone } from 'three/addons/utils/SkeletonUtils.js';
 
-/* ── RENDERER ── */
+/* ════════════ RENDERER ════════════ */
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -145,732 +162,765 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.2;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x050010, 0.015);
+scene.fog = new THREE.FogExp2(0x050010, 0.013);
 scene.background = new THREE.Color(0x050010);
 
 const camera = new THREE.PerspectiveCamera(65, innerWidth / innerHeight, 0.1, 400);
 
-/* ── LIGHTS ── */
-scene.add(new THREE.AmbientLight(0x1a2266, 1.5));
-const sun = new THREE.DirectionalLight(0x88aaff, 2.8);
+/* ════════════ LIGHTS ════════════ */
+scene.add(new THREE.AmbientLight(0x2233aa, 1.8));
+const sun = new THREE.DirectionalLight(0x99aaff, 3);
 sun.position.set(30, 60, 20);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
-sun.shadow.camera.near = 1; sun.shadow.camera.far = 200;
-sun.shadow.camera.left = -80; sun.shadow.camera.right = 80;
-sun.shadow.camera.top  =  80; sun.shadow.camera.bottom = -80;
+sun.shadow.camera.near = 1; sun.shadow.camera.far = 220;
+[-80,80].forEach(v => {
+  sun.shadow.camera.left = -80; sun.shadow.camera.right = 80;
+  sun.shadow.camera.top  =  80; sun.shadow.camera.bottom = -80;
+});
 scene.add(sun);
-const pulse = new THREE.PointLight(0x0055ff, 4, 30);
-scene.add(pulse);
+const pLight = new THREE.PointLight(0x0055ff, 5, 35);
+scene.add(pLight);
 
-/* ════════════════════════
-   MAP + COLLISION
-════════════════════════ */
+/* ════════════ MAP + COLLIDERS ════════════ */
 const MAP = 75;
-const colliders = [];
+const COLS = []; // {minX,maxX,minZ,maxZ}
 
 function addCol(cx, cz, hw, hd) {
-  colliders.push({ minX: cx-hw, maxX: cx+hw, minZ: cz-hd, maxZ: cz+hd });
+  COLS.push({ minX: cx-hw, maxX: cx+hw, minZ: cz-hd, maxZ: cz+hd });
 }
 
-function isBlocked(px, pz, r) {
-  for (const c of colliders) {
+function blocked(px, pz, r) {
+  for (const c of COLS) {
     if (px+r > c.minX && px-r < c.maxX && pz+r > c.minZ && pz-r < c.maxZ) return true;
   }
   return false;
 }
 
-function tryMove(pos, dx, dz, r) {
-  if (!isBlocked(pos.x+dx, pos.z+dz, r))      { pos.x+=dx; pos.z+=dz; }
-  else if (!isBlocked(pos.x+dx, pos.z, r))     { pos.x+=dx; }
-  else if (!isBlocked(pos.x, pos.z+dz, r))     { pos.z+=dz; }
+function slide(pos, dx, dz, r) {
+  if (!blocked(pos.x+dx, pos.z+dz, r))     { pos.x+=dx; pos.z+=dz; }
+  else if (!blocked(pos.x+dx, pos.z,    r)) { pos.x+=dx; }
+  else if (!blocked(pos.x,    pos.z+dz, r)) { pos.z+=dz; }
   pos.x = Math.max(-MAP+2, Math.min(MAP-2, pos.x));
   pos.z = Math.max(-MAP+2, Math.min(MAP-2, pos.z));
 }
 
 (function buildMap() {
-  const ground = new THREE.Mesh(
+  // Ground
+  const g = new THREE.Mesh(
     new THREE.PlaneGeometry(MAP*2, MAP*2),
     new THREE.MeshLambertMaterial({ color: 0x070818 })
   );
-  ground.rotation.x = -Math.PI/2; ground.receiveShadow = true;
-  scene.add(ground);
-  scene.add(new THREE.GridHelper(MAP*2, 60, 0x001144, 0x001133));
+  g.rotation.x = -Math.PI/2; g.receiveShadow = true;
+  scene.add(g);
+  const grid = new THREE.GridHelper(MAP*2, 64, 0x001144, 0x001133);
+  grid.position.y = 0.02; scene.add(grid);
 
-  for (let i=0;i<10;i++){
-    const lm = new THREE.Mesh(new THREE.PlaneGeometry(MAP*1.8, 0.07),
-      new THREE.MeshBasicMaterial({color:0x0033bb,transparent:true,opacity:0.15}));
-    lm.rotation.x=-Math.PI/2; lm.rotation.z=(i/10)*Math.PI; lm.position.y=0.03;
+  // Floor accent lines
+  for (let i = 0; i < 12; i++) {
+    const lm = new THREE.Mesh(new THREE.PlaneGeometry(MAP*1.85, 0.06),
+      new THREE.MeshBasicMaterial({ color: 0x002299, transparent: true, opacity: 0.14 }));
+    lm.rotation.x = -Math.PI/2; lm.rotation.z = (i/12)*Math.PI; lm.position.y = 0.03;
     scene.add(lm);
   }
 
-  const wMat = new THREE.MeshLambertMaterial({ color: 0x0d1640 });
-  const walls = [
-    {p:[0,5,-MAP],s:[MAP*2+4,10,3]},{p:[0,5,MAP],s:[MAP*2+4,10,3]},
-    {p:[-MAP,5,0],s:[3,10,MAP*2]},{p:[MAP,5,0],s:[3,10,MAP*2]}
-  ];
-  walls.forEach(({p,s})=>{
-    const m=new THREE.Mesh(new THREE.BoxGeometry(...s),wMat);
-    m.position.set(...p); m.receiveShadow=true; scene.add(m);
-    addCol(p[0],p[2],s[0]/2,s[2]/2);
+  // Boundary walls
+  const wm = new THREE.MeshLambertMaterial({ color: 0x0d1640 });
+  [
+    { p:[0,5,-MAP],  s:[MAP*2+4,10,3] },
+    { p:[0,5, MAP],  s:[MAP*2+4,10,3] },
+    { p:[-MAP,5,0],  s:[3,10,MAP*2]   },
+    { p:[ MAP,5,0],  s:[3,10,MAP*2]   },
+  ].forEach(({ p, s }) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(...s), wm);
+    m.position.set(...p); m.receiveShadow = true; scene.add(m);
+    addCol(p[0], p[2], s[0]/2, s[2]/2);
   });
 
-  const pMat  = new THREE.MeshLambertMaterial({color:0x101850});
-  const tMat  = new THREE.MeshBasicMaterial({color:0x0033bb});
+  // Cover pillars
+  const pm = new THREE.MeshLambertMaterial({ color: 0x101850 });
+  const tm = new THREE.MeshBasicMaterial({ color: 0x0033cc });
   const spots = [
     [18,18],[-18,18],[18,-18],[-18,-18],
     [34,0],[-34,0],[0,34],[0,-34],
-    [30,30],[-30,30],[30,-30],[-30,-30],
-    [48,16],[-48,16],[48,-16],[-48,-16],
-    [18,48],[-18,48],[18,-48],[-18,-48],
-    [54,0],[-54,0],[0,54],[0,-54],
-    [42,42],[-42,42],[42,-42],[-42,-42]
+    [28,28],[-28,28],[28,-28],[-28,-28],
+    [48,14],[-48,14],[48,-14],[-48,-14],
+    [16,46],[-16,46],[16,-46],[-16,-46],
+    [52,0],[-52,0],[0,52],[0,-52],
+    [40,40],[-40,40],[40,-40],[-40,-40],
+    [60,20],[-60,20],[60,-20],[-60,-20],
   ];
-  spots.forEach(([x,z])=>{
-    const h=4+Math.random()*5, sw=2.2+Math.random()*1.8, sd=2.2+Math.random()*1.8;
-    const m=new THREE.Mesh(new THREE.BoxGeometry(sw,h,sd),pMat);
-    m.position.set(x,h/2,z); m.castShadow=m.receiveShadow=true; scene.add(m);
-    const tr=new THREE.Mesh(new THREE.BoxGeometry(sw+0.1,0.12,sd+0.1),tMat);
-    tr.position.set(x,h,z); scene.add(tr);
-    addCol(x,z,sw/2+0.3,sd/2+0.3);
+  spots.forEach(([x,z]) => {
+    const h = 4 + Math.random()*5;
+    const sw = 2 + Math.random()*2, sd = 2 + Math.random()*2;
+    const m = new THREE.Mesh(new THREE.BoxGeometry(sw,h,sd), pm);
+    m.position.set(x,h/2,z); m.castShadow = m.receiveShadow = true; scene.add(m);
+    const top = new THREE.Mesh(new THREE.BoxGeometry(sw+0.15, 0.14, sd+0.15), tm);
+    top.position.set(x,h,z); scene.add(top);
+    addCol(x, z, sw/2+0.35, sd/2+0.35);
   });
 })();
 
-/* ════════════════════════
-   STATE
-════════════════════════ */
-let gameStarted=false, gameOver=false, introPlaying=false;
-let score=0, wave=1, playerHP=100;
-const PLAYER_HP=100, DE_KILLS=30;
-let deKills=0, deReady=false, domainActive=false;
-let enemies=[], vfxList=[];
+/* ════════════ STATE ════════════ */
+let started=false, over=false, introPlaying=false;
+let score=0, wave=1, hp=100;
+const MAX_HP=100, DE_KILLS_NEEDED=30;
+let deKills=0, deReady=false, domainOn=false;
+let enemies=[], vfx=[];
 
-/* ── INPUT ── */
-const keys={};
-let cYaw=0, cPitch=0.32, locked=false, lmbJustDown=false;
+/* ════════════ INPUT ════════════ */
+const keys = {};
+let yaw=0, pitch=0.30, locked=false, clickedNow=false;
+let camDist = 16; // scrollable
 
-addEventListener('keydown', e=>{ keys[e.code]=true; e.preventDefault(); });
-addEventListener('keyup',   e=>{ keys[e.code]=false; });
-canvas.addEventListener('click', ()=>{ if(gameStarted&&!gameOver) canvas.requestPointerLock(); });
-document.addEventListener('pointerlockchange', ()=>{ locked=document.pointerLockElement===canvas; });
-document.addEventListener('mousemove', e=>{
-  if(!locked) return;
-  cYaw  -=e.movementX*0.0022;
-  cPitch+=e.movementY*0.0022;
-  cPitch=Math.max(-0.05,Math.min(0.72,cPitch));
+addEventListener('keydown', e => { keys[e.code]=true;  e.preventDefault(); });
+addEventListener('keyup',   e => { keys[e.code]=false; });
+canvas.addEventListener('click', () => { if (started && !over) canvas.requestPointerLock(); });
+document.addEventListener('pointerlockchange', () => { locked = document.pointerLockElement === canvas; });
+document.addEventListener('mousemove', e => {
+  if (!locked) return;
+  yaw   -= e.movementX * 0.0022;
+  pitch += e.movementY * 0.0022;
+  pitch  = Math.max(-0.08, Math.min(0.72, pitch));
 });
-document.addEventListener('mousedown', e=>{ if(e.button===0) lmbJustDown=true; });
+document.addEventListener('mousedown', e => { if (e.button===0) clickedNow=true; });
+// Zoom via scroll
+document.addEventListener('wheel', e => {
+  camDist = Math.max(5, Math.min(40, camDist + e.deltaY * 0.02));
+}, { passive: true });
 
-/* ════════════════════════
-   PLAYER
-════════════════════════ */
-const playerGroup=new THREE.Group();
+/* ════════════ PLAYER ════════════ */
+const playerGroup = new THREE.Group();
 scene.add(playerGroup);
 
-let gojoMesh=null, gojoMixer=null;
-let act_idle=null, act_walk=null, act_run=null, act_attack=null, act_getSword=null;
+// Gojo clips + mixer
+let gojoRoot=null, gojoMixer=null;
+let aIdle=null, aWalk=null, aRun=null, aAttack=null, aGetSword=null;
 let curAct=null;
-let attackActive=false, attackWindow=false, attackCooldown=0;
-let hitThisSwing=new Set();
 
-function switchAnim(next, fade=0.18){
-  if(!next||next===curAct) return;
+// Attack state
+let atkActive=false, atkWindow=false, atkCD=0;
+let hitSet=new Set();
+let shakeAmt=0;
+
+function sw(next, fade=0.18) { // switchAnim
+  if (!next || next===curAct) return;
   curAct?.fadeOut(fade);
   next.reset().fadeIn(fade).play();
-  curAct=next;
+  curAct = next;
 }
 
-/* ════════════════════════
-   NINJA POOL
-════════════════════════ */
-let ninjaBase=null;
-let nClip_idle=null, nClip_walk=null, nClip_run=null, nClip_attack=null;
+/* ════════════ NINJA TEMPLATE ════════════ */
+// ninjaRoot = the loaded FBX scene (used as template)
+let ninjaRoot=null, nClipWalk=null, nClipAttack=null;
 
-/* ════════════════════════
-   LOAD ASSETS
-════════════════════════ */
-const fbxL=new FBXLoader();
-let loaded=0;
-const TOTAL=9;
+/* ════════════ ASSET LOADING ════════════ */
+/*
+  ACTUAL FILE MAPPING (only files that exist):
+  gojo_standing_Pose.fbx  -> Gojo mesh + idle
+  Strut_Walking.fbx       -> Gojo walk
+  gojo_sprint.fbx         -> Gojo sprint
+  SatoruGojo.fbx          -> Gojo "get sword" intro (original model)
+  Fast_Run.fbx            -> Gojo attack (dynamic motion placeholder)
+  ninja_walk.fbx          -> Ninja mesh + walk anim
+  ninja_attack__...fbx    -> Ninja attack anim
+*/
+const fbxL = new FBXLoader();
+const assets = {}; // label -> loaded FBX obj
+let loadDone = 0;
 
-function onLoad(){
-  loaded++;
-  const p=Math.round(loaded/TOTAL*100);
-  document.getElementById('lbar').style.width=p+'%';
-  document.getElementById('lpct').textContent=p+'%';
-  if(loaded>=TOTAL) setTimeout(()=>{
-    document.getElementById('loading').style.display='none';
-    document.getElementById('start-screen').style.display='flex';
-  },350);
+const FILES = [
+  { key: 'gojo_base',    file: 'gojo_standing_Pose.fbx' },
+  { key: 'gojo_walk',    file: 'Strut_Walking.fbx'      },
+  { key: 'gojo_sprint',  file: 'gojo_sprint.fbx'        },
+  { key: 'gojo_sword',   file: 'SatoruGojo.fbx'         },
+  { key: 'gojo_attack',  file: 'Fast_Run.fbx'           },
+  { key: 'ninja_base',   file: 'ninja_walk.fbx'         },
+  { key: 'ninja_attack', file: 'ninja_attack__made_it_as_goofy_as_possible_.fbx' },
+];
+const TOTAL = FILES.length;
+
+function onProgress(key) {
+  document.getElementById('load-file').textContent = key;
+}
+function onLoaded() {
+  loadDone++;
+  const p = Math.round(loadDone/TOTAL*100);
+  document.getElementById('lbar').style.width = p + '%';
+  document.getElementById('lpct').textContent  = p + '%';
+  if (loadDone >= TOTAL) {
+    setTimeout(onAllLoaded, 200);
+  }
 }
 
-function autoFit(obj, targetH){
-  const box=new THREE.Box3().setFromObject(obj);
-  const h=box.max.y-box.min.y||1;
-  obj.scale.setScalar(targetH/h);
-  const box2=new THREE.Box3().setFromObject(obj);
-  obj.position.y=-box2.min.y;
+FILES.forEach(({ key, file }) => {
+  onProgress(file);
+  fbxL.load(file,
+    obj => { assets[key] = obj; onLoaded(); },
+    undefined,
+    ()  => { console.warn('Failed:', file); assets[key] = null; onLoaded(); }
+  );
+});
+
+function fitToHeight(obj, h) {
+  const box = new THREE.Box3().setFromObject(obj);
+  const oh  = box.max.y - box.min.y || 1;
+  obj.scale.setScalar(h / oh);
+}
+function floorObj(obj) {
+  const box = new THREE.Box3().setFromObject(obj);
+  obj.position.y = -box.min.y;
+}
+function setupShadows(obj) {
+  obj.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
 }
 
-function setupMesh(obj){
-  obj.traverse(c=>{ if(c.isMesh){ c.castShadow=true; c.receiveShadow=true; } });
+function onAllLoaded() {
+  /* ── Build Gojo ── */
+  const base = assets['gojo_base'];
+  if (base) {
+    setupShadows(base);
+    fitToHeight(base, 1.82);
+    floorObj(base);
+    playerGroup.add(base);
+    gojoRoot  = base;
+    gojoMixer = new THREE.AnimationMixer(base);
+    if (base.animations?.[0]) aIdle = gojoMixer.clipAction(base.animations[0]);
+  } else {
+    // Fallback capsule
+    const fb = new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.4,1.8,8), new THREE.MeshLambertMaterial({color:0xeeeeee}));
+    fb.position.y = 0.9; playerGroup.add(fb); gojoRoot = fb;
+    gojoMixer = new THREE.AnimationMixer(fb);
+  }
+
+  const bindClip = (key, setter) => {
+    const a = assets[key];
+    if (a?.animations?.[0]) setter(gojoMixer.clipAction(a.animations[0]));
+  };
+  bindClip('gojo_walk',   act => { aWalk    = act; });
+  bindClip('gojo_sprint', act => { aRun     = act; });
+  bindClip('gojo_attack', act => { aAttack  = act; });
+  bindClip('gojo_sword',  act => { aGetSword = act; });
+
+  if (aIdle) sw(aIdle);
+
+  /* ── Build Ninja template ── */
+  const nb = assets['ninja_base'];
+  if (nb) {
+    setupShadows(nb);
+    fitToHeight(nb, 1.76);
+    ninjaRoot = nb;
+    if (nb.animations?.[0]) nClipWalk = nb.animations[0];
+  }
+  const na = assets['ninja_attack'];
+  if (na?.animations?.[0]) nClipAttack = na.animations[0];
+
+  // Show start screen
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('start-screen').style.display = 'flex';
 }
 
-// ── Gojo base ──
-fbxL.load('gojo_standing_Pose.fbx', obj=>{
-  gojoMesh=obj; setupMesh(obj); autoFit(obj,1.82);
-  playerGroup.add(obj);
-  gojoMixer=new THREE.AnimationMixer(obj);
-  if(obj.animations?.[0]){ act_idle=gojoMixer.clipAction(obj.animations[0]); }
-  onLoad();
-},undefined,()=>onLoad());
+/* ════════════ SPAWN ENEMY ════════════ */
+let spawnQ=0, spawnT=0;
 
-// ── Gojo anims (loaded after base; mixer may not exist yet so we store clip and bind later) ──
-const pendingGojo=[];
-function bindGojoClip(clip, slot){
-  if(!clip) return;
-  if(gojoMixer){ pendingGojo.push(null); return assignGojo(clip,slot); }
-  pendingGojo.push({clip,slot});
-}
-function assignGojo(clip,slot){
-  if(!gojoMixer) return;
-  if(slot==='walk')   act_walk    =gojoMixer.clipAction(clip);
-  if(slot==='run')    act_run     =gojoMixer.clipAction(clip);
-  if(slot==='attack') act_attack  =gojoMixer.clipAction(clip);
-  if(slot==='sword')  act_getSword=gojoMixer.clipAction(clip);
-}
-// Flush pending after mixer exists
-function flushPending(){
-  pendingGojo.forEach(p=>{ if(p) assignGojo(p.clip,p.slot); });
-}
+function spawnEnemy() {
+  const group = new THREE.Group();
 
-fbxL.load('gojo_walking.fbx', obj=>{
-  const c=obj.animations?.[0];
-  if(c) gojoMixer ? assignGojo(c,'walk') : pendingGojo.push({clip:c,slot:'walk'});
-  onLoad();
-},undefined,()=>onLoad());
+  let clonedMesh, nMixer, na_walk=null, na_attack=null, nCur=null;
 
-fbxL.load('gojo_sprint.fbx', obj=>{
-  const c=obj.animations?.[0];
-  if(c) gojoMixer ? assignGojo(c,'run') : pendingGojo.push({clip:c,slot:'run'});
-  onLoad();
-},undefined,()=>onLoad());
+  if (ninjaRoot) {
+    // SkeletonUtils.clone for proper skinned mesh duplication
+    clonedMesh = skeletonClone(ninjaRoot);
+    setupShadows(clonedMesh);
+    // Feet at y=0 inside group
+    const box = new THREE.Box3().setFromObject(clonedMesh);
+    clonedMesh.position.y = -box.min.y;
+    group.add(clonedMesh);
 
-fbxL.load('attackgojo.fbx', obj=>{
-  const c=obj.animations?.[0];
-  if(c) gojoMixer ? assignGojo(c,'attack') : pendingGojo.push({clip:c,slot:'attack'});
-  onLoad();
-},undefined,()=>onLoad());
+    nMixer = new THREE.AnimationMixer(clonedMesh);
+    if (nClipWalk)   na_walk   = nMixer.clipAction(nClipWalk);
+    if (nClipAttack) na_attack = nMixer.clipAction(nClipAttack);
+  } else {
+    // Fallback: simple capsule so we can still test gameplay
+    const fb = new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.4,1.7,8),
+      new THREE.MeshLambertMaterial({ color: 0x334455 }));
+    fb.position.y = 0.85; group.add(fb);
+    nMixer = new THREE.AnimationMixer(fb);
+  }
 
-fbxL.load('gojo_get_sword.fbx', obj=>{
-  const c=obj.animations?.[0];
-  if(c) gojoMixer ? assignGojo(c,'sword') : pendingGojo.push({clip:c,slot:'sword'});
-  onLoad();
-},undefined,()=>onLoad());
-
-// ── Ninja base ──
-fbxL.load('ninja_standing.fbx', obj=>{
-  ninjaBase=obj; setupMesh(obj); autoFit(obj,1.76);
-  if(obj.animations?.[0]) nClip_idle=obj.animations[0];
-  onLoad();
-},undefined,()=>onLoad());
-
-fbxL.load('ninja_walk.fbx',   obj=>{ if(obj.animations?.[0]) nClip_walk  =obj.animations[0]; onLoad(); },undefined,()=>onLoad());
-fbxL.load('ninja_run.fbx',    obj=>{ if(obj.animations?.[0]) nClip_run   =obj.animations[0]; onLoad(); },undefined,()=>onLoad());
-fbxL.load('ninja_attack__made_it_as_goofy_as_possible_.fbx', obj=>{ if(obj.animations?.[0]) nClip_attack=obj.animations[0]; onLoad(); },undefined,()=>onLoad());
-
-/* ════════════════════════
-   SPAWN NINJA
-════════════════════════ */
-let spawnQueue=0, spawnTimer=0;
-
-function spawnEnemy(){
-  if(!ninjaBase) return;
-  flushPending();
-
-  const clone=ninjaBase.clone(true);
-  const group=new THREE.Group();
-  const box=new THREE.Box3().setFromObject(clone);
-  clone.position.y=-box.min.y;
-  group.add(clone);
-
-  const mixer=new THREE.AnimationMixer(clone);
-  const na_idle  =nClip_idle   ? mixer.clipAction(nClip_idle)   : null;
-  const na_walk  =nClip_walk   ? mixer.clipAction(nClip_walk)   : null;
-  const na_run   =nClip_run    ? mixer.clipAction(nClip_run)    : null;
-  const na_attack=nClip_attack ? mixer.clipAction(nClip_attack) : null;
-  let nCur=null;
-
-  function ns(next,fade=0.2){
-    if(!next||next===nCur) return;
+  function ns(next, fade=0.2) {
+    if (!next || next===nCur) return;
     nCur?.fadeOut(fade); next.reset().fadeIn(fade).play(); nCur=next;
   }
-  ns(na_idle);
+  ns(na_walk); // default state
 
-  // HP bar
-  const hpBg=new THREE.Mesh(new THREE.PlaneGeometry(1.4,0.13),new THREE.MeshBasicMaterial({color:0x220000,side:THREE.DoubleSide}));
-  const hpFg=new THREE.Mesh(new THREE.PlaneGeometry(1.4,0.13),new THREE.MeshBasicMaterial({color:0xff1133,side:THREE.DoubleSide}));
-  hpBg.position.y=2.8; hpFg.position.y=2.8; hpFg.position.z=0.01;
-  hpBg.renderOrder=1; hpFg.renderOrder=2;
+  // HP bar (billboard)
+  const hpBg = new THREE.Mesh(new THREE.PlaneGeometry(1.4,0.13),
+    new THREE.MeshBasicMaterial({ color:0x330000, side:THREE.DoubleSide }));
+  const hpFg = new THREE.Mesh(new THREE.PlaneGeometry(1.4,0.13),
+    new THREE.MeshBasicMaterial({ color:0xff1133, side:THREE.DoubleSide }));
+  hpBg.position.y = 2.8; hpFg.position.set(0,2.8,0.012);
+  hpBg.renderOrder = 1; hpFg.renderOrder = 2;
   group.add(hpBg); group.add(hpFg);
 
   // Spawn on map edge
-  const side=Math.floor(Math.random()*4);
-  const t=(Math.random()-.5)*(MAP-14)*2, M=MAP-8;
-  const pts=[[t,0,M],[t,0,-M],[M,0,t],[-M,0,t]];
+  const side = Math.floor(Math.random()*4);
+  const t = (Math.random()-.5)*(MAP-14)*2, M = MAP-8;
+  const pts = [[t,0,M],[t,0,-M],[M,0,t],[-M,0,t]];
   group.position.set(...pts[side]);
-
   scene.add(group);
+
   enemies.push({
-    group,mixer,hpFg,hpBg,ns,
-    na_idle,na_walk,na_run,na_attack,
+    group, nMixer, hpFg, hpBg, ns, na_walk, na_attack,
     hp:60, maxHp:60, alive:true,
     state:'chase',
-    attackCd:1.2+Math.random(),
-    speed:3.5+Math.random()*1.5,
-    lastPos:group.position.clone(),
-    stuckTimer:0,
-    wanderA:Math.random()*Math.PI*2,
+    atkCd: 1.3 + Math.random(),
+    speed: 3.2 + Math.random()*1.6,
+    lastPos: group.position.clone(),
+    stuckT: 0,
+    wanderA: Math.random()*Math.PI*2,
   });
 }
 
-/* ════════════════════════
-   VFX
-════════════════════════ */
-function spawnHit(pos,col=0xff2200){
-  for(let i=0;i<8;i++){
-    const m=new THREE.Mesh(new THREE.SphereGeometry(.07,4,4),
-      new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:1}));
+/* ════════════ VFX ════════════ */
+function spawnHit(pos, col=0xff3300) {
+  for (let i=0;i<8;i++) {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(.07,4,4),
+      new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:1 }));
     m.position.copy(pos);
-    const v=new THREE.Vector3((Math.random()-.5)*14,Math.random()*10,(Math.random()-.5)*14);
+    const v = new THREE.Vector3((Math.random()-.5)*14, Math.random()*10, (Math.random()-.5)*14);
     scene.add(m);
-    vfxList.push({mesh:m,vel:v,life:.55,max:.55});
+    vfx.push({ mesh:m, vel:v, life:.55, max:.55 });
   }
 }
-function updateVFX(dt){
-  vfxList=vfxList.filter(v=>{
-    v.life-=dt;
-    if(v.life<=0){scene.remove(v.mesh);return false;}
-    v.mesh.position.addScaledVector(v.vel,dt);
-    v.vel.y-=18*dt;
-    v.mesh.material.opacity=v.life/v.max;
+function tickVFX(dt) {
+  vfx = vfx.filter(v => {
+    v.life -= dt;
+    if (v.life <= 0) { scene.remove(v.mesh); return false; }
+    v.mesh.position.addScaledVector(v.vel, dt);
+    v.vel.y -= 18*dt;
+    v.mesh.material.opacity = v.life/v.max;
     return true;
   });
 }
 
-/* ════════════════════════
-   KILL ENEMY
-════════════════════════ */
-function killEnemy(e,silent=false){
-  if(!e.alive) return;
+/* ════════════ KILL ════════════ */
+function killEnemy(e, silent=false) {
+  if (!e.alive) return;
   e.alive=false; e.state='dead';
   scene.remove(e.group);
-  score+=100;
-  if(!silent) spawnHit(e.group.position.clone().add(new THREE.Vector3(0,1,0)));
+  score += 100;
+  if (!silent) spawnHit(e.group.position.clone().add(new THREE.Vector3(0,1,0)));
   deKills++;
-  if(deKills>=DE_KILLS&&!deReady&&!domainActive){
-    deReady=true;
-    announce('域展開 — READY  [ E ]',3.5);
+  if (deKills >= DE_KILLS_NEEDED && !deReady && !domainOn) {
+    deReady = true;
+    announce('DOMAIN EXPANSION READY  [ E ]', 3.5);
   }
 }
 
-/* ════════════════════════
-   DOMAIN EXPANSION
-════════════════════════ */
-let domainQueue=[], domainTarget=null, domainPhase='', domainStrikeT=0;
+/* ════════════ DOMAIN EXPANSION ════════════ */
+let dQueue=[], dTarget=null, dPhase='', dStrikeT=0;
 
-function activateDomain(){
-  if(!deReady||domainActive) return;
-  domainActive=true; deReady=false; deKills=0;
-  document.getElementById('de-overlay').classList.add('active');
-  scene.fog=new THREE.FogExp2(0x1a0040,.022);
-  announce('域展開 · INFINITE VOID',4);
-  domainQueue=enemies.filter(e=>e.alive);
-  domainTarget=null; domainPhase='moving';
+function activateDomain() {
+  if (!deReady || domainOn) return;
+  domainOn=true; deReady=false; deKills=0;
+  document.getElementById('de-overlay').classList.add('on');
+  scene.fog = new THREE.FogExp2(0x1a0040, .022);
+  announce('DOMAIN EXPANSION — INFINITE VOID', 4);
+  dQueue   = enemies.filter(e=>e.alive);
+  dTarget  = null; dPhase = 'moving';
 }
 
-const _dv=new THREE.Vector3();
-function updateDomain(dt){
-  if(!domainActive) return;
-
-  // Pick next target if needed
-  if(!domainTarget||!domainTarget.alive){
-    domainQueue=domainQueue.filter(e=>e.alive);
-    if(domainQueue.length===0){
-      // All dead — end domain after short pause
-      domainActive=false;
-      document.getElementById('de-overlay').classList.remove('active');
-      scene.fog=new THREE.FogExp2(0x050010,.015);
-      setTimeout(()=>{ wave++; startWave(wave); announce(`WAVE ${wave}`,2); },1400);
+const _dv = new THREE.Vector3();
+function tickDomain(dt) {
+  if (!domainOn) return;
+  if (!dTarget || !dTarget.alive) {
+    dQueue = dQueue.filter(e=>e.alive);
+    if (dQueue.length === 0) {
+      // Done
+      domainOn = false;
+      document.getElementById('de-overlay').classList.remove('on');
+      scene.fog = new THREE.FogExp2(0x050010, .013);
+      setTimeout(() => { wave++; startWave(wave); announce('WAVE '+wave, 2); }, 1200);
       return;
     }
-    // Find nearest for satisfying cinematic flow
-    domainQueue.sort((a,b)=>
-      a.group.position.distanceTo(playerGroup.position)-
-      b.group.position.distanceTo(playerGroup.position));
-    domainTarget=domainQueue.shift();
-    domainPhase='moving';
+    // Pick nearest
+    dQueue.sort((a,b) => a.group.position.distanceTo(playerGroup.position) - b.group.position.distanceTo(playerGroup.position));
+    dTarget = dQueue.shift();
+    dPhase  = 'moving';
   }
 
-  if(domainPhase==='moving'){
-    _dv.copy(domainTarget.group.position).sub(playerGroup.position); _dv.y=0;
-    const dist=_dv.length();
-    if(dist<1.7){
-      domainPhase='striking'; domainStrikeT=0.45;
-      switchAnim(act_attack,.08);
+  if (dPhase === 'moving') {
+    _dv.copy(dTarget.group.position).sub(playerGroup.position); _dv.y=0;
+    if (_dv.length() < 1.8) {
+      dPhase='striking'; dStrikeT=0.4;
+      sw(aAttack||aRun, .08);
     } else {
       _dv.normalize();
-      const spd=52*dt; // 4× sprint speed
-      playerGroup.position.x+=_dv.x*spd;
-      playerGroup.position.z+=_dv.z*spd;
-      playerGroup.rotation.y=Math.atan2(_dv.x,_dv.z)+Math.PI;
-      switchAnim(act_run,.08);
+      playerGroup.position.x += _dv.x*52*dt;
+      playerGroup.position.z += _dv.z*52*dt;
+      // Face movement direction
+      playerGroup.rotation.y = Math.atan2(_dv.x, _dv.z);
+      sw(aRun, .08);
     }
   } else {
-    domainStrikeT-=dt;
-    if(domainStrikeT<=0){
-      spawnHit(domainTarget.group.position.clone().add(new THREE.Vector3(0,1.2,0)),0x9900ff);
-      killEnemy(domainTarget,true);
-      domainTarget=null;
+    dStrikeT -= dt;
+    if (dStrikeT <= 0) {
+      spawnHit(dTarget.group.position.clone().add(new THREE.Vector3(0,1.2,0)), 0x9900ff);
+      killEnemy(dTarget, true);
+      dTarget = null;
     }
   }
 }
 
-/* ════════════════════════
-   PLAYER UPDATE
-════════════════════════ */
-const _fwd=new THREE.Vector3(), _right=new THREE.Vector3();
-let shakeAmt=0;
+/* ════════════ ATTACK ════════════ */
+function doAttack() {
+  atkActive=true; atkWindow=false; atkCD=0.8;
+  hitSet.clear();
 
-function startAttack(){
-  attackActive=true; attackWindow=false; attackCooldown=0.85;
-  hitThisSwing.clear();
-  if(act_attack){
-    act_attack.setLoop(THREE.LoopOnce,1);
-    act_attack.clampWhenFinished=false;
-    switchAnim(act_attack,.1);
+  if (aAttack) {
+    aAttack.setLoop(THREE.LoopOnce, 1);
+    aAttack.clampWhenFinished = false;
+    sw(aAttack, .1);
+  } else {
+    sw(aRun||aIdle, .1);
   }
-  setTimeout(()=>{ attackWindow=true;  },170);
-  setTimeout(()=>{ attackWindow=false; },600);
-  setTimeout(()=>{ attackActive=false; switchAnim(act_idle||act_walk,.15); },760);
+
+  // Slash VFX on screen
+  const slash = document.getElementById('sword-slash');
+  slash.style.opacity='1'; slash.style.transform='translate(-50%,-50%) rotate('+(Math.random()*40-20)+'deg)';
+  setTimeout(()=>slash.style.opacity='0', 180);
+
+  setTimeout(()=>{ atkWindow=true;  }, 160);
+  setTimeout(()=>{ atkWindow=false; }, 560);
+  setTimeout(()=>{ atkActive=false; sw(aIdle||aWalk, .15); }, 700);
 }
 
-function updatePlayer(dt){
-  // Always flush any pending clips once mixer exists
-  if(gojoMixer&&pendingGojo.length) flushPending();
+/* ════════════ PLAYER UPDATE ════════════ */
+const _fwd   = new THREE.Vector3();
+const _right = new THREE.Vector3();
 
-  if(domainActive){ updateDomain(dt); return; }
-  if(introPlaying) return;
+function tickPlayer(dt) {
+  if (domainOn) { tickDomain(dt); return; }
+  if (introPlaying) return;
 
-  if(attackCooldown>0) attackCooldown-=dt;
-  if(lmbJustDown&&attackCooldown<=0&&!attackActive) startAttack();
-  if(keys['KeyE']&&deReady&&!domainActive) activateDomain();
+  if (atkCD > 0) atkCD -= dt;
+  if (clickedNow && atkCD<=0 && !atkActive) doAttack();
+  if (keys['KeyE'] && deReady && !domainOn) activateDomain();
 
-  _fwd.set(-Math.sin(cYaw),0,-Math.cos(cYaw));
-  _right.set(Math.cos(cYaw),0,-Math.sin(cYaw));
+  // Camera-relative movement vectors
+  _fwd.set(  -Math.sin(yaw), 0, -Math.cos(yaw));
+  _right.set( Math.cos(yaw), 0, -Math.sin(yaw));
 
-  let dx=0,dz=0;
-  if(keys['KeyW']||keys['ArrowUp'])    {dx+=_fwd.x;  dz+=_fwd.z;}
-  if(keys['KeyS']||keys['ArrowDown'])  {dx-=_fwd.x;  dz-=_fwd.z;}
-  if(keys['KeyD']||keys['ArrowRight']) {dx+=_right.x;dz+=_right.z;}
-  if(keys['KeyA']||keys['ArrowLeft'])  {dx-=_right.x;dz-=_right.z;}
+  let dx=0, dz=0;
+  if (keys['KeyW']||keys['ArrowUp'])    { dx+=_fwd.x;   dz+=_fwd.z;   }
+  if (keys['KeyS']||keys['ArrowDown'])  { dx-=_fwd.x;   dz-=_fwd.z;   }
+  if (keys['KeyD']||keys['ArrowRight']) { dx+=_right.x;  dz+=_right.z; }
+  if (keys['KeyA']||keys['ArrowLeft'])  { dx-=_right.x;  dz-=_right.z; }
 
-  const moving=dx!==0||dz!==0;
-  const sprinting=(keys['ShiftLeft']||keys['ShiftRight'])&&moving;
-  const spd=sprinting?13:6;
+  const moving    = dx!==0||dz!==0;
+  const sprinting = (keys['ShiftLeft']||keys['ShiftRight']) && moving;
+  const spd       = sprinting ? 13 : 6;
 
-  if(moving){
-    const len=Math.sqrt(dx*dx+dz*dz);
-    tryMove(playerGroup.position, dx/len*spd*dt, dz/len*spd*dt, 0.55);
-    playerGroup.rotation.y=Math.atan2(dx,dz)+Math.PI;
-    if(!attackActive){
-      if(sprinting&&act_run)  switchAnim(act_run);
-      else if(act_walk)       switchAnim(act_walk);
-      else if(act_idle)       switchAnim(act_idle);
+  if (moving) {
+    const len = Math.sqrt(dx*dx+dz*dz);
+    const ndx = dx/len * spd * dt;
+    const ndz = dz/len * spd * dt;
+
+    // Track position before move for facing
+    const px = playerGroup.position.x, pz = playerGroup.position.z;
+    slide(playerGroup.position, ndx, ndz, 0.55);
+    const mdx = playerGroup.position.x - px;
+    const mdz = playerGroup.position.z - pz;
+
+    // Face actual movement direction (not input direction — avoids wall-slide glitch)
+    if (Math.abs(mdx)+Math.abs(mdz) > 0.0005) {
+      playerGroup.rotation.y = Math.atan2(mdx, mdz);
     }
-  } else if(!attackActive&&act_idle) switchAnim(act_idle);
 
-  // Sword hit detection
-  if(attackWindow){
-    const fwdA=new THREE.Vector3(-Math.sin(playerGroup.rotation.y-Math.PI),0,-Math.cos(playerGroup.rotation.y-Math.PI));
-    enemies.forEach(e=>{
-      if(!e.alive||hitThisSwing.has(e)) return;
-      const toE=e.group.position.clone().sub(playerGroup.position); toE.y=0;
-      if(toE.length()<3.3&&toE.clone().normalize().dot(fwdA)>0.1){
-        hitThisSwing.add(e);
-        e.hp-=35;
+    if (!atkActive) {
+      if (sprinting && aRun)  sw(aRun);
+      else if (aWalk)         sw(aWalk);
+      else if (aIdle)         sw(aIdle);
+    }
+  } else if (!atkActive && aIdle) {
+    sw(aIdle);
+  }
+
+  // Sword hit detection during window
+  if (atkWindow) {
+    const facing = new THREE.Vector3(Math.sin(playerGroup.rotation.y), 0, Math.cos(playerGroup.rotation.y));
+    enemies.forEach(e => {
+      if (!e.alive || hitSet.has(e)) return;
+      const toE = e.group.position.clone().sub(playerGroup.position); toE.y=0;
+      if (toE.length()<3.4 && toE.clone().normalize().dot(facing)>0.08) {
+        hitSet.add(e);
+        e.hp -= 35;
         spawnHit(e.group.position.clone().add(new THREE.Vector3(0,1.2,0)));
-        if(e.hp<=0) killEnemy(e);
+        if (e.hp<=0) killEnemy(e);
         else {
-          const pct=Math.max(0,e.hp/e.maxHp);
-          e.hpFg.scale.x=pct; e.hpFg.position.x=-(1-pct)*0.7;
+          const pct = Math.max(0, e.hp/e.maxHp);
+          e.hpFg.scale.x = pct;
+          e.hpFg.position.x = -(1-pct)*0.7;
         }
       }
     });
   }
 }
 
-/* ════════════════════════
-   ENEMY AI
-════════════════════════ */
-const _toP=new THREE.Vector3();
+/* ════════════ ENEMY AI ════════════ */
+const _toP = new THREE.Vector3();
 
-function updateEnemies(dt){
-  const pPos=playerGroup.position;
+function tickEnemies(dt) {
+  const pp = playerGroup.position;
 
-  enemies.forEach(e=>{
-    if(!e.alive) return;
-    e.mixer.update(dt);
+  enemies.forEach(e => {
+    if (!e.alive) return;
+    e.nMixer.update(dt);
 
-    // HP bars always face camera
+    // Billboard HP bars toward camera
     e.hpFg.lookAt(camera.position);
     e.hpBg.lookAt(camera.position);
 
-    _toP.copy(pPos).sub(e.group.position); _toP.y=0;
-    const dist=_toP.length();
+    _toP.copy(pp).sub(e.group.position); _toP.y=0;
+    const dist = _toP.length();
 
     /* ── ATTACK STATE ── */
-    if(e.state==='attack'){
-      e.attackCd-=dt;
-      e.ns(e.na_attack||e.na_idle);
-      e.group.lookAt(pPos.x,e.group.position.y,pPos.z);
-      if(e.attackCd<=0){
-        e.attackCd=1.8+Math.random()*0.6;
-        e.state='chase';
-        if(!domainActive){
-          playerHP-=12; shakeAmt=0.4;
-          if(playerHP<=0){playerHP=0;triggerGameOver();}
+    if (e.state==='attack') {
+      e.atkCd -= dt;
+      e.ns(e.na_attack||e.na_walk);
+      e.group.lookAt(pp.x, e.group.position.y, pp.z);
+      if (e.atkCd<=0) {
+        e.atkCd = 1.8+Math.random()*.6;
+        e.state = 'chase';
+        if (!domainOn) {
+          hp -= 12; shakeAmt=0.45;
+          if (hp<=0) { hp=0; triggerOver(); }
         }
       }
       return;
     }
 
     /* ── ENTER ATTACK ── */
-    if(dist<1.8&&!domainActive){
-      e.state='attack'; e.attackCd=0.55;
-      e.ns(e.na_attack||e.na_idle);
-      return;
+    if (dist<1.85 && !domainOn) {
+      e.state='attack'; e.atkCd=0.55;
+      e.ns(e.na_attack||e.na_walk); return;
     }
 
-    /* ── CHASE with obstacle avoidance ── */
-    if(dist>55){ e.ns(e.na_idle); e.group.lookAt(pPos.x,e.group.position.y,pPos.z); return; }
+    /* ── CHASE with wall avoidance ── */
+    if (dist>58) { e.ns(e.na_walk); e.group.lookAt(pp.x,e.group.position.y,pp.z); return; }
 
-    const desired=_toP.clone().normalize();
+    const desired = _toP.clone().normalize();
 
-    // Stuck detection
-    e.stuckTimer+=dt;
-    if(e.stuckTimer>0.4){
-      if(e.group.position.distanceTo(e.lastPos)<0.12){
-        // Rotate wander to try to get unstuck
-        e.wanderA+=Math.PI/3*(Math.random()>.5?1:-1);
+    // Stuck detection every 0.4s
+    e.stuckT += dt;
+    if (e.stuckT > 0.4) {
+      if (e.group.position.distanceTo(e.lastPos) < 0.1) {
+        e.wanderA += (Math.PI/3) * (Math.random()>.5?1:-1);
       }
       e.lastPos.copy(e.group.position);
-      e.stuckTimer=0;
+      e.stuckT = 0;
     }
 
-    // Obstacle repulsion: check a few probe rays
-    const probes=[0, Math.PI/6, -Math.PI/6, Math.PI/3, -Math.PI/3];
-    let bestDir=null, bestScore=-Infinity;
-    probes.forEach(offset=>{
-      const ang=Math.atan2(desired.x,desired.z)+offset;
-      const dir=new THREE.Vector3(Math.sin(ang),0,Math.cos(ang));
-      const probe=e.group.position.clone().add(dir.clone().multiplyScalar(1.5));
-      const blocked=isBlocked(probe.x,probe.z,0.6);
-      // Score: align with player direction + penalty for blocked
-      const score=desired.dot(dir)-(blocked?2:0);
-      if(score>bestScore){bestScore=score;bestDir=dir;}
-    });
+    // Probe 5 directions, pick least blocked
+    let bestDir=desired.clone(), bestScore=-Infinity;
+    for (let ai=0; ai<5; ai++) {
+      const ang = Math.atan2(desired.x,desired.z) + (ai-2)*(Math.PI/5);
+      const d   = new THREE.Vector3(Math.sin(ang),0,Math.cos(ang));
+      const probe = e.group.position.clone().addScaledVector(d, 1.6);
+      const score = desired.dot(d) - (blocked(probe.x,probe.z,0.6) ? 2 : 0);
+      if (score>bestScore) { bestScore=score; bestDir=d; }
+    }
 
-    // Wander blend when close to wall
-    const wander=new THREE.Vector3(Math.sin(e.wanderA),0,Math.cos(e.wanderA));
-    const finalDir=(bestDir||desired).clone().lerp(wander,0.15).normalize();
+    // Blend with wander
+    const wander = new THREE.Vector3(Math.sin(e.wanderA),0,Math.cos(e.wanderA));
+    const final  = bestDir.clone().lerp(wander,0.12).normalize();
+    const spd    = e.speed * (dist<10?0.6:1) * dt;
 
-    const spd=e.speed*(dist<10?0.65:1)*dt;
     const px=e.group.position.x, pz=e.group.position.z;
-    tryMove(e.group.position, finalDir.x*spd, finalDir.z*spd, 0.55);
+    slide(e.group.position, final.x*spd, final.z*spd, 0.55);
 
-    // If completely stuck, force wander rotate
-    if(e.group.position.x===px&&e.group.position.z===pz) e.wanderA+=Math.PI/4;
-    else {
-      // Decay wander back to direct
-      e.wanderA=e.wanderA*.97+Math.atan2(desired.x,desired.z)*.03;
+    if (e.group.position.x===px && e.group.position.z===pz) {
+      e.wanderA += Math.PI/4; // full stuck — rotate wander
+    } else {
+      // Decay wander toward direct path
+      const targetA = Math.atan2(desired.x,desired.z);
+      let diff = targetA-e.wanderA;
+      while (diff >  Math.PI) diff -= Math.PI*2;
+      while (diff < -Math.PI) diff += Math.PI*2;
+      e.wanderA += diff*0.04;
     }
 
+    // Face actual movement direction
     const mdx=e.group.position.x-px, mdz=e.group.position.z-pz;
-    if(Math.abs(mdx)+Math.abs(mdz)>0.001) e.group.rotation.y=Math.atan2(mdx,mdz)+Math.PI;
-    else e.group.lookAt(pPos.x,e.group.position.y,pPos.z);
+    if (Math.abs(mdx)+Math.abs(mdz)>0.0005) {
+      e.group.rotation.y = Math.atan2(mdx,mdz);
+    } else {
+      e.group.lookAt(pp.x,e.group.position.y,pp.z);
+    }
 
-    e.ns(dist>12 ? e.na_run||e.na_walk||e.na_idle : e.na_walk||e.na_idle);
+    e.ns(dist>12 ? e.na_walk : e.na_walk);
   });
 }
 
-/* ════════════════════════
-   WAVE + HUD + ANNOUNCE
-════════════════════════ */
-let waveCleared=false, announceTmr=0;
+/* ════════════ WAVE & HUD ════════════ */
+let waveClear=false, annTmr=0;
 
-function startWave(n){
-  spawnQueue=5+(n-1)*3; spawnTimer=0.5; waveCleared=false;
-  document.getElementById('wave-num').textContent=`WAVE ${n}`;
+function startWave(n) {
+  spawnQ=5+(n-1)*3; spawnT=0.5; waveClear=false;
+  document.getElementById('wave-num').textContent='WAVE '+n;
 }
 
-function checkWave(dt){
-  if(spawnQueue>0){
-    spawnTimer-=dt;
-    if(spawnTimer<=0){spawnEnemy();spawnQueue--;spawnTimer=0.55;}
+function checkWave(dt) {
+  if (spawnQ>0) {
+    spawnT-=dt;
+    if (spawnT<=0) { spawnEnemy(); spawnQ--; spawnT=0.6; }
   }
-  if(waveCleared||domainActive) return;
-  if(spawnQueue===0&&enemies.filter(e=>e.alive).length===0){
-    waveCleared=true;
-    score+=wave*500;
-    announce(`WAVE ${wave} CLEAR`,2.5);
-    setTimeout(()=>{wave++;startWave(wave);announce(`WAVE ${wave}`,2);},3200);
+  if (waveClear||domainOn) return;
+  if (spawnQ===0 && enemies.filter(e=>e.alive).length===0) {
+    waveClear=true;
+    score += wave*500;
+    announce('WAVE '+wave+' CLEAR', 2.5);
+    setTimeout(()=>{ wave++; startWave(wave); announce('WAVE '+wave,2); }, 3200);
   }
 }
 
-function updateHUD(){
-  document.getElementById('hp-fill').style.width=Math.max(0,playerHP/PLAYER_HP*100)+'%';
-  document.getElementById('score-val').textContent=score;
-  document.getElementById('enemy-count').textContent=`ENEMIES: ${enemies.filter(e=>e.alive).length+spawnQueue}`;
-  document.getElementById('de-fill').style.width=Math.min(1,deKills/DE_KILLS)*100+'%';
-  document.getElementById('de-ready').style.opacity=deReady&&!domainActive?'1':'0';
+function updateHUD() {
+  document.getElementById('hp-fill').style.width = Math.max(0,hp/MAX_HP*100)+'%';
+  document.getElementById('score-val').textContent = score;
+  document.getElementById('enemy-count').textContent = 'ENEMIES: '+(enemies.filter(e=>e.alive).length+spawnQ);
+  document.getElementById('de-fill').style.width = Math.min(1,deKills/DE_KILLS_NEEDED)*100+'%';
+  document.getElementById('de-ready').style.opacity = deReady&&!domainOn?'1':'0';
 }
 
-function announce(txt,dur=2.5){
-  const el=document.getElementById('announce');
-  el.textContent=txt; el.style.opacity='1'; announceTmr=dur;
+function announce(txt, dur=2.5) {
+  const el = document.getElementById('announce');
+  el.textContent=txt; el.style.opacity='1'; annTmr=dur;
 }
 
-/* ════════════════════════
-   INTRO (get sword)
-════════════════════════ */
-function playIntro(){
+/* ════════════ INTRO ════════════ */
+function playIntro() {
   introPlaying=true;
-  flushPending();
-  const txt=document.getElementById('intro-text');
+  const txt=document.getElementById('intro-txt');
   txt.style.opacity='1';
 
-  function doPlay(){
-    if(act_getSword){
-      act_getSword.setLoop(THREE.LoopOnce,1);
-      act_getSword.clampWhenFinished=true;
-      switchAnim(act_getSword,.2);
-      const dur=(act_getSword.getClip().duration+0.6)*1000;
-      setTimeout(endIntro, dur);
+  function go() {
+    if (aGetSword) {
+      aGetSword.setLoop(THREE.LoopOnce,1);
+      aGetSword.clampWhenFinished=true;
+      sw(aGetSword, .2);
+      const dur = (aGetSword.getClip().duration+0.5)*1000;
+      setTimeout(end, Math.max(dur,1500));
     } else {
-      setTimeout(endIntro,2000);
+      setTimeout(end,1800);
     }
   }
-  // Short delay to ensure mixer is set
-  setTimeout(doPlay,200);
-
-  function endIntro(){
+  function end() {
     txt.style.opacity='0';
     introPlaying=false;
-    if(act_idle) switchAnim(act_idle);
+    if (aIdle) sw(aIdle,.3);
   }
+  setTimeout(go, 300);
 }
 
-/* ════════════════════════
-   GAME OVER
-════════════════════════ */
-function triggerGameOver(){
-  if(gameOver) return;
-  gameOver=true;
+/* ════════════ GAME OVER ════════════ */
+function triggerOver() {
+  if (over) return; over=true;
   document.exitPointerLock();
   document.getElementById('hud').style.display='none';
   document.getElementById('over-screen').style.display='flex';
-  document.getElementById('final-score').textContent=`SCORE: ${score}  ·  WAVE ${wave}`;
+  document.getElementById('final-score').textContent='SCORE: '+score+'  WAVE '+wave;
 }
 
-function doRestart(){
+function doRestart() {
   enemies.forEach(e=>scene.remove(e.group));
-  vfxList.forEach(v=>scene.remove(v.mesh));
-  enemies=[]; vfxList=[];
-  score=0; wave=1; playerHP=PLAYER_HP;
-  deKills=0; deReady=false; domainActive=false;
-  spawnQueue=0; attackActive=false; attackWindow=false; attackCooldown=0;
-  domainTarget=null; domainQueue=[];
+  vfx.forEach(v=>scene.remove(v.mesh));
+  enemies=[]; vfx=[];
+  score=0; wave=1; hp=MAX_HP;
+  deKills=0; deReady=false; domainOn=false;
+  spawnQ=0; atkActive=false; atkWindow=false; atkCD=0;
+  dTarget=null; dQueue=[];
   playerGroup.position.set(0,0,0);
-  cYaw=0; cPitch=0.32; gameOver=false; introPlaying=false;
-  document.getElementById('de-overlay').classList.remove('active');
-  scene.fog=new THREE.FogExp2(0x050010,.015);
+  yaw=0; pitch=0.30; over=false; introPlaying=false;
+  document.getElementById('de-overlay').classList.remove('on');
+  scene.fog=new THREE.FogExp2(0x050010,.013);
   scene.background.set(0x050010);
   document.getElementById('over-screen').style.display='none';
   document.getElementById('hud').style.display='block';
-  if(act_idle){curAct=null; switchAnim(act_idle);}
+  curAct=null; if (aIdle) sw(aIdle);
   updateHUD();
   canvas.requestPointerLock();
   playIntro();
-  setTimeout(()=>{startWave(1); announce('WAVE 1',2);},200);
+  setTimeout(()=>{ startWave(1); announce('WAVE 1',2); },300);
 }
 
-document.getElementById('start-btn').addEventListener('click',()=>{
+document.getElementById('start-btn').addEventListener('click', () => {
   document.getElementById('start-screen').style.display='none';
   document.getElementById('hud').style.display='block';
-  gameStarted=true;
+  started=true;
   canvas.requestPointerLock();
-  flushPending();
   playIntro();
-  setTimeout(()=>{startWave(1); announce('WAVE 1',2);},200);
+  setTimeout(()=>{ startWave(1); announce('WAVE 1',2); },300);
 });
 document.getElementById('restart-btn').addEventListener('click', doRestart);
 
-/* ════════════════════════
-   CAMERA
-════════════════════════ */
-const camT=new THREE.Vector3(), camL=new THREE.Vector3();
+/* ════════════ CAMERA ════════════ */
+const camTgt=new THREE.Vector3(), camLook=new THREE.Vector3();
 
-function updateCamera(){
-  const d=16;
-  const bx=Math.sin(cYaw)*Math.cos(cPitch)*d;
-  const by=Math.sin(cPitch)*d+2;
-  const bz=Math.cos(cYaw)*Math.cos(cPitch)*d;
-  const sh=shakeAmt>0?(Math.random()-.5)*shakeAmt:0;
-  camT.set(playerGroup.position.x+bx+sh, playerGroup.position.y+by+sh*.5, playerGroup.position.z+bz);
-  camL.set(playerGroup.position.x, playerGroup.position.y+1.6, playerGroup.position.z);
-  camera.position.lerp(camT,.12);
-  camera.lookAt(camL);
-  if(shakeAmt>0) shakeAmt=Math.max(0,shakeAmt-0.22);
+function tickCamera() {
+  const bx = Math.sin(yaw)   * Math.cos(pitch) * camDist;
+  const by = Math.sin(pitch) * camDist + 1.5;
+  const bz = Math.cos(yaw)   * Math.cos(pitch) * camDist;
+  const sh = shakeAmt>0?(Math.random()-.5)*shakeAmt:0;
+
+  camTgt.set( playerGroup.position.x+bx+sh, playerGroup.position.y+by+sh*.4, playerGroup.position.z+bz );
+  camLook.set(playerGroup.position.x, playerGroup.position.y+1.5, playerGroup.position.z);
+  camera.position.lerp(camTgt, .11);
+  camera.lookAt(camLook);
+  if (shakeAmt>0) shakeAmt=Math.max(0,shakeAmt-.20);
 }
 
-/* ════════════════════════
-   MAIN LOOP
-════════════════════════ */
-const clock=new THREE.Clock();
-function loop(){
+/* ════════════ MAIN LOOP ════════════ */
+const clock = new THREE.Clock();
+function loop() {
   requestAnimationFrame(loop);
-  const dt=Math.min(clock.getDelta(),.05);
+  const dt = Math.min(clock.getDelta(), .05);
 
-  if(gameStarted&&!gameOver){
-    updatePlayer(dt);
-    updateEnemies(dt);
-    updateVFX(dt);
+  if (started && !over) {
+    tickPlayer(dt);
+    tickEnemies(dt);
+    tickVFX(dt);
     checkWave(dt);
     updateHUD();
-    if(announceTmr>0){ announceTmr-=dt; if(announceTmr<=0) document.getElementById('announce').style.opacity='0'; }
+    if (annTmr>0){ annTmr-=dt; if(annTmr<=0) document.getElementById('announce').style.opacity='0'; }
   }
 
-  if(gojoMixer) gojoMixer.update(dt);
+  if (gojoMixer) {
+    gojoMixer.update(dt);
+    // Cancel any root-bone Y-rotation baked into the FBX animation
+    // (prevents the model from flipping to face camera during sprint)
+    if (gojoRoot) gojoRoot.rotation.y = 0;
+  }
 
-  updateCamera();
+  tickCamera();
 
-  pulse.intensity=3.5+Math.sin(Date.now()*.002)*1.5;
-  pulse.position.set(
-    playerGroup.position.x+Math.sin(Date.now()*.0008)*5,4,
-    playerGroup.position.z+Math.cos(Date.now()*.0008)*5
+  pLight.intensity = 4+Math.sin(Date.now()*.0018)*2;
+  pLight.position.set(
+    playerGroup.position.x + Math.sin(Date.now()*.0008)*5,
+    4,
+    playerGroup.position.z + Math.cos(Date.now()*.0008)*5
   );
 
-  if(domainActive) scene.background.setRGB(.018+Math.sin(Date.now()*.003)*.008,0,.055);
+  if (domainOn) scene.background.setRGB(.016+Math.sin(Date.now()*.003)*.007, 0, .05);
+  renderer.render(scene, camera);
 
-  renderer.render(scene,camera);
-  lmbJustDown=false;
+  clickedNow = false;
 }
 
-window.addEventListener('resize',()=>{
-  camera.aspect=innerWidth/innerHeight;
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth,innerHeight);
+  renderer.setSize(innerWidth, innerHeight);
 });
 
 loop();
