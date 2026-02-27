@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>GOJO VS SHADOW CLAN</title>
+<title>CURSED CLASH</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
 #c{display:block;width:100vw;height:100vh}
 
+/* LOADING */
 #loading{position:fixed;inset:0;background:#000010;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:300}
 #loading h2{font-size:11px;letter-spacing:7px;color:#334488;margin-bottom:18px}
 #lbar-bg{width:240px;height:2px;background:#0a1230}
@@ -17,22 +18,58 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
 #lpct{font-size:10px;letter-spacing:4px;color:#223366;margin-top:10px}
 #lfile{font-size:9px;letter-spacing:2px;color:#182240;margin-top:5px;min-height:11px}
 
-#start-screen{position:fixed;inset:0;background:radial-gradient(ellipse,#0a0022 0%,#000 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;overflow-y:auto}
-.jp{font-size:12px;letter-spacing:10px;color:#334488;margin-bottom:14px}
-.title{font-family:'Cinzel Decorative',cursive;font-size:clamp(24px,5vw,66px);color:#fff;text-shadow:0 0 40px #0055ff,0 0 80px #003399;letter-spacing:6px;text-align:center}
-.sub{font-size:clamp(11px,2vw,17px);letter-spacing:10px;color:#4488bb;margin-top:8px}
-.gline{width:260px;height:1px;background:linear-gradient(90deg,transparent,#0055ff,transparent);margin:20px 0;box-shadow:0 0 15px #0044ff}
-.cg{display:grid;grid-template-columns:auto auto;gap:7px 24px;font-size:11px;letter-spacing:2px;color:#445577;margin-bottom:28px}
-.cg span{color:#5588bb;text-align:right}
-.btn{padding:13px 46px;border:1px solid #0044ff;color:#88ccff;font-family:'Cinzel',serif;font-size:12px;letter-spacing:6px;cursor:pointer;background:rgba(0,40,100,.3);transition:all .3s;-webkit-tap-highlight-color:transparent}
+/* TITLE SCREEN */
+#start-screen{position:fixed;inset:0;background:radial-gradient(ellipse,#0a0022 0%,#000 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;overflow-y:auto;gap:0}
+.jp{font-size:11px;letter-spacing:10px;color:#334488;margin-bottom:10px}
+.title{font-family:'Cinzel Decorative',cursive;font-size:clamp(26px,5vw,70px);color:#fff;text-shadow:0 0 40px #0055ff,0 0 80px #003399;letter-spacing:6px;text-align:center;line-height:1.1}
+.sub{font-size:clamp(10px,1.8vw,15px);letter-spacing:10px;color:#4488bb;margin-top:6px;margin-bottom:4px}
+.record-display{font-size:11px;letter-spacing:4px;color:#446688;margin-bottom:16px}
+.record-display span{color:#88ccff}
+.gline{width:260px;height:1px;background:linear-gradient(90deg,transparent,#0055ff,transparent);margin:14px 0;box-shadow:0 0 15px #0044ff}
+.bg-hex{position:absolute;inset:0;pointer-events:none;opacity:.05}
+.btn{padding:13px 46px;border:1px solid #0044ff;color:#88ccff;font-family:'Cinzel',serif;font-size:12px;letter-spacing:6px;cursor:pointer;background:rgba(0,40,100,.3);transition:all .3s;-webkit-tap-highlight-color:transparent;margin-top:4px}
 .btn:hover,.btn:active{background:rgba(0,60,180,.4);box-shadow:0 0 30px #0033ff;color:#fff;border-color:#0088ff}
-.bg-hex{position:absolute;inset:0;pointer-events:none;opacity:.06}
 
+/* CHARACTER SELECT */
+#char-select{display:flex;gap:clamp(12px,3vw,28px);margin:10px 0 14px}
+.char-card{width:clamp(130px,18vw,180px);padding:16px 12px;border:2px solid transparent;border-radius:4px;cursor:pointer;transition:all .3s;background:rgba(0,0,0,.4);position:relative;-webkit-tap-highlight-color:transparent;user-select:none}
+.char-card:hover{transform:translateY(-3px)}
+.char-card.selected{transform:translateY(-4px)}
+.char-card.gojo-card{border-color:rgba(0,80,200,.4)}
+.char-card.gojo-card:hover,.char-card.gojo-card.selected{border-color:#0066ff;box-shadow:0 0 24px rgba(0,100,255,.5),inset 0 0 20px rgba(0,50,150,.2)}
+.char-card.yuji-card{border-color:rgba(200,0,80,.4)}
+.char-card.yuji-card:hover,.char-card.yuji-card.selected{border-color:#ff0066;box-shadow:0 0 24px rgba(255,0,100,.5),inset 0 0 20px rgba(150,0,60,.2)}
+.char-name{font-family:'Cinzel Decorative',cursive;font-size:clamp(11px,2vw,15px);letter-spacing:4px;margin-bottom:6px;text-align:center}
+.gojo-card .char-name{color:#44aaff;text-shadow:0 0 10px #0066ff}
+.yuji-card .char-name{color:#ff4488;text-shadow:0 0 10px #ff0066}
+.char-title{font-size:8px;letter-spacing:3px;text-align:center;margin-bottom:10px;opacity:.6}
+.gojo-card .char-title{color:#88ccff}
+.yuji-card .char-title{color:#ffaacc}
+.char-desc{font-size:8px;letter-spacing:1px;color:#667799;line-height:1.6;text-align:center;margin-bottom:10px}
+.char-stats{display:flex;flex-direction:column;gap:4px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;font-size:7px;letter-spacing:2px}
+.stat-lbl{color:#445566}
+.stat-bar{width:60px;height:3px;background:#111;border-radius:2px;overflow:hidden}
+.stat-fill{height:100%;border-radius:2px}
+.gojo-card .stat-fill{background:linear-gradient(90deg,#0044cc,#00aaff)}
+.yuji-card .stat-fill{background:linear-gradient(90deg,#cc0044,#ff4488)}
+.char-special{font-size:7px;letter-spacing:2px;text-align:center;margin-top:8px;padding:4px 6px;border-radius:2px}
+.gojo-card .char-special{color:#8866ff;border:1px solid rgba(100,50,255,.3);background:rgba(50,0,100,.2)}
+.yuji-card .char-special{color:#ff6688;border:1px solid rgba(255,50,100,.3);background:rgba(100,0,50,.2)}
+.selected-check{position:absolute;top:6px;right:8px;font-size:10px;opacity:0;transition:opacity .2s}
+.char-card.selected .selected-check{opacity:1}
+
+/* CONTROLS HINT */
+.cg{display:grid;grid-template-columns:auto auto;gap:5px 20px;font-size:10px;letter-spacing:2px;color:#445577;margin-bottom:10px}
+.cg span{color:#5588bb;text-align:right}
+
+/* GAME OVER */
 #over-screen{position:fixed;inset:0;background:radial-gradient(ellipse,#200010 0%,#000 100%);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200}
 #over-screen h1{font-size:13px;letter-spacing:8px;color:#aa3355;margin-bottom:8px}
 #over-screen h2{font-family:'Cinzel Decorative',cursive;font-size:clamp(40px,6vw,78px);color:#ff3355;text-shadow:0 0 40px #ff0033;letter-spacing:6px}
 .dline{width:200px;height:1px;background:linear-gradient(90deg,transparent,#ff0033,transparent);margin:18px 0;box-shadow:0 0 15px #ff0033}
-#fscore{font-size:19px;color:#fff;letter-spacing:4px;margin-bottom:32px}
+#fscore{font-size:17px;color:#fff;letter-spacing:4px;margin-bottom:6px}
+#fnewrecord{font-size:11px;letter-spacing:5px;color:#ffcc44;margin-bottom:28px;opacity:0;transition:opacity .5s}
 
 /* HUD */
 #hud{position:fixed;inset:0;pointer-events:none;display:none}
@@ -56,6 +93,7 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
 #wv-wrap{position:absolute;top:26px;left:32px}
 #wv-num{font-size:13px;letter-spacing:6px;color:#88ccff;text-shadow:0 0 15px #0066ff}
 #ec{font-size:10px;letter-spacing:3px;color:#5577aa;margin-top:4px}
+#chr-hud{position:absolute;top:68px;left:32px;font-size:9px;letter-spacing:4px;opacity:.5}
 #ann{position:absolute;top:36%;left:50%;transform:translateX(-50%);font-family:'Cinzel Decorative',cursive;font-size:clamp(20px,4vw,40px);color:#fff;letter-spacing:8px;text-shadow:0 0 40px #0066ff,0 0 80px #0033ff;opacity:0;transition:opacity .4s;white-space:nowrap;pointer-events:none;text-align:center}
 #itxt{position:absolute;top:44%;left:50%;transform:translateX(-50%);font-size:13px;letter-spacing:5px;color:#88aaff;opacity:0;transition:opacity 1s;white-space:nowrap;pointer-events:none}
 #xhair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;pointer-events:none}
@@ -83,15 +121,12 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
 /* MOBILE CONTROLS */
 #mobile-controls{position:fixed;inset:0;pointer-events:none;z-index:100;display:none}
 #mobile-controls.visible{display:block}
-
 #joystick-base{position:absolute;bottom:100px;left:36px;width:115px;height:115px;border-radius:50%;background:rgba(0,40,100,.2);border:2px solid rgba(0,100,255,.35);pointer-events:all;touch-action:none;box-shadow:0 0 20px rgba(0,80,200,.15)}
 #joystick-knob{position:absolute;top:50%;left:50%;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(0,180,255,.9),rgba(0,60,160,.7));border:2px solid rgba(0,220,255,.8);transform:translate(-50%,-50%);box-shadow:0 0 14px rgba(0,150,255,.6)}
-
 .mob-btn{position:absolute;border-radius:50%;pointer-events:all;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-weight:600;letter-spacing:1px;-webkit-tap-highlight-color:transparent;user-select:none;transition:transform .1s,box-shadow .1s;gap:2px}
 .mob-btn:active{transform:scale(.88)}
 .mob-btn span{font-size:18px;line-height:1}
 .mob-btn small{font-size:7px;letter-spacing:2px}
-
 #btn-attack{bottom:110px;right:36px;width:78px;height:78px;background:radial-gradient(circle at 35% 35%,rgba(0,120,220,.8),rgba(0,40,100,.6));border:2px solid rgba(0,170,255,.8);color:#aaddff;box-shadow:0 0 18px rgba(0,120,255,.4)}
 #btn-sprint{bottom:210px;right:130px;width:56px;height:56px;background:radial-gradient(circle at 35% 35%,rgba(0,70,160,.7),rgba(0,25,70,.5));border:2px solid rgba(0,100,220,.5);color:#7799cc;box-shadow:0 0 10px rgba(0,80,200,.2)}
 #btn-sprint.spr-on{background:radial-gradient(circle at 35% 35%,rgba(0,170,255,.9),rgba(0,80,200,.7));border-color:rgba(0,230,255,.9);color:#ccffff;box-shadow:0 0 22px rgba(0,200,255,.7)}
@@ -120,21 +155,22 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
   <div id="wv-wrap"><div id="wv-num">WAVE 1</div><div id="ec">ENEMIES: 0</div></div>
   <div id="sw-wrap"><div id="sw-lbl">SCORE</div><div id="sw-val">0</div></div>
   <div id="hp-wrap">
-    <div id="hp-lbl">LIMITLESS <span id="hp-cap-ind">REGEN TO 75%</span></div>
+    <div id="hp-lbl"><span id="hp-lbl-txt">LIMITLESS</span><span id="hp-cap-ind">REGEN TO 75%</span></div>
     <div id="hp-bg">
       <div id="hp-heal-zone"></div>
       <div id="hp-fg"></div>
     </div>
   </div>
   <div id="de-wrap">
-    <div id="de-lbl">DOMAIN EXPANSION (30 kills)</div>
+    <div id="de-lbl" id="de-lbl-txt">DOMAIN EXPANSION (30 kills)</div>
     <div id="de-bg"><div id="de-fg"></div></div>
     <div id="de-tip">PRESS  E  TO ACTIVATE</div>
   </div>
-  <div id="hint">WASD MOVE &nbsp;|&nbsp; SHIFT SPRINT &nbsp;|&nbsp; CLICK ATTACK &nbsp;|&nbsp; E DOMAIN &nbsp;|&nbsp; SCROLL ZOOM</div>
+  <div id="hint">WASD MOVE &nbsp;|&nbsp; SHIFT SPRINT &nbsp;|&nbsp; CLICK ATTACK &nbsp;|&nbsp; E SPECIAL &nbsp;|&nbsp; SCROLL ZOOM</div>
+  <div id="chr-hud"></div>
   <div id="xhair"></div>
   <div id="ann"></div>
-  <div id="itxt">Acquiring Sword...</div>
+  <div id="itxt"></div>
   <div id="slash"></div>
 </div>
 
@@ -144,9 +180,9 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
 <!-- Mobile Controls -->
 <div id="mobile-controls">
   <div id="joystick-base"><div id="joystick-knob"></div></div>
-  <div class="mob-btn" id="btn-attack"><span>⚔️</span><small>ATTACK</small></div>
+  <div class="mob-btn" id="btn-attack"><span id="btn-atk-icon">⚔️</span><small>ATTACK</small></div>
   <div class="mob-btn" id="btn-sprint"><span>💨</span><small>SPRINT</small></div>
-  <div class="mob-btn" id="btn-domain"><span>∞</span><small>VOID</small></div>
+  <div class="mob-btn" id="btn-domain"><span id="btn-dom-icon">∞</span><small id="btn-dom-lbl">VOID</small></div>
   <div id="cam-hint-mob">DRAG RIGHT SIDE → CAMERA</div>
 </div>
 
@@ -158,16 +194,46 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
     </svg>
   </div>
   <div class="jp">JUJUTSU KAISEN</div>
-  <div class="title">SATORU GOJO</div>
-  <div class="sub">VS THE SHADOW CLAN</div>
+  <div class="title">CURSED CLASH</div>
+  <div class="sub">SHADOW CLAN RISING</div>
+  <div class="record-display">RECORD WAVE: <span id="record-disp">—</span></div>
   <div class="gline"></div>
+
+  <!-- Character Select -->
+  <div id="char-select">
+    <div class="char-card gojo-card selected" data-char="gojo">
+      <div class="selected-check">✦</div>
+      <div class="char-name">GOJO</div>
+      <div class="char-title">THE HONORED ONE</div>
+      <div class="char-desc">Master of Limitless cursed technique. Controls space itself with Infinity.</div>
+      <div class="char-stats">
+        <div class="stat-row"><span class="stat-lbl">ATTACK</span><div class="stat-bar"><div class="stat-fill" style="width:70%"></div></div></div>
+        <div class="stat-row"><span class="stat-lbl">SPEED</span><div class="stat-bar"><div class="stat-fill" style="width:65%"></div></div></div>
+        <div class="stat-row"><span class="stat-lbl">RANGE</span><div class="stat-bar"><div class="stat-fill" style="width:80%"></div></div></div>
+      </div>
+      <div class="char-special">∞ DOMAIN EXPANSION</div>
+    </div>
+    <div class="char-card yuji-card" data-char="yuji">
+      <div class="selected-check">✦</div>
+      <div class="char-name">ITADORI</div>
+      <div class="char-title">VESSEL OF SUKUNA</div>
+      <div class="char-desc">Raw physical power amplified by cursed energy. Fast, relentless, unstoppable.</div>
+      <div class="char-stats">
+        <div class="stat-row"><span class="stat-lbl">ATTACK</span><div class="stat-bar"><div class="stat-fill" style="width:90%"></div></div></div>
+        <div class="stat-row"><span class="stat-lbl">SPEED</span><div class="stat-bar"><div class="stat-fill" style="width:85%"></div></div></div>
+        <div class="stat-row"><span class="stat-lbl">RANGE</span><div class="stat-bar"><div class="stat-fill" style="width:45%"></div></div></div>
+      </div>
+      <div class="char-special">⚡ BLACK FLASH</div>
+    </div>
+  </div>
+
   <div class="cg" id="ctrl-guide">
     <span>WASD</span><div>Move</div>
     <span>SHIFT</span><div>Sprint</div>
     <span>MOUSE</span><div>Camera</div>
-    <span>CLICK</span><div>Sword Attack</div>
-    <span>E</span><div>Domain Expansion</div>
-    <span>SCROLL</span><div>Zoom In / Out</div>
+    <span>CLICK</span><div>Attack</div>
+    <span>E</span><div>Special Ability</div>
+    <span>SCROLL</span><div>Zoom</div>
   </div>
   <div class="btn" id="start-btn">BEGIN</div>
 </div>
@@ -176,6 +242,7 @@ body{background:#000;overflow:hidden;cursor:none;font-family:'Cinzel',serif}
   <h1>The Weakest</h1><h2>YOU FELL</h2>
   <div class="dline"></div>
   <div id="fscore"></div>
+  <div id="fnewrecord">✦ NEW RECORD ✦</div>
   <div class="btn" id="restart-btn" style="pointer-events:all">TRY AGAIN</div>
 </div>
 
@@ -188,65 +255,140 @@ import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 import { clone as skelClone } from 'three/addons/utils/SkeletonUtils.js';
 
 /* ══════════════════════════════════════
+   RECORD WAVE — localStorage
+══════════════════════════════════════ */
+function getRecord(){ return parseInt(localStorage.getItem('cursedclash_record')||'0'); }
+function setRecord(w){ localStorage.setItem('cursedclash_record',w); }
+function updateRecordDisplay(){ const r=getRecord(); document.getElementById('record-disp').textContent=r>0?'WAVE '+r:'—'; }
+updateRecordDisplay();
+
+/* ══════════════════════════════════════
+   CHARACTER DEFINITIONS
+══════════════════════════════════════ */
+const CHARS = {
+  gojo: {
+    name: 'SATORU GOJO',
+    color: 0x0066ff,
+    colorHex: '#0066ff',
+    hudLabel: 'LIMITLESS',
+    specialLabel: 'DOMAIN EXPANSION (30 kills)',
+    specialTip: 'PRESS  E  TO ACTIVATE',
+    introText: 'Acquiring Infinity...',
+    atkRange: 3.5,
+    atkDmg: 35,
+    atkCD: 0.75,
+    speed: 6,
+    sprintSpeed: 13,
+    files: {
+      idle:   'gojo_standing_Pose.fbx',
+      walk:   'gojo_walking.fbx',
+      run:    'gojo_sprint.fbx',
+      attack: 'attackgojo.fbx',
+      intro:  'gojo_get_sword.fbx',
+    },
+    height: 1.82,
+  },
+  yuji: {
+    name: 'YUJI ITADORI',
+    color: 0xff0066,
+    colorHex: '#ff0066',
+    hudLabel: 'DIVERGENT FIST',
+    specialLabel: 'BLACK FLASH (30 kills)',
+    specialTip: 'PRESS  E  TO ACTIVATE',
+    introText: "Let's go!!",
+    atkRange: 2.8,
+    atkDmg: 45,
+    atkCD: 0.5,
+    speed: 7,
+    sprintSpeed: 15,
+    files: {
+      idle:   'yujistanding.fbx',
+      walk:   'yujiwalk.fbx',
+      run:    'yujirun.fbx',
+      attack: 'yujipunch.fbx',
+      intro:  'yujientersthestage.fbx',
+    },
+    height: 1.78,
+  },
+};
+
+let selectedChar = 'gojo';
+
+// Character card selection
+document.querySelectorAll('.char-card').forEach(card=>{
+  card.addEventListener('click',()=>{
+    document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedChar = card.dataset.char;
+  });
+  card.addEventListener('touchstart',e=>{
+    e.preventDefault();
+    document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedChar = card.dataset.char;
+  },{passive:false});
+});
+
+/* ══════════════════════════════════════
    MOBILE DETECTION
 ══════════════════════════════════════ */
 const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
               || ('ontouchstart' in window && navigator.maxTouchPoints > 0);
 
 const lWarn = document.getElementById('landscape-warn');
-function checkOrientation() {
-  if (!isMobile) return;
-  lWarn.style.display = window.innerHeight > window.innerWidth ? 'flex' : 'none';
+function checkOrientation(){
+  if(!isMobile)return;
+  lWarn.style.display = window.innerHeight>window.innerWidth?'flex':'none';
 }
-window.addEventListener('resize', ()=>{ checkOrientation(); onResize(); });
-window.addEventListener('orientationchange', checkOrientation);
+window.addEventListener('resize',()=>{ checkOrientation(); onResize(); });
+window.addEventListener('orientationchange',checkOrientation);
 checkOrientation();
 
-if (isMobile) {
-  document.getElementById('ctrl-guide').innerHTML = `
+if(isMobile){
+  document.getElementById('ctrl-guide').innerHTML=`
     <span>JOYSTICK</span><div>Move</div>
     <span>SPRINT BTN</span><div>Toggle Sprint</div>
     <span>DRAG RIGHT</span><div>Camera</div>
-    <span>ATTACK BTN</span><div>Sword Attack</div>
-    <span>VOID BTN</span><div>Domain Expansion</div>
+    <span>ATK BTN</span><div>Attack</div>
+    <span>SPECIAL BTN</span><div>Special Ability</div>
   `;
-  document.getElementById('hint').style.display = 'none';
-  document.getElementById('xhair').style.display = 'none';
-  document.body.style.cursor = 'default';
+  document.getElementById('hint').style.display='none';
+  document.getElementById('xhair').style.display='none';
+  document.body.style.cursor='default';
 }
 
 /* ══════════════════════════════════════
    RENDERER
 ══════════════════════════════════════ */
-const canvas = document.getElementById('c');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.2;
 
-const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x050010, 0.013);
-scene.background = new THREE.Color(0x050010);
-const camera = new THREE.PerspectiveCamera(65, innerWidth/innerHeight, 0.1, 400);
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x050010,0.013);
+scene.background=new THREE.Color(0x050010);
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,0.1,400);
 
-scene.add(new THREE.AmbientLight(0x2233aa, 1.9));
-const sun = new THREE.DirectionalLight(0x99aaff, 3);
-sun.position.set(30, 60, 20); sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
+scene.add(new THREE.AmbientLight(0x2233aa,1.9));
+const sun=new THREE.DirectionalLight(0x99aaff,3);
+sun.position.set(30,60,20); sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
 sun.shadow.camera.near=1; sun.shadow.camera.far=220;
 sun.shadow.camera.left=-85; sun.shadow.camera.right=85;
 sun.shadow.camera.top=85; sun.shadow.camera.bottom=-85;
 scene.add(sun);
-const pLight = new THREE.PointLight(0x0055ff, 5, 35);
+const pLight=new THREE.PointLight(0x0055ff,5,35);
 scene.add(pLight);
 
 /* ══════════════════════════════════════
-   MAP + COLLIDERS
+   MAP
 ══════════════════════════════════════ */
-const MAP=75, COLS=[];
+const MAP=75,COLS=[];
 const addCol=(cx,cz,hw,hd)=>COLS.push({minX:cx-hw,maxX:cx+hw,minZ:cz-hd,maxZ:cz+hd});
 const isBlocked=(px,pz,r)=>COLS.some(c=>px+r>c.minX&&px-r<c.maxX&&pz+r>c.minZ&&pz-r<c.maxZ);
 function slide(pos,dx,dz,r){
@@ -259,8 +401,7 @@ function slide(pos,dx,dz,r){
 (function buildMap(){
   const g=new THREE.Mesh(new THREE.PlaneGeometry(MAP*2,MAP*2),new THREE.MeshLambertMaterial({color:0x070818}));
   g.rotation.x=-Math.PI/2; g.receiveShadow=true; scene.add(g);
-  const grid=new THREE.GridHelper(MAP*2,64,0x001144,0x001133);
-  grid.position.y=0.02; scene.add(grid);
+  scene.add(new THREE.GridHelper(MAP*2,64,0x001144,0x001133));
   for(let i=0;i<12;i++){
     const lm=new THREE.Mesh(new THREE.PlaneGeometry(MAP*1.85,0.06),new THREE.MeshBasicMaterial({color:0x002299,transparent:true,opacity:.13}));
     lm.rotation.x=-Math.PI/2; lm.rotation.z=(i/12)*Math.PI; lm.position.y=0.03; scene.add(lm);
@@ -281,16 +422,24 @@ function slide(pos,dx,dz,r){
 })();
 
 /* ══════════════════════════════════════
-   ASSET LOADING
+   ASSET LOADING — both characters
 ══════════════════════════════════════ */
 const fbxL=new FBXLoader();
 let loadDone=0;
 const LOAD_LIST=[
+  // Gojo
   {key:'g_idle',   file:'gojo_standing_Pose.fbx'},
   {key:'g_walk',   file:'gojo_walking.fbx'},
   {key:'g_run',    file:'gojo_sprint.fbx'},
   {key:'g_attack', file:'attackgojo.fbx'},
-  {key:'g_sword',  file:'gojo_get_sword.fbx'},
+  {key:'g_intro',  file:'gojo_get_sword.fbx'},
+  // Yuji
+  {key:'y_idle',   file:'yujistanding.fbx'},
+  {key:'y_walk',   file:'yujiwalk.fbx'},
+  {key:'y_run',    file:'yujirun.fbx'},
+  {key:'y_attack', file:'yujipunch.fbx'},
+  {key:'y_intro',  file:'yujientersthestage.fbx'},
+  // Ninja
   {key:'n_idle',   file:'ninja_standing.fbx'},
   {key:'n_walk',   file:'ninja_walk.fbx'},
   {key:'n_run',    file:'ninja_run.fbx'},
@@ -302,7 +451,7 @@ function onEachLoaded(){
   const p=Math.round(loadDone/TOTAL*100);
   document.getElementById('lbar').style.width=p+'%';
   document.getElementById('lpct').textContent=p+'%';
-  if(loadDone>=TOTAL) setTimeout(onAllLoaded,200);
+  if(loadDone>=TOTAL)setTimeout(onAllLoaded,200);
 }
 LOAD_LIST.forEach(({key,file})=>{
   document.getElementById('lfile').textContent=file;
@@ -321,15 +470,17 @@ function setupShadows(obj){
     });
   });
 }
-function fitHeight(obj,h){const box=new THREE.Box3().setFromObject(obj);obj.scale.setScalar(h/Math.max(box.max.y-box.min.y,0.01));}
+function fitHeight(obj,h){
+  const box=new THREE.Box3().setFromObject(obj);
+  obj.scale.setScalar(h/Math.max(box.max.y-box.min.y,0.01));
+}
 function groundObj(obj){const box=new THREE.Box3().setFromObject(obj);obj.position.y=-box.min.y;}
 function makeSlot(raw,looping,targetH=1.82){
   if(!raw)return null;
   setupShadows(raw); fitHeight(raw,targetH); groundObj(raw);
   raw.visible=false; raw.rotation.set(0,0,0);
   const mixer=new THREE.AnimationMixer(raw);
-  const clip=raw.animations?.[0];
-  let action=null;
+  const clip=raw.animations?.[0]; let action=null;
   if(clip){
     action=mixer.clipAction(clip);
     action.setLoop(looping?THREE.LoopRepeat:THREE.LoopOnce,looping?Infinity:1);
@@ -341,11 +492,13 @@ function makeSlot(raw,looping,targetH=1.82){
 }
 
 /* ══════════════════════════════════════
-   PLAYER
+   PLAYER GROUP
 ══════════════════════════════════════ */
 const playerGroup=new THREE.Group(); scene.add(playerGroup);
-let G={}, gCur=null;
-function showGojo(key){
+let G={}, gCur=null; // current player slots
+let charDef=CHARS.gojo; // active character definition
+
+function showPlayer(key){
   if(gCur===key)return;
   if(gCur&&G[gCur])G[gCur].scene.visible=false;
   gCur=key;
@@ -353,6 +506,7 @@ function showGojo(key){
   slot.scene.visible=true;
   if(slot.action){slot.action.reset();slot.action.paused=false;slot.action.play();}
 }
+
 let nTemplates={};
 
 /* ══════════════════════════════════════
@@ -361,7 +515,7 @@ let nTemplates={};
 let started=false,over=false,introPlaying=false;
 let score=0,wave=1,hp=100;
 const MAX_HP=100,DE_KILLS_NEED=30;
-const HEAL_CAP=75,HEAL_RATE=1.5; // 1.5 HP per second after standing still
+const HEAL_CAP=75,HEAL_RATE=1.5;
 let stillTimer=0;
 const STILL_THRESHOLD=3.0;
 let deKills=0,deReady=false,domainOn=false;
@@ -390,56 +544,35 @@ if(!isMobile){
 }
 
 /* ══════════════════════════════════════
-   INPUT — MOBILE TOUCH
+   INPUT — MOBILE
 ══════════════════════════════════════ */
-let mobileMove={x:0,z:0}, mobileSprint=false;
-let camTouchId=null, camTouchLast={x:0,y:0};
+let mobileMove={x:0,z:0},mobileSprint=false;
+let camTouchId=null,camTouchLast={x:0,y:0};
 
 if(isMobile){
   locked=true;
   const jBase=document.getElementById('joystick-base');
   const jKnob=document.getElementById('joystick-knob');
-  const btnAtk=document.getElementById('btn-attack');
-  const btnSpr=document.getElementById('btn-sprint');
-  const btnDom=document.getElementById('btn-domain');
   const JR=33; let jTouchId=null;
-
-  jBase.addEventListener('touchstart',e=>{
-    e.preventDefault();
-    if(jTouchId!==null)return;
-    jTouchId=e.changedTouches[0].identifier;
-  },{passive:false});
+  jBase.addEventListener('touchstart',e=>{e.preventDefault();if(jTouchId!==null)return;jTouchId=e.changedTouches[0].identifier;},{passive:false});
   jBase.addEventListener('touchmove',e=>{
     e.preventDefault();
     for(const t of e.changedTouches){
       if(t.identifier!==jTouchId)continue;
       const r=jBase.getBoundingClientRect();
-      let dx=t.clientX-(r.left+r.width/2), dy=t.clientY-(r.top+r.height/2);
+      let dx=t.clientX-(r.left+r.width/2),dy=t.clientY-(r.top+r.height/2);
       const d=Math.sqrt(dx*dx+dy*dy);
       if(d>JR){dx=dx/d*JR;dy=dy/d*JR;}
       jKnob.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;
       mobileMove.x=dx/JR; mobileMove.z=dy/JR;
     }
   },{passive:false});
-  const jReset=e=>{
-    for(const t of e.changedTouches){
-      if(t.identifier!==jTouchId)continue;
-      jTouchId=null; mobileMove.x=0; mobileMove.z=0;
-      jKnob.style.transform='translate(-50%,-50%)';
-    }
-  };
+  const jReset=e=>{for(const t of e.changedTouches){if(t.identifier!==jTouchId)continue;jTouchId=null;mobileMove.x=0;mobileMove.z=0;jKnob.style.transform='translate(-50%,-50%)';}};
   jBase.addEventListener('touchend',jReset,{passive:false});
   jBase.addEventListener('touchcancel',jReset,{passive:false});
-
-  // Camera — right half drag
   canvas.addEventListener('touchstart',e=>{
     e.preventDefault();
-    for(const t of e.changedTouches){
-      if(t.clientX>innerWidth*0.42&&camTouchId===null){
-        camTouchId=t.identifier;
-        camTouchLast={x:t.clientX,y:t.clientY};
-      }
-    }
+    for(const t of e.changedTouches){if(t.clientX>innerWidth*0.42&&camTouchId===null){camTouchId=t.identifier;camTouchLast={x:t.clientX,y:t.clientY};}}
   },{passive:false});
   canvas.addEventListener('touchmove',e=>{
     e.preventDefault();
@@ -454,54 +587,70 @@ if(isMobile){
   const cReset=e=>{for(const t of e.changedTouches){if(t.identifier===camTouchId)camTouchId=null;}};
   canvas.addEventListener('touchend',cReset,{passive:false});
   canvas.addEventListener('touchcancel',cReset,{passive:false});
-
-  btnAtk.addEventListener('touchstart',e=>{e.preventDefault();clickNow=true;},{passive:false});
-  btnSpr.addEventListener('touchstart',e=>{
-    e.preventDefault();
-    mobileSprint=!mobileSprint;
-    btnSpr.classList.toggle('spr-on',mobileSprint);
+  document.getElementById('btn-attack').addEventListener('touchstart',e=>{e.preventDefault();clickNow=true;},{passive:false});
+  document.getElementById('btn-sprint').addEventListener('touchstart',e=>{
+    e.preventDefault();mobileSprint=!mobileSprint;
+    document.getElementById('btn-sprint').classList.toggle('spr-on',mobileSprint);
   },{passive:false});
-  btnDom.addEventListener('touchstart',e=>{
-    e.preventDefault();
-    if(deReady&&!domainOn)activateDomain();
+  document.getElementById('btn-domain').addEventListener('touchstart',e=>{
+    e.preventDefault();if(deReady&&!domainOn)activateSpecial();
   },{passive:false});
 }
 
-/* ── ATTACK STATE ── */
 let atkActive=false,atkWindow=false,atkCD=0,hitSet=new Set(),shakeAmt=0;
 
 /* ══════════════════════════════════════
    AFTER ALL LOADED
 ══════════════════════════════════════ */
 function onAllLoaded(){
-  G.idle  =makeSlot(RAW['g_idle'],  true, 1.82);
-  G.walk  =makeSlot(RAW['g_walk'],  true, 1.82);
-  G.run   =makeSlot(RAW['g_run'],   true, 1.82);
-  G.attack=makeSlot(RAW['g_attack'],false,1.82);
-  G.sword =makeSlot(RAW['g_sword'], false,1.82);
-  Object.values(G).forEach(s=>{if(s)playerGroup.add(s.scene);});
-
   nTemplates.idle  =RAW['n_idle'];
   nTemplates.walk  =RAW['n_walk'];
   nTemplates.run   =RAW['n_run'];
   nTemplates.attack=RAW['n_attack'];
   Object.values(nTemplates).forEach(t=>{if(!t)return;setupShadows(t);fitHeight(t,1.76);t.rotation.set(0,0,0);});
-
   document.getElementById('loading').style.display='none';
   document.getElementById('start-screen').style.display='flex';
   if(isMobile)document.getElementById('mobile-controls').classList.add('visible');
 }
 
+function buildPlayerSlots(charKey){
+  // Remove old slots
+  Object.values(G).forEach(s=>{if(s&&s.scene.parent)playerGroup.remove(s.scene);});
+  G={}; gCur=null;
+  charDef=CHARS[charKey];
+  const prefix=charKey==='gojo'?'g_':'y_';
+  const h=charDef.height;
+  G.idle  =makeSlot(RAW[prefix+'idle'],  true,  h);
+  G.walk  =makeSlot(RAW[prefix+'walk'],  true,  h);
+  G.run   =makeSlot(RAW[prefix+'run'],   true,  h);
+  G.attack=makeSlot(RAW[prefix+'attack'],false, h);
+  G.intro =makeSlot(RAW[prefix+'intro'], false, h);
+  Object.values(G).forEach(s=>{if(s)playerGroup.add(s.scene);});
+  // Update HUD labels
+  document.getElementById('hp-lbl-txt').textContent=charDef.hudLabel;
+  document.getElementById('de-lbl').textContent=charDef.specialLabel;
+  document.getElementById('de-tip').textContent=charDef.specialTip;
+  document.getElementById('chr-hud').textContent=charDef.name;
+  document.getElementById('chr-hud').style.color=charDef.colorHex;
+  if(isMobile){
+    document.getElementById('btn-atk-icon').textContent=charKey==='yuji'?'👊':'⚔️';
+    document.getElementById('btn-dom-icon').textContent=charKey==='yuji'?'⚡':'∞';
+    document.getElementById('btn-dom-lbl').textContent=charKey==='yuji'?'FLASH':'VOID';
+  }
+  // Update pLight color
+  pLight.color.setHex(charDef.color);
+}
+
 /* ══════════════════════════════════════
-   WAVE DIFFICULTY SCALING
+   WAVE SCALING
 ══════════════════════════════════════ */
 function waveStats(n){
   return{
-    baseHp:   60+(n-1)*18,
-    baseSpd:  3.2+(n-1)*0.22,
-    damage:   10+(n-1)*3,
-    atkInt:   Math.max(1.5,6.0-(n-1)*0.45),
-    windUp:   Math.max(0.4,1.0-(n-1)*0.07),
+    baseHp:  60+(n-1)*18,
+    baseSpd: 3.2+(n-1)*0.22,
+    damage:  10+(n-1)*3,
+    atkInt:  Math.max(1.5,6.0-(n-1)*0.45),
+    windUp:  Math.max(0.4,1.0-(n-1)*0.07),
   };
 }
 
@@ -511,20 +660,16 @@ function waveStats(n){
 let spawnQ=0,spawnT=0;
 
 function makeHpBar(isGiant){
-  const bw=isGiant?2.2:1.5, bh=isGiant?0.2:0.14, yp=isGiant?4.9:3.1;
-  // Outer glow border
+  const bw=isGiant?2.2:1.5,bh=isGiant?0.2:0.14,yp=isGiant?4.9:3.1;
   const brd=new THREE.Mesh(new THREE.PlaneGeometry(bw+0.1,bh+0.1),
     new THREE.MeshBasicMaterial({color:isGiant?0x220000:0x001122,side:THREE.DoubleSide,transparent:true,opacity:.9}));
   brd.position.y=yp; brd.renderOrder=0;
-  // Background
   const bg=new THREE.Mesh(new THREE.PlaneGeometry(bw,bh),
     new THREE.MeshBasicMaterial({color:0x060615,side:THREE.DoubleSide,transparent:true,opacity:.88}));
   bg.position.y=yp; bg.renderOrder=1;
-  // Fill
   const fgMat=new THREE.MeshBasicMaterial({color:isGiant?0xff4400:0x00aaff,side:THREE.DoubleSide,transparent:true,opacity:.95});
   const fg=new THREE.Mesh(new THREE.PlaneGeometry(bw,bh),fgMat);
   fg.position.set(0,yp,0.014); fg.renderOrder=2;
-  // Shine
   const shine=new THREE.Mesh(new THREE.PlaneGeometry(bw,bh*0.3),
     new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide,transparent:true,opacity:.07}));
   shine.position.set(0,yp+bh*0.2,0.018); shine.renderOrder=3;
@@ -535,7 +680,6 @@ function spawnEnemy(){
   const st=waveStats(wave);
   const isGiant=Math.random()<0.10;
   const group=new THREE.Group();
-
   const NS={};
   ['idle','walk','run','attack'].forEach(k=>{
     const tmpl=nTemplates[k]; if(!tmpl)return;
@@ -547,12 +691,10 @@ function spawnEnemy(){
     if(clip){action=mixer.clipAction(clip);action.setLoop(THREE.LoopRepeat,Infinity);action.play();}
     NS[k]={scene:clone,mixer,action}; group.add(clone);
   });
-
   if(Object.keys(NS).length===0){
     const fb=new THREE.Mesh(new THREE.CylinderGeometry(.4,.4,1.7,8),new THREE.MeshLambertMaterial({color:isGiant?0x442200:0x334455}));
     fb.position.y=.85; group.add(fb);
   }
-
   let nCur=null;
   function nShow(k){
     const slot=NS[k]||NS['walk']||NS['idle']||null;
@@ -561,24 +703,20 @@ function spawnEnemy(){
     nCur=slot; slot.scene.visible=true;
   }
   nShow('idle');
-
   if(isGiant)group.scale.setScalar(2.0);
-
   const hpBar=makeHpBar(isGiant);
   [hpBar.brd,hpBar.bg,hpBar.fg,hpBar.shine].forEach(m=>group.add(m));
-
-  // Spawn edge — retry if too close to existing enemies
+  // Spawn far from existing enemies
   const side=Math.floor(Math.random()*4);
-  let spawnPos, attempts=0;
-  do {
+  let spawnPos,attempts=0;
+  do{
     const t=(Math.random()-.5)*(MAP-14)*2,M=MAP-8;
     const raw=[[t,0,M],[t,0,-M],[M,0,t],[-M,0,t]][side];
     spawnPos=new THREE.Vector3(raw[0],raw[1],raw[2]);
     attempts++;
-  } while(attempts<10 && enemies.some(e=>e.alive&&e.group.position.distanceTo(spawnPos)<8));
+  }while(attempts<10&&enemies.some(e=>e.alive&&e.group.position.distanceTo(spawnPos)<8));
   group.position.copy(spawnPos);
   scene.add(group);
-
   const maxHp=isGiant?st.baseHp*3:st.baseHp;
   enemies.push({
     group,NS,nShow,hpBar,isGiant,
@@ -628,21 +766,28 @@ function killEnemy(e,silent=false){
   e.alive=false;scene.remove(e.group);score+=e.isGiant?300:100;
   if(!silent)spawnHit(e.group.position.clone().add(new THREE.Vector3(0,1,0)),e.isGiant?0xff4400:0xff3300);
   deKills++;
-  if(deKills>=DE_KILLS_NEED&&!deReady&&!domainOn){deReady=true;announce('DOMAIN EXPANSION READY',3.5);}
+  if(deKills>=DE_KILLS_NEED&&!deReady&&!domainOn){
+    deReady=true;
+    announce(selectedChar==='yuji'?'BLACK FLASH READY':'DOMAIN EXPANSION READY',3.5);
+  }
 }
 
 /* ══════════════════════════════════════
-   DOMAIN EXPANSION
+   SPECIAL ABILITY (Domain / Black Flash)
 ══════════════════════════════════════ */
 let dQueue=[],dTarget=null,dPhase='moving',dStrikeT=0;
 const _dv=new THREE.Vector3();
 
-function activateDomain(){
+function activateSpecial(){
   if(!deReady||domainOn)return;
   domainOn=true;deReady=false;deKills=0;
   document.getElementById('de-ov').classList.add('on');
   scene.fog=new THREE.FogExp2(0x1a0040,.022);
-  announce('DOMAIN EXPANSION — INFINITE VOID',4);
+  if(selectedChar==='yuji'){
+    announce('BLACK FLASH — DIVERGENT FIST',4);
+  }else{
+    announce('DOMAIN EXPANSION — INFINITE VOID',4);
+  }
   dQueue=[...enemies.filter(e=>e.alive)];dTarget=null;dPhase='moving';
   if(isMobile)document.getElementById('btn-domain').classList.remove('dom-ready');
 }
@@ -663,17 +808,20 @@ function tickDomain(dt){
   }
   if(dPhase==='moving'){
     _dv.copy(dTarget.group.position).sub(playerGroup.position);_dv.y=0;
-    if(_dv.length()<1.8){dPhase='striking';dStrikeT=0.4;showGojo('attack');}
+    if(_dv.length()<1.8){dPhase='striking';dStrikeT=0.4;showPlayer('attack');}
     else{
       _dv.normalize();
       playerGroup.position.x+=_dv.x*52*dt;
       playerGroup.position.z+=_dv.z*52*dt;
       playerGroup.rotation.y=Math.atan2(_dv.x,_dv.z);
-      showGojo('run');
+      showPlayer('run');
     }
   }else{
     dStrikeT-=dt;
-    if(dStrikeT<=0){spawnHit(dTarget.group.position.clone().add(new THREE.Vector3(0,1.2,0)),0x9900ff);killEnemy(dTarget,true);dTarget=null;}
+    if(dStrikeT<=0){
+      spawnHit(dTarget.group.position.clone().add(new THREE.Vector3(0,1.2,0)),selectedChar==='yuji'?0xff0066:0x9900ff);
+      killEnemy(dTarget,true);dTarget=null;
+    }
   }
 }
 
@@ -681,15 +829,18 @@ function tickDomain(dt){
    ATTACK
 ══════════════════════════════════════ */
 function doAttack(){
-  atkActive=true;atkWindow=false;hitSet.clear();atkCD=0.75;
-  showGojo('attack');
+  atkActive=true;atkWindow=false;hitSet.clear();
+  atkCD=charDef.atkCD;
+  showPlayer('attack');
   const sl=document.getElementById('slash');
   sl.style.opacity='1';sl.style.transform=`translate(-50%,-50%) rotate(${(Math.random()*50-25).toFixed(1)}deg)`;
   setTimeout(()=>sl.style.opacity='0',160);
-  setTimeout(()=>{atkWindow=true;},150);
-  setTimeout(()=>{atkWindow=false;},540);
-  setTimeout(()=>{atkActive=false;showGojo('idle');},680);
+  const windup=charDef.atkCD===0.5?100:150; // yuji faster windup
+  setTimeout(()=>{atkWindow=true;},windupFor());
+  setTimeout(()=>{atkWindow=false;},windupFor()+350);
+  setTimeout(()=>{atkActive=false;showPlayer('idle');},windupFor()+480);
 }
+function windupFor(){ return selectedChar==='yuji'?100:150; }
 
 /* ══════════════════════════════════════
    PLAYER TICK
@@ -699,40 +850,34 @@ const _fwd=new THREE.Vector3(),_rt=new THREE.Vector3();
 function tickPlayer(dt){
   Object.values(G).forEach(s=>{if(s)s.mixer.update(dt);});
   Object.values(G).forEach(s=>{if(s&&s.scene.visible)s.scene.rotation.y=0;});
-
   if(domainOn){tickDomain(dt);return;}
   if(introPlaying)return;
 
   if(atkCD>0)atkCD-=dt;
   if(clickNow&&atkCD<=0&&!atkActive)doAttack();
-  if(!isMobile&&keys['KeyE']&&deReady&&!domainOn)activateDomain();
+  if(!isMobile&&keys['KeyE']&&deReady&&!domainOn)activateSpecial();
 
   _fwd.set(-Math.sin(yaw),0,-Math.cos(yaw));
-  _rt.set(  Math.cos(yaw),0,-Math.sin(yaw));
-
+  _rt.set(Math.cos(yaw),0,-Math.sin(yaw));
   let dx=0,dz=0;
   if(isMobile){
     const jx=mobileMove.x,jz=mobileMove.z;
-    if(Math.abs(jx)+Math.abs(jz)>0.05){
-      dx=_rt.x*jx+_fwd.x*(-jz);
-      dz=_rt.z*jx+_fwd.z*(-jz);
-    }
+    if(Math.abs(jx)+Math.abs(jz)>0.05){dx=_rt.x*jx+_fwd.x*(-jz);dz=_rt.z*jx+_fwd.z*(-jz);}
   }else{
     if(keys['KeyW']||keys['ArrowUp']){dx+=_fwd.x;dz+=_fwd.z;}
     if(keys['KeyS']||keys['ArrowDown']){dx-=_fwd.x;dz-=_fwd.z;}
     if(keys['KeyD']||keys['ArrowRight']){dx+=_rt.x;dz+=_rt.z;}
     if(keys['KeyA']||keys['ArrowLeft']){dx-=_rt.x;dz-=_rt.z;}
   }
-
   const moving=dx!==0||dz!==0;
 
-  // Passive healing — only after standing still for 3 seconds
-  if(moving||atkActive){ stillTimer=0; }
-  else { stillTimer+=dt; }
+  // Passive healing — only after 3s standing still
+  if(moving||atkActive){stillTimer=0;}else{stillTimer+=dt;}
   if(hp<HEAL_CAP&&!over&&stillTimer>=STILL_THRESHOLD)
     hp=Math.min(HEAL_CAP,hp+HEAL_RATE*dt);
+
   const sprinting=isMobile?mobileSprint&&moving:(keys['ShiftLeft']||keys['ShiftRight'])&&moving;
-  const spd=sprinting?13:6;
+  const spd=sprinting?charDef.sprintSpeed:charDef.speed;
 
   if(moving&&!atkActive){
     const len=Math.sqrt(dx*dx+dz*dz);
@@ -741,18 +886,18 @@ function tickPlayer(dt){
     slide(playerGroup.position,nx,nz,0.55);
     const mdx=playerGroup.position.x-bx,mdz=playerGroup.position.z-bz;
     if(Math.abs(mdx)+Math.abs(mdz)>0.0005)playerGroup.rotation.y=Math.atan2(mdx,mdz);
-    showGojo(sprinting?'run':'walk');
-  }else if(!atkActive)showGojo('idle');
+    showPlayer(sprinting?'run':'walk');
+  }else if(!atkActive)showPlayer('idle');
 
   if(atkWindow){
     const facing=new THREE.Vector3(Math.sin(playerGroup.rotation.y),0,Math.cos(playerGroup.rotation.y));
     enemies.forEach(e=>{
       if(!e.alive||hitSet.has(e))return;
       const toE=e.group.position.clone().sub(playerGroup.position);toE.y=0;
-      if(toE.length()<(e.isGiant?5.0:3.5)&&toE.clone().normalize().dot(facing)>0.05){
+      if(toE.length()<(e.isGiant?charDef.atkRange+1.5:charDef.atkRange)&&toE.clone().normalize().dot(facing)>0.05){
         hitSet.add(e);
-        e.hp-=e.isGiant?20:35;
-        spawnHit(e.group.position.clone().add(new THREE.Vector3(0,1.2,0)),e.isGiant?0xff6600:0x00aaff);
+        e.hp-=e.isGiant?Math.floor(charDef.atkDmg*.6):charDef.atkDmg;
+        spawnHit(e.group.position.clone().add(new THREE.Vector3(0,1.2,0)),e.isGiant?0xff6600:charDef.color);
         if(e.hp<=0)killEnemy(e);
         else refreshHpBar(e);
       }
@@ -774,7 +919,6 @@ function tickEnemies(dt){
     Object.values(e.NS).forEach(s=>{if(s)s.mixer.update(dt);});
     Object.values(e.NS).forEach(s=>{if(s&&s.scene.visible)s.scene.rotation.y=0;});
     [e.hpBar.brd,e.hpBar.bg,e.hpBar.fg,e.hpBar.shine].forEach(m=>{if(m)m.lookAt(camera.position);});
-
     _toP.copy(pp).sub(e.group.position);_toP.y=0;
     const dist=_toP.length();
 
@@ -793,7 +937,6 @@ function tickEnemies(dt){
     if(dist<(e.isGiant?3.5:2.2)&&!domainOn){
       e.state='attack';e.atkTimer=e.windUp;e.nShow('attack');return;
     }
-
     if(dist>62){e.nShow('idle');facePoint(e.group,pp.x,pp.z);return;}
 
     const desired=_toP.clone().normalize();
@@ -812,8 +955,7 @@ function tickEnemies(dt){
       if(d2<minDist*minDist&&d2>0.0001){
         const d=Math.sqrt(d2);
         const push=(minDist-d)/minDist;
-        sepX+=ox/d*push*2.5;
-        sepZ+=oz/d*push*2.5;
+        sepX+=ox/d*push*2.5;sepZ+=oz/d*push*2.5;
       }
     });
 
@@ -825,7 +967,6 @@ function tickEnemies(dt){
       const sc=desired.dot(d)-(isBlocked(pr.x,pr.z,.65)?3.5:0);
       if(sc>bestSc){bestSc=sc;bestDir=d;}
     }
-
     const wander=new THREE.Vector3(Math.sin(e.wanderA),0,Math.cos(e.wanderA));
     const sep=new THREE.Vector3(sepX,0,sepZ);
     const finalDir=bestDir.clone().multiplyScalar(0.6).addScaledVector(wander,0.15).addScaledVector(sep,0.25).normalize();
@@ -833,7 +974,6 @@ function tickEnemies(dt){
     const bx=e.group.position.x,bz=e.group.position.z;
     slide(e.group.position,finalDir.x*spd,finalDir.z*spd,.55);
     const mdx=e.group.position.x-bx,mdz=e.group.position.z-bz;
-
     if(Math.abs(mdx)+Math.abs(mdz)<.0005){
       e.wanderA+=Math.PI/3;
     }else{
@@ -848,7 +988,7 @@ function tickEnemies(dt){
 }
 
 /* ══════════════════════════════════════
-   WAVE + HUD + ANNOUNCE
+   WAVE + HUD
 ══════════════════════════════════════ */
 let waveClear=false,annTmr=0;
 function startWave(n){
@@ -860,7 +1000,6 @@ function checkWave(dt){
   if(waveClear||domainOn)return;
   if(spawnQ===0&&enemies.filter(e=>e.alive).length===0){
     waveClear=true;score+=wave*500;
-    // Full heal on wave clear
     hp=MAX_HP;
     const hf=document.getElementById('heal-flash');
     hf.style.opacity='1';setTimeout(()=>hf.style.opacity='0',800);
@@ -873,14 +1012,11 @@ function updateHUD(){
   const fg=document.getElementById('hp-fg');
   fg.style.width=pct+'%';
   fg.className=pct>60?'':(pct>30?'mid':'low');
-  // Show heal zone (gap between current HP and heal cap)
   const hz=document.getElementById('hp-heal-zone');
   if(hp<HEAL_CAP){
     hz.style.width=((HEAL_CAP-hp)/MAX_HP*100)+'%';
     hz.style.right=((1-HEAL_CAP/MAX_HP)*100)+'%';
-  } else {
-    hz.style.width='0';
-  }
+  }else{hz.style.width='0';}
   document.getElementById('hp-cap-ind').textContent=hp>=HEAL_CAP?'REGEN CAPPED':'REGEN TO 75%';
   document.getElementById('sw-val').textContent=score;
   document.getElementById('ec').textContent='ENEMIES: '+(enemies.filter(e=>e.alive).length+spawnQ);
@@ -899,9 +1035,10 @@ function announce(txt,dur=2.5){
 function playIntro(){
   introPlaying=true;
   const txt=document.getElementById('itxt');
-  txt.style.opacity='1';showGojo('sword');
-  const dur=G.sword?(G.sword.duration+0.5)*1000:2000;
-  setTimeout(()=>{txt.style.opacity='0';introPlaying=false;showGojo('idle');},Math.max(dur,1500));
+  txt.textContent=charDef.introText;
+  txt.style.opacity='1';showPlayer('intro');
+  const dur=G.intro?(G.intro.duration+0.5)*1000:2000;
+  setTimeout(()=>{txt.style.opacity='0';introPlaying=false;showPlayer('idle');},Math.max(dur,1500));
 }
 
 /* ══════════════════════════════════════
@@ -910,11 +1047,19 @@ function playIntro(){
 function triggerOver(){
   if(over)return;over=true;
   if(!isMobile)document.exitPointerLock();
+  // Check/save record
+  const prev=getRecord();
+  const isNew=wave>prev;
+  if(isNew)setRecord(wave);
   document.getElementById('hud').style.display='none';
   if(isMobile)document.getElementById('mobile-controls').classList.remove('visible');
   document.getElementById('over-screen').style.display='flex';
-  document.getElementById('fscore').textContent='SCORE: '+score+'  WAVE '+wave;
+  document.getElementById('fscore').textContent='SCORE: '+score+'  |  WAVE '+wave+(isNew?' ★':'');
+  const nr=document.getElementById('fnewrecord');
+  nr.style.opacity=isNew?'1':'0';
+  updateRecordDisplay();
 }
+
 function doRestart(){
   enemies.forEach(e=>scene.remove(e.group));vfx.forEach(v=>scene.remove(v.mesh));
   enemies=[];vfx=[];
@@ -939,7 +1084,8 @@ function doRestart(){
   setTimeout(()=>{startWave(1);announce('WAVE 1',2);},300);
 }
 
-document.getElementById('start-btn').addEventListener('click',()=>{
+function startGame(){
+  buildPlayerSlots(selectedChar);
   document.getElementById('start-screen').style.display='none';
   document.getElementById('hud').style.display='block';
   started=true;
@@ -947,8 +1093,12 @@ document.getElementById('start-btn').addEventListener('click',()=>{
   else locked=true;
   playIntro();
   setTimeout(()=>{startWave(1);announce('WAVE 1',2);},300);
-});
+}
+
+document.getElementById('start-btn').addEventListener('click',startGame);
+document.getElementById('start-btn').addEventListener('touchstart',e=>{e.preventDefault();startGame();},{passive:false});
 document.getElementById('restart-btn').addEventListener('click',doRestart);
+document.getElementById('restart-btn').addEventListener('touchstart',e=>{e.preventDefault();doRestart();},{passive:false});
 
 /* ══════════════════════════════════════
    CAMERA
@@ -983,14 +1133,12 @@ function loop(){
   renderer.render(scene,camera);
   clickNow=false;
 }
-
 function onResize(){
   camera.aspect=innerWidth/innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth,innerHeight);
 }
 window.addEventListener('resize',onResize);
-
 loop();
 </script>
 </body>
