@@ -361,7 +361,9 @@ let nTemplates={};
 let started=false,over=false,introPlaying=false;
 let score=0,wave=1,hp=100;
 const MAX_HP=100,DE_KILLS_NEED=30;
-const HEAL_CAP=75,HEAL_RATE=1.5;
+const HEAL_CAP=75,HEAL_RATE=5; // 5 HP per second
+let stillTimer=0;
+const STILL_THRESHOLD=3.0;
 let deKills=0,deReady=false,domainOn=false;
 let enemies=[],vfx=[];
 
@@ -565,9 +567,16 @@ function spawnEnemy(){
   const hpBar=makeHpBar(isGiant);
   [hpBar.brd,hpBar.bg,hpBar.fg,hpBar.shine].forEach(m=>group.add(m));
 
+  // Spawn edge — retry if too close to existing enemies
   const side=Math.floor(Math.random()*4);
-  const t=(Math.random()-.5)*(MAP-14)*2,M=MAP-8;
-  group.position.set(...[[t,0,M],[t,0,-M],[M,0,t],[-M,0,t]][side]);
+  let spawnPos, attempts=0;
+  do {
+    const t=(Math.random()-.5)*(MAP-14)*2,M=MAP-8;
+    const raw=[[t,0,M],[t,0,-M],[M,0,t],[-M,0,t]][side];
+    spawnPos=new THREE.Vector3(raw[0],raw[1],raw[2]);
+    attempts++;
+  } while(attempts<10 && enemies.some(e=>e.alive&&e.group.position.distanceTo(spawnPos)<8));
+  group.position.copy(spawnPos);
   scene.add(group);
 
   const maxHp=isGiant?st.baseHp*3:st.baseHp;
@@ -694,8 +703,11 @@ function tickPlayer(dt){
   if(domainOn){tickDomain(dt);return;}
   if(introPlaying)return;
 
-  // Passive healing
-  if(hp<HEAL_CAP&&!over)hp=Math.min(HEAL_CAP,hp+HEAL_RATE*dt);
+  // Passive healing — only after standing still for 3 seconds
+  if(moving||atkActive){ stillTimer=0; }
+  else { stillTimer+=dt; }
+  if(hp<HEAL_CAP&&!over&&stillTimer>=STILL_THRESHOLD)
+    hp=Math.min(HEAL_CAP,hp+HEAL_RATE*dt);
 
   if(atkCD>0)atkCD-=dt;
   if(clickNow&&atkCD<=0&&!atkActive)doAttack();
@@ -796,7 +808,13 @@ function tickEnemies(dt){
       if(o===e||!o.alive)return;
       const ox=e.group.position.x-o.group.position.x,oz=e.group.position.z-o.group.position.z;
       const d2=ox*ox+oz*oz;
-      if(d2<4&&d2>0.0001){const inv=1/Math.sqrt(d2);sepX+=ox*inv;sepZ+=oz*inv;}
+      const minDist=e.isGiant||o.isGiant?2.8:1.4;
+      if(d2<minDist*minDist&&d2>0.0001){
+        const d=Math.sqrt(d2);
+        const push=(minDist-d)/minDist;
+        sepX+=ox/d*push*2.5;
+        sepZ+=oz/d*push*2.5;
+      }
     });
 
     let bestDir=desired.clone(),bestSc=-Infinity;
@@ -810,7 +828,7 @@ function tickEnemies(dt){
 
     const wander=new THREE.Vector3(Math.sin(e.wanderA),0,Math.cos(e.wanderA));
     const sep=new THREE.Vector3(sepX,0,sepZ);
-    const finalDir=bestDir.clone().multiplyScalar(0.7).addScaledVector(wander,0.2).addScaledVector(sep,0.1).normalize();
+    const finalDir=bestDir.clone().multiplyScalar(0.6).addScaledVector(wander,0.15).addScaledVector(sep,0.25).normalize();
     const spd=e.speed*(dist<8?0.6:dist<16?0.85:1)*dt;
     const bx=e.group.position.x,bz=e.group.position.z;
     slide(e.group.position,finalDir.x*spd,finalDir.z*spd,.55);
@@ -901,7 +919,7 @@ function doRestart(){
   enemies.forEach(e=>scene.remove(e.group));vfx.forEach(v=>scene.remove(v.mesh));
   enemies=[];vfx=[];
   score=0;wave=1;hp=MAX_HP;deKills=0;deReady=false;domainOn=false;
-  spawnQ=0;atkActive=false;atkWindow=false;atkCD=0;dTarget=null;dQueue=[];
+  spawnQ=0;atkActive=false;atkWindow=false;atkCD=0;dTarget=null;dQueue=[];stillTimer=0;
   mobileMove={x:0,z:0};mobileSprint=false;
   if(isMobile){
     document.getElementById('btn-sprint').classList.remove('spr-on');
