@@ -703,12 +703,6 @@ function tickPlayer(dt){
   if(domainOn){tickDomain(dt);return;}
   if(introPlaying)return;
 
-  // Passive healing — only after standing still for 3 seconds
-  if(moving||atkActive){ stillTimer=0; }
-  else { stillTimer+=dt; }
-  if(hp<HEAL_CAP&&!over&&stillTimer>=STILL_THRESHOLD)
-    hp=Math.min(HEAL_CAP,hp+HEAL_RATE*dt);
-
   if(atkCD>0)atkCD-=dt;
   if(clickNow&&atkCD<=0&&!atkActive)doAttack();
   if(!isMobile&&keys['KeyE']&&deReady&&!domainOn)activateDomain();
@@ -731,6 +725,12 @@ function tickPlayer(dt){
   }
 
   const moving=dx!==0||dz!==0;
+
+  // Passive healing — only after standing still for 3 seconds
+  if(moving||atkActive){ stillTimer=0; }
+  else { stillTimer+=dt; }
+  if(hp<HEAL_CAP&&!over&&stillTimer>=STILL_THRESHOLD)
+    hp=Math.min(HEAL_CAP,hp+HEAL_RATE*dt);
   const sprinting=isMobile?mobileSprint&&moving:(keys['ShiftLeft']||keys['ShiftRight'])&&moving;
   const spd=sprinting?13:6;
 
