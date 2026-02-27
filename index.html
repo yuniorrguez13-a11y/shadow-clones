@@ -467,6 +467,11 @@ function setupShadows(obj){
       if(m.emissive)m.emissive.set(0,0,0);
       if(m.emissiveMap)m.emissiveMap=null;
       m.emissiveIntensity=0; m.toneMapped=true;
+      // Force fully opaque — some FBX exports bake in transparency
+      m.transparent=false;
+      m.opacity=1;
+      m.alphaTest=0;
+      if(m.alphaMap)m.alphaMap=null;
     });
   });
 }
