@@ -361,7 +361,7 @@ let nTemplates={};
 let started=false,over=false,introPlaying=false;
 let score=0,wave=1,hp=100;
 const MAX_HP=100,DE_KILLS_NEED=30;
-const HEAL_CAP=75,HEAL_RATE=5; // 5 HP per second
+const HEAL_CAP=75,HEAL_RATE=1.5; // 1.5 HP per second after standing still
 let stillTimer=0;
 const STILL_THRESHOLD=3.0;
 let deKills=0,deReady=false,domainOn=false;
@@ -779,7 +779,7 @@ function tickEnemies(dt){
     const dist=_toP.length();
 
     if(e.state==='attack'){
-      if(dist>e.isGiant?5.0:3.0){e.state='chase';e.atkTimer=0;e.nShow('walk');return;}
+      if(dist>(e.isGiant?5.0:3.0)){e.state='chase';e.atkTimer=0;e.nShow('walk');return;}
       facePoint(e.group,pp.x,pp.z);
       e.nShow('attack');
       e.atkTimer-=dt;
