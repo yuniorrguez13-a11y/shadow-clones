@@ -340,26 +340,26 @@ renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=1.2;
 const scene=new THREE.Scene();
-scene.fog=new THREE.FogExp2(0x050010,0.013);
-scene.background=new THREE.Color(0x050010);
+scene.fog=new THREE.FogExp2(0x050812,0.008);
+scene.background=new THREE.Color(0x050812);
 const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,0.1,400);
-scene.add(new THREE.AmbientLight(0x2233aa,1.9));
-const sun=new THREE.DirectionalLight(0x99aaff,3);
-sun.position.set(30,60,20);sun.castShadow=true;
+scene.add(new THREE.AmbientLight(0x223355,2.4));
+const sun=new THREE.DirectionalLight(0x8899cc,2.2);
+sun.position.set(30,80,20);sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);
-sun.shadow.camera.near=1;sun.shadow.camera.far=220;
-sun.shadow.camera.left=-85;sun.shadow.camera.right=85;
-sun.shadow.camera.top=85;sun.shadow.camera.bottom=-85;
+sun.shadow.camera.near=1;sun.shadow.camera.far=400;
+sun.shadow.camera.left=-160;sun.shadow.camera.right=160;
+sun.shadow.camera.top=160;sun.shadow.camera.bottom=-160;
 scene.add(sun);
-const pLight=new THREE.PointLight(0x0055ff,5,35);
+const pLight=new THREE.PointLight(0x0055ff,4,28);
 scene.add(pLight);
 
 /* ══ MAP ══ */
-const MAP=75,COLS=[],PLATFORMS=[];
-// topY: the top surface of this collider. Player above it can pass over freely.
-const addCol=(cx,cz,hw,hd,topY=Infinity)=>COLS.push({minX:cx-hw,maxX:cx+hw,minZ:cz-hd,maxZ:cz+hd,topY});
+// City spans roughly x:-97 to 97, z:-77 to 120. Give plenty of boundary.
+const MAP=130,COLS=[],PLATFORMS=[];
+const addCol=(cx,cz,hw,hd,topY=999)=>COLS.push({minX:cx-hw,maxX:cx+hw,minZ:cz-hd,maxZ:cz+hd,topY});
 const isBlocked=(px,pz,r,py=0)=>COLS.some(c=>
-  px+r>c.minX&&px-r<c.maxX&&pz+r>c.minZ&&pz-r<c.maxZ&&py<c.topY-0.05);
+  px+r>c.minX&&px-r<c.maxX&&pz+r>c.minZ&&pz-r<c.maxZ&&py<c.topY-0.1);
 function slide(pos,dx,dz,r,py=0){
   if(!isBlocked(pos.x+dx,pos.z+dz,r,py)){pos.x+=dx;pos.z+=dz;}
   else if(!isBlocked(pos.x+dx,pos.z,r,py)){pos.x+=dx;}
@@ -369,31 +369,48 @@ function slide(pos,dx,dz,r,py=0){
 }
 function getSurfaceAt(x,z){
   let h=0;
-  for(const p of PLATFORMS){if(Math.abs(x-p.x)<=p.hw+0.4&&Math.abs(z-p.z)<=p.hd+0.4)h=Math.max(h,p.y);}
+  for(const p of PLATFORMS){
+    if(x>=p.minX&&x<=p.maxX&&z>=p.minZ&&z<=p.maxZ) h=Math.max(h,p.y);
+  }
   return h;
 }
-(function buildMap(){
-  const g=new THREE.Mesh(new THREE.PlaneGeometry(MAP*2,MAP*2),new THREE.MeshLambertMaterial({color:0x070818}));
-  g.rotation.x=-Math.PI/2;g.receiveShadow=true;scene.add(g);
-  scene.add(new THREE.GridHelper(MAP*2,64,0x001144,0x001133));
-  for(let i=0;i<12;i++){
-    const lm=new THREE.Mesh(new THREE.PlaneGeometry(MAP*1.85,0.06),new THREE.MeshBasicMaterial({color:0x002299,transparent:true,opacity:.13}));
-    lm.rotation.x=-Math.PI/2;lm.rotation.z=(i/12)*Math.PI;lm.position.y=0.03;scene.add(lm);
-  }
-  const wm=new THREE.MeshLambertMaterial({color:0x0d1640});
-  [{p:[0,5,-MAP],s:[MAP*2+4,10,3]},{p:[0,5,MAP],s:[MAP*2+4,10,3]},{p:[-MAP,5,0],s:[3,10,MAP*2]},{p:[MAP,5,0],s:[3,10,MAP*2]}]
-    .forEach(({p,s})=>{const m=new THREE.Mesh(new THREE.BoxGeometry(...s),wm);m.position.set(...p);m.receiveShadow=true;scene.add(m);addCol(p[0],p[2],s[0]/2,s[2]/2);});
-  const pm=new THREE.MeshLambertMaterial({color:0x101850}),tm=new THREE.MeshBasicMaterial({color:0x0033cc});
-  [[18,18],[-18,18],[18,-18],[-18,-18],[34,0],[-34,0],[0,34],[0,-34],[28,28],[-28,28],[28,-28],[-28,-28],
-   [48,14],[-48,14],[48,-14],[-48,-14],[16,46],[-16,46],[16,-46],[-16,-46],
-   [52,0],[-52,0],[0,52],[0,-52],[40,40],[-40,40],[40,-40],[-40,-40],[60,20],[-60,20],[60,-20],[-60,-20]]
-  .forEach(([x,z])=>{
-    const h=4+Math.random()*5,sw=2+Math.random()*2,sd=2+Math.random()*2;
-    const m=new THREE.Mesh(new THREE.BoxGeometry(sw,h,sd),pm);m.position.set(x,h/2,z);m.castShadow=m.receiveShadow=true;scene.add(m);
-    const top=new THREE.Mesh(new THREE.BoxGeometry(sw+.15,.14,sd+.15),tm);top.position.set(x,h,z);scene.add(top);
-    addCol(x,z,sw/2+.4,sd/2+.4, h); // topY=h so player above the box isn't blocked
-    PLATFORMS.push({x,z,y:h,hw:sw/2+.3,hd:sd/2+.3});
+
+// Invisible boundary walls (no visual — city walls do that)
+const addBoundaryWalls=()=>{
+  const M=MAP;
+  [[0,999,-M,M*2+4,10,3],[0,999,M,M*2+4,10,3],[-M,999,0,3,10,M*2],[M,999,0,3,10,M*2]]
+  .forEach(([cx,cy,cz,sw,sh,sd])=>addCol(cx,cz,sw/2,sd/2,999));
+};
+addBoundaryWalls();
+
+// City FBX is loaded later — colliders are built in buildCityColliders() after FBX loads
+function buildCityColliders(cityObj){
+  const box3=new THREE.Box3();
+  cityObj.traverse(child=>{
+    if(!child.isMesh)return;
+    box3.setFromObject(child);
+    const sx=(box3.max.x-box3.min.x), sy=(box3.max.y-box3.min.y), sz=(box3.max.z-box3.min.z);
+    // Skip tiny props (< 3 units wide) and flat ground planes (< 0.3 tall)
+    if(sx<3&&sz<3) return;
+    if(sy<0.3) return;
+    const cx=(box3.min.x+box3.max.x)/2;
+    const cz=(box3.min.z+box3.max.z)/2;
+    const topY=box3.max.y;
+    const hw=sx/2+0.25, hd=sz/2+0.25;
+    addCol(cx,cz,hw,hd,topY);
+    // Register as landing platform if it has meaningful top surface
+    if(topY>0.5){
+      PLATFORMS.push({minX:box3.min.x-0.2,maxX:box3.max.x+0.2,minZ:box3.min.z-0.2,maxZ:box3.max.z+0.2,y:topY});
+    }
   });
+  // Always register ground as platform y=0
+  PLATFORMS.push({minX:-MAP,maxX:MAP,minZ:-MAP,maxZ:MAP,y:0});
+}
+
+(function buildBaseMap(){
+  // Ground plane
+  const g=new THREE.Mesh(new THREE.PlaneGeometry(MAP*2,MAP*2),new THREE.MeshLambertMaterial({color:0x060810}));
+  g.rotation.x=-Math.PI/2; g.receiveShadow=true; scene.add(g);
 })();
 
 /* ══ ASSET LOADING ══ */
@@ -419,6 +436,7 @@ const LOAD_LIST=[
   {key:'n_run',    file:'ninja_run.fbx'},
   {key:'n_attack', file:'ninja_attack__made_it_as_goofy_as_possible_.fbx'},
   {key:'pot',      file:'Pot.fbx'},
+  {key:'city',     file:'city.fbx'},
 ];
 const TOTAL=LOAD_LIST.length,RAW={};
 function onEachLoaded(){
@@ -671,6 +689,35 @@ function onAllLoaded(){
   nTemplates.run   =RAW['n_run'];
   nTemplates.attack=RAW['n_attack'];
   Object.values(nTemplates).forEach(t=>{if(!t)return;setupShadows(t);fitHeight(t,1.76);t.rotation.set(0,0,0);});
+
+  // Place city
+  if(RAW['city']){
+    const city=RAW['city'];
+    setupShadows(city);
+    // City ground is at Y=0, center it — shift Z so the city center aligns with world origin
+    // City spans z: -77 to +120, center ≈ 22 → offset by -22
+    city.position.set(0, 0, -22);
+    scene.add(city);
+    buildCityColliders(city);
+    // City-aware atmosphere
+    scene.fog=new THREE.FogExp2(0x050812, 0.008);
+    scene.background=new THREE.Color(0x050812);
+    // Street lights scattered through the city
+    const streetLightPositions=[
+      [25,8,15],[25,8,-15],[-25,8,15],[-25,8,-15],
+      [0,8,40],[0,8,-40],[55,8,10],[-55,8,10],
+      [30,8,-50],[-30,8,-50],[50,8,50],[-50,8,50],
+    ];
+    streetLightPositions.forEach(([x,y,z])=>{
+      const l=new THREE.PointLight(0x334488,2.5,40);
+      l.position.set(x,y,z);
+      scene.add(l);
+    });
+  } else {
+    // Fallback ground platform if city fails to load
+    PLATFORMS.push({minX:-MAP,maxX:MAP,minZ:-MAP,maxZ:MAP,y:0});
+  }
+
   initPots();
   document.getElementById('loading').style.display='none';
   document.getElementById('start-screen').style.display='flex';
@@ -776,14 +823,21 @@ function spawnEnemy(){
   group.scale.setScalar(TYPE_SCALE[type]);
   const hpBar=makeHpBar(type);
 
-  const side=Math.floor(Math.random()*4);
-  let spawnPos,attempts=0;
-  do{
-    const t=(Math.random()-.5)*(MAP-14)*2,M=MAP-8;
-    const raw=[[t,0,M],[t,0,-M],[M,0,t],[-M,0,t]][side];
-    spawnPos=new THREE.Vector3(raw[0],raw[1],raw[2]);
+  const SPAWN_POINTS=[
+    [90,0,20],[90,0,-30],[-90,0,20],[-90,0,-30],
+    [0,0,90],[0,0,-60],[50,0,90],[-50,0,90],
+    [50,0,-60],[-50,0,-60],[80,0,55],[-80,0,55],
+    [80,0,-10],[-80,0,-10],[35,0,50],[-35,0,50],
+    [60,0,-40],[-60,0,-40],[0,0,0],[20,0,-30],
+  ];
+  const sp=SPAWN_POINTS[Math.floor(Math.random()*SPAWN_POINTS.length)];
+  let spawnPos=new THREE.Vector3(sp[0],0,sp[2]);
+  let attempts=0;
+  while(attempts<12&&enemies.some(e=>e.alive&&e.group.position.distanceTo(spawnPos)<10)){
+    const sp2=SPAWN_POINTS[Math.floor(Math.random()*SPAWN_POINTS.length)];
+    spawnPos=new THREE.Vector3(sp2[0],0,sp2[2]);
     attempts++;
-  }while(attempts<10&&enemies.some(e=>e.alive&&e.group.position.distanceTo(spawnPos)<8));
+  }
   group.position.copy(spawnPos);
   scene.add(group);
 
@@ -861,7 +915,7 @@ function activateSpecial(){
   if(!deReady||domainOn)return;
   domainOn=true;deReady=false;deKills=0;
   document.getElementById('de-ov').classList.add('on');
-  scene.fog=new THREE.FogExp2(0x1a0040,.022);
+  scene.fog=new THREE.FogExp2(0x1a0040,.012);
   announce(selectedChar==='yuji'?'BLACK FLASH — DIVERGENT FIST':'DOMAIN EXPANSION — INFINITE VOID',4);
   dQueue=[...enemies.filter(e=>e.alive)];dTarget=null;dPhase='moving';
   if(isMobile)document.getElementById('btn-domain').classList.remove('dom-ready');
@@ -873,7 +927,7 @@ function tickDomain(dt){
     if(!dQueue.length){
       domainOn=false;
       document.getElementById('de-ov').classList.remove('on');
-      scene.fog=new THREE.FogExp2(0x050010,.013);
+      scene.fog=new THREE.FogExp2(0x050812,.008);
       setTimeout(()=>{wave++;startWave(wave);announce('WAVE '+wave,2);},1200);
       return;
     }
@@ -1005,7 +1059,10 @@ function tickPlayer(dt){
     const facing=new THREE.Vector3(Math.sin(playerGroup.rotation.y),0,Math.cos(playerGroup.rotation.y));
     enemies.forEach(e=>{
       if(!e.alive||hitSet.has(e))return;
-      const toE=e.group.position.clone().sub(playerGroup.position);toE.y=0;
+      const toE=e.group.position.clone().sub(playerGroup.position);
+      const yDiff=Math.abs(toE.y);
+      toE.y=0;
+      if(yDiff>2.5)return; // too far above or below
       if(toE.length()<e.hitRange&&toE.clone().normalize().dot(facing)>0.05){
         hitSet.add(e);
         const dmg=e.isGiant?Math.floor(charDef.atkDmg*.6):charDef.atkDmg;
@@ -1036,20 +1093,22 @@ function tickEnemies(dt){
     _toP.copy(pp).sub(e.group.position);_toP.y=0;
     const dist=_toP.length();
 
+    const yGap=Math.abs(playerGroup.position.y-e.group.position.y);
+
     if(e.state==='attack'){
-      if(dist>(e.hitRange)){e.state='chase';e.atkTimer=0;e.nShow('walk');return;}
+      if(dist>(e.hitRange)||yGap>2.5){e.state='chase';e.atkTimer=0;e.nShow('walk');return;}
       facePoint(e.group,pp.x,pp.z);
       e.nShow('attack');
       e.atkTimer-=dt;
       if(e.atkTimer<=0){
         e.atkTimer=e.atkInt;
-        if(!domainOn&&onGround){hp-=e.damage;shakeAmt=e.type==='giant'?0.9:e.type==='berserker'?0.7:0.4;if(hp<=0){hp=0;triggerOver();}}
+        if(!domainOn&&yGap<2.5){hp-=e.damage;shakeAmt=e.type==='giant'?0.9:e.type==='berserker'?0.7:0.4;if(hp<=0){hp=0;triggerOver();}}
       }
       return;
     }
 
     const atkThresh=e.hitRange*0.7;
-    if(dist<atkThresh&&!domainOn){e.state='attack';e.atkTimer=e.windUp;e.nShow('attack');return;}
+    if(dist<atkThresh&&yGap<2.0&&!domainOn){e.state='attack';e.atkTimer=e.windUp;e.nShow('attack');return;}
     if(dist>62){e.nShow('idle');facePoint(e.group,pp.x,pp.z);return;}
 
     const desired=_toP.clone().normalize();
@@ -1167,7 +1226,7 @@ function doRestart(){
   yaw=0;pitch=0.28;over=false;introPlaying=false;
   document.getElementById('de-ov').classList.remove('on');
   document.getElementById('pause-menu').classList.remove('open');
-  scene.fog=new THREE.FogExp2(0x050010,.013);scene.background.set(0x050010);
+  scene.fog=new THREE.FogExp2(0x050812,.008);scene.background.set(0x050812);
   document.getElementById('over-screen').style.display='none';
   document.getElementById('hud').style.display='block';
   if(isMobile)document.getElementById('mobile-controls').classList.add('visible');
