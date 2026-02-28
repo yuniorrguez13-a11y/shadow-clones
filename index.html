@@ -489,7 +489,7 @@ let deKills=0,deReady=false,domainOn=false;
 let enemies=[],vfx=[];
 
 /* ══ JUMP STATE ══ */
-const JUMP_VEL=28,GRAVITY=-50;
+const JUMP_VEL=34,GRAVITY=-52;
 let playerY=0,playerVY=0,onGround=true,jumpTimer=0;
 let mobileJump=false;
 
@@ -945,13 +945,16 @@ function tickPlayer(dt){
     jumpTimer+=dt;
     playerVY+=GRAVITY*dt;
     playerY+=playerVY*dt;
-    const surface=getSurfaceAt(playerGroup.position.x,playerGroup.position.z);
-    if(playerY<=surface){playerY=surface;playerVY=0;onGround=true;jumpTimer=0;}
-    // Prevent jumping over walls
-    if(playerY>7){
-      playerGroup.position.x=Math.max(-MAP+6,Math.min(MAP-6,playerGroup.position.x));
-      playerGroup.position.z=Math.max(-MAP+6,Math.min(MAP-6,playerGroup.position.z));
+    // Only land when falling — prevents snapping onto box tops while going up
+    if(playerVY<=0){
+      const surface=getSurfaceAt(playerGroup.position.x,playerGroup.position.z);
+      if(playerY<=surface){playerY=surface;playerVY=0;onGround=true;jumpTimer=0;}
     }
+    // Hard floor fallback
+    if(playerY<=0){playerY=0;playerVY=0;onGround=true;jumpTimer=0;}
+    // Keep within map walls
+    playerGroup.position.x=Math.max(-MAP+4,Math.min(MAP-4,playerGroup.position.x));
+    playerGroup.position.z=Math.max(-MAP+4,Math.min(MAP-4,playerGroup.position.z));
   }
   playerGroup.position.y=playerY;
 
@@ -981,9 +984,10 @@ function tickPlayer(dt){
     if(onGround)showPlayer(sprinting?'run':'walk');
   }else if(!atkActive&&onGround)showPlayer('idle');
 
-  // Air animation
+  // Air animation — play full jump clip, then switch to midair
   if(!onGround&&!atkActive){
-    if(jumpTimer<0.3&&G.jump)showPlayer('jump');
+    const jumpDur=G.jump?.duration??0.5;
+    if(jumpTimer<jumpDur)showPlayer('jump');
     else showPlayer('midair');
   }
 
