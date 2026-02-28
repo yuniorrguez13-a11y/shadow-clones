@@ -355,8 +355,7 @@ const pLight=new THREE.PointLight(0x0055ff,4,28);
 scene.add(pLight);
 
 /* ══ MAP ══ */
-// City spans roughly x:-97 to 97, z:-77 to 120. Give plenty of boundary.
-const MAP=130,COLS=[],PLATFORMS=[];
+const MAP=120,COLS=[],PLATFORMS=[];
 const addCol=(cx,cz,hw,hd,topY=999)=>COLS.push({minX:cx-hw,maxX:cx+hw,minZ:cz-hd,maxZ:cz+hd,topY});
 const isBlocked=(px,pz,r,py=0)=>COLS.some(c=>
   px+r>c.minX&&px-r<c.maxX&&pz+r>c.minZ&&pz-r<c.maxZ&&py<c.topY-0.1);
@@ -367,49 +366,21 @@ function slide(pos,dx,dz,r,py=0){
   pos.x=Math.max(-MAP+2,Math.min(MAP-2,pos.x));
   pos.z=Math.max(-MAP+2,Math.min(MAP-2,pos.z));
 }
-function getSurfaceAt(x,z){
-  let h=0;
-  for(const p of PLATFORMS){
-    if(x>=p.minX&&x<=p.maxX&&z>=p.minZ&&z<=p.maxZ) h=Math.max(h,p.y);
-  }
-  return h;
-}
+// Ground is always Y=0. No mesh-based platforms — city is visual only.
+function getSurfaceAt(x,z){ return 0; }
 
-// Invisible boundary walls (no visual — city walls do that)
-const addBoundaryWalls=()=>{
+// Invisible boundary walls
+(function addWalls(){
   const M=MAP;
-  [[0,999,-M,M*2+4,10,3],[0,999,M,M*2+4,10,3],[-M,999,0,3,10,M*2],[M,999,0,3,10,M*2]]
-  .forEach(([cx,cy,cz,sw,sh,sd])=>addCol(cx,cz,sw/2,sd/2,999));
-};
-addBoundaryWalls();
-
-// City FBX is loaded later — colliders are built in buildCityColliders() after FBX loads
-function buildCityColliders(cityObj){
-  const box3=new THREE.Box3();
-  cityObj.traverse(child=>{
-    if(!child.isMesh)return;
-    box3.setFromObject(child);
-    const sx=(box3.max.x-box3.min.x), sy=(box3.max.y-box3.min.y), sz=(box3.max.z-box3.min.z);
-    // Skip tiny props (< 3 units wide) and flat ground planes (< 0.3 tall)
-    if(sx<3&&sz<3) return;
-    if(sy<0.3) return;
-    const cx=(box3.min.x+box3.max.x)/2;
-    const cz=(box3.min.z+box3.max.z)/2;
-    const topY=box3.max.y;
-    const hw=sx/2+0.25, hd=sz/2+0.25;
-    addCol(cx,cz,hw,hd,topY);
-    // Register as landing platform if it has meaningful top surface
-    if(topY>0.5){
-      PLATFORMS.push({minX:box3.min.x-0.2,maxX:box3.max.x+0.2,minZ:box3.min.z-0.2,maxZ:box3.max.z+0.2,y:topY});
-    }
-  });
-  // Always register ground as platform y=0
-  PLATFORMS.push({minX:-MAP,maxX:MAP,minZ:-MAP,maxZ:MAP,y:0});
-}
+  addCol( 0, -M, M+2, 2);
+  addCol( 0,  M, M+2, 2);
+  addCol(-M,  0, 2, M+2);
+  addCol( M,  0, 2, M+2);
+})();
 
 (function buildBaseMap(){
-  // Ground plane
-  const g=new THREE.Mesh(new THREE.PlaneGeometry(MAP*2,MAP*2),new THREE.MeshLambertMaterial({color:0x060810}));
+  const g=new THREE.Mesh(new THREE.PlaneGeometry(MAP*2,MAP*2),
+    new THREE.MeshLambertMaterial({color:0x060810}));
   g.rotation.x=-Math.PI/2; g.receiveShadow=true; scene.add(g);
 })();
 
@@ -634,10 +605,11 @@ function spawnPot(x,z){
   const box=new THREE.Box3().setFromObject(raw);
   const potH=box.max.y-box.min.y;
   raw.scale.setScalar(0.5/Math.max(potH,0.01));
-  raw.position.set(x,getSurfaceAt(x,z),z);
+  raw.position.set(x,0,z);
   scene.add(raw);
-  const glow=new THREE.Mesh(new THREE.SphereGeometry(0.6,8,8),new THREE.MeshBasicMaterial({color:0x00ff55,transparent:true,opacity:.18,depthWrite:false}));
-  glow.position.set(x,getSurfaceAt(x,z)+0.5,z);
+  const glow=new THREE.Mesh(new THREE.SphereGeometry(0.6,8,8),
+    new THREE.MeshBasicMaterial({color:0x00ff55,transparent:true,opacity:.18,depthWrite:false}));
+  glow.position.set(x,0.5,z);
   scene.add(glow);
   pots.push({mesh:raw,glow,x,z,alive:true,bobT:Math.random()*Math.PI*2,respawnT:0});
 }
@@ -659,16 +631,16 @@ function tickPots(dt){
         const nx=Math.cos(ang)*r,nz=Math.sin(ang)*r;
         p.x=Math.max(-MAP+8,Math.min(MAP-8,nx));
         p.z=Math.max(-MAP+8,Math.min(MAP-8,nz));
-        p.mesh.position.set(p.x,getSurfaceAt(p.x,p.z),p.z);
-        p.glow.position.set(p.x,getSurfaceAt(p.x,p.z)+0.5,p.z);
+        p.mesh.position.set(p.x,0,p.z);
+        p.glow.position.set(p.x,0.5,p.z);
         p.mesh.visible=true;p.glow.visible=true;p.alive=true;
       }
       return;
     }
     p.bobT+=dt*2;
     const by=Math.sin(p.bobT)*0.15;
-    p.mesh.position.y=getSurfaceAt(p.x,p.z)+by;
-    p.glow.position.y=getSurfaceAt(p.x,p.z)+0.5+by;
+    p.mesh.position.y=by;
+    p.glow.position.y=0.5+by;
     p.mesh.rotation.y+=dt*0.8;
     const dx=pp.x-p.x,dz=pp.z-p.z;
     const dist2=dx*dx+dz*dz;
@@ -690,32 +662,37 @@ function onAllLoaded(){
   nTemplates.attack=RAW['n_attack'];
   Object.values(nTemplates).forEach(t=>{if(!t)return;setupShadows(t);fitHeight(t,1.76);t.rotation.set(0,0,0);});
 
-  // Place city
+  // Place city — visual only, no collision mesh processing
   if(RAW['city']){
     const city=RAW['city'];
+    // Measure what scale FBXLoader gave us
+    const tmpBox=new THREE.Box3().setFromObject(city);
+    const cityMaxY=tmpBox.max.y - tmpBox.min.y;
+    // Target: buildings ~20 units tall so a 1.78-unit character looks correct
+    // Raw data shows buildings reach ~29.5 units — if FBXLoader kept full scale, cityMaxY≈79
+    // If FBXLoader applied /100, cityMaxY≈0.79. Scale to hit target 20 units.
+    const targetHeight=20;
+    if(cityMaxY < 5){
+      // Loaded too small (FBXLoader applied /100) — scale back up
+      city.scale.setScalar(targetHeight / cityMaxY);
+    }
+    // Center city horizontally so player starts in middle of it
+    city.updateMatrixWorld(true);
+    const centeredBox=new THREE.Box3().setFromObject(city);
+    city.position.x -= (centeredBox.min.x+centeredBox.max.x)/2;
+    city.position.z -= (centeredBox.min.z+centeredBox.max.z)/2;
     setupShadows(city);
-    // City ground is at Y=0, center it — shift Z so the city center aligns with world origin
-    // City spans z: -77 to +120, center ≈ 22 → offset by -22
-    city.position.set(0, 0, -22);
     scene.add(city);
-    buildCityColliders(city);
-    // City-aware atmosphere
-    scene.fog=new THREE.FogExp2(0x050812, 0.008);
+    // Atmosphere
+    scene.fog=new THREE.FogExp2(0x050812, 0.007);
     scene.background=new THREE.Color(0x050812);
-    // Street lights scattered through the city
-    const streetLightPositions=[
-      [25,8,15],[25,8,-15],[-25,8,15],[-25,8,-15],
-      [0,8,40],[0,8,-40],[55,8,10],[-55,8,10],
-      [30,8,-50],[-30,8,-50],[50,8,50],[-50,8,50],
-    ];
-    streetLightPositions.forEach(([x,y,z])=>{
-      const l=new THREE.PointLight(0x334488,2.5,40);
-      l.position.set(x,y,z);
-      scene.add(l);
+    // Street point lights
+    [[-30,6,-20],[30,6,-20],[0,6,30],[-30,6,40],[30,6,40],
+     [-60,6,0],[60,6,0],[0,6,-50],[50,6,-50],[-50,6,60],[50,6,60]]
+    .forEach(([x,y,z])=>{
+      const l=new THREE.PointLight(0x2244aa,3,50);
+      l.position.set(x,y,z); scene.add(l);
     });
-  } else {
-    // Fallback ground platform if city fails to load
-    PLATFORMS.push({minX:-MAP,maxX:MAP,minZ:-MAP,maxZ:MAP,y:0});
   }
 
   initPots();
