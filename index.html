@@ -356,12 +356,14 @@ scene.add(pLight);
 
 /* ══ MAP ══ */
 const MAP=75,COLS=[],PLATFORMS=[];
-const addCol=(cx,cz,hw,hd)=>COLS.push({minX:cx-hw,maxX:cx+hw,minZ:cz-hd,maxZ:cz+hd});
-const isBlocked=(px,pz,r)=>COLS.some(c=>px+r>c.minX&&px-r<c.maxX&&pz+r>c.minZ&&pz-r<c.maxZ);
-function slide(pos,dx,dz,r){
-  if(!isBlocked(pos.x+dx,pos.z+dz,r)){pos.x+=dx;pos.z+=dz;}
-  else if(!isBlocked(pos.x+dx,pos.z,r)){pos.x+=dx;}
-  else if(!isBlocked(pos.x,pos.z+dz,r)){pos.z+=dz;}
+// topY: the top surface of this collider. Player above it can pass over freely.
+const addCol=(cx,cz,hw,hd,topY=Infinity)=>COLS.push({minX:cx-hw,maxX:cx+hw,minZ:cz-hd,maxZ:cz+hd,topY});
+const isBlocked=(px,pz,r,py=0)=>COLS.some(c=>
+  px+r>c.minX&&px-r<c.maxX&&pz+r>c.minZ&&pz-r<c.maxZ&&py<c.topY-0.05);
+function slide(pos,dx,dz,r,py=0){
+  if(!isBlocked(pos.x+dx,pos.z+dz,r,py)){pos.x+=dx;pos.z+=dz;}
+  else if(!isBlocked(pos.x+dx,pos.z,r,py)){pos.x+=dx;}
+  else if(!isBlocked(pos.x,pos.z+dz,r,py)){pos.z+=dz;}
   pos.x=Math.max(-MAP+2,Math.min(MAP-2,pos.x));
   pos.z=Math.max(-MAP+2,Math.min(MAP-2,pos.z));
 }
@@ -389,7 +391,7 @@ function getSurfaceAt(x,z){
     const h=4+Math.random()*5,sw=2+Math.random()*2,sd=2+Math.random()*2;
     const m=new THREE.Mesh(new THREE.BoxGeometry(sw,h,sd),pm);m.position.set(x,h/2,z);m.castShadow=m.receiveShadow=true;scene.add(m);
     const top=new THREE.Mesh(new THREE.BoxGeometry(sw+.15,.14,sd+.15),tm);top.position.set(x,h,z);scene.add(top);
-    addCol(x,z,sw/2+.4,sd/2+.4);
+    addCol(x,z,sw/2+.4,sd/2+.4, h); // topY=h so player above the box isn't blocked
     PLATFORMS.push({x,z,y:h,hw:sw/2+.3,hd:sd/2+.3});
   });
 })();
@@ -489,8 +491,10 @@ let deKills=0,deReady=false,domainOn=false;
 let enemies=[],vfx=[];
 
 /* ══ JUMP STATE ══ */
-const JUMP_VEL=34,GRAVITY=-52;
+const JUMP_VEL=38,GRAVITY=-52;
 let playerY=0,playerVY=0,onGround=true,jumpTimer=0;
+let jumpWindup=false,jumpWindupT=0;
+const JUMP_LAUNCH_T=0.98; // seconds into animation when character actually launches
 let mobileJump=false;
 
 /* ══ INPUT — PC ══ */
@@ -936,10 +940,16 @@ function tickPlayer(dt){
   }
   const moving=dx!==0||dz!==0;
 
-  // Jump
-  const jumpPressed=(keys['Space']||mobileJump)&&onGround;
-  if(jumpPressed){playerVY=JUMP_VEL;onGround=false;jumpTimer=0;showPlayer('jump');}
+  // Jump windup — play animation, launch at 0.98s
+  const jumpPressed=(keys['Space']||mobileJump)&&onGround&&!jumpWindup;
+  if(jumpPressed){jumpWindup=true;jumpWindupT=0;showPlayer('jump');}
   mobileJump=false;
+  if(jumpWindup){
+    jumpWindupT+=dt;
+    if(jumpWindupT>=JUMP_LAUNCH_T){
+      playerVY=JUMP_VEL;onGround=false;jumpTimer=0;jumpWindup=false;
+    }
+  }
 
   if(!onGround){
     jumpTimer+=dt;
@@ -974,15 +984,15 @@ function tickPlayer(dt){
   const sprinting=isMobile?mobileSprint&&moving:(keys['ShiftLeft']||keys['ShiftRight'])&&moving;
   const spd=sprinting?charDef.sprintSpeed:charDef.speed;
 
-  if(moving&&!atkActive){
+  if(moving&&!atkActive&&!jumpWindup){
     const len=Math.sqrt(dx*dx+dz*dz);
     const nx=dx/len*spd*dt,nz=dz/len*spd*dt;
     const bx=playerGroup.position.x,bz=playerGroup.position.z;
-    slide(playerGroup.position,nx,nz,0.55);
+    slide(playerGroup.position,nx,nz,0.55,playerY);
     const mdx=playerGroup.position.x-bx,mdz=playerGroup.position.z-bz;
     if(Math.abs(mdx)+Math.abs(mdz)>0.0005)playerGroup.rotation.y=Math.atan2(mdx,mdz);
     if(onGround)showPlayer(sprinting?'run':'walk');
-  }else if(!atkActive&&onGround)showPlayer('idle');
+  }else if(!atkActive&&onGround&&!jumpWindup)showPlayer('idle');
 
   // Air animation — play full jump clip, then switch to midair
   if(!onGround&&!atkActive){
@@ -1072,7 +1082,7 @@ function tickEnemies(dt){
     const finalDir=bestDir.clone().multiplyScalar(0.6).addScaledVector(wander,0.15).addScaledVector(sep,0.25).normalize();
     const spd=e.speed*(dist<8?0.6:dist<16?0.85:1)*dt;
     const bx=e.group.position.x,bz=e.group.position.z;
-    slide(e.group.position,finalDir.x*spd,finalDir.z*spd,.55);
+    slide(e.group.position,finalDir.x*spd,finalDir.z*spd,.55,0);
     const mdx=e.group.position.x-bx,mdz=e.group.position.z-bz;
     if(Math.abs(mdx)+Math.abs(mdz)<.0005){e.wanderA+=Math.PI/3;}
     else{
@@ -1145,7 +1155,7 @@ function doRestart(){
   enemies=[];vfx=[];
   score=0;wave=1;hp=MAX_HP;deKills=0;deReady=false;domainOn=false;
   spawnQ=0;atkActive=false;atkWindow=false;atkCD=0;dTarget=null;dQueue=[];
-  stillTimer=0;playerY=0;playerVY=0;onGround=true;jumpTimer=0;
+  stillTimer=0;playerY=0;playerVY=0;onGround=true;jumpTimer=0;jumpWindup=false;jumpWindupT=0;
   mobileMove={x:0,z:0};mobileSprint=false;isPaused=false;
   if(isMobile){
     document.getElementById('btn-sprint').classList.remove('spr-on');
