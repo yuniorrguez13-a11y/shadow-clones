@@ -407,7 +407,7 @@ const LOAD_LIST=[
   {key:'n_run',    file:'ninja_run.fbx'},
   {key:'n_attack', file:'ninja_attack__made_it_as_goofy_as_possible_.fbx'},
   {key:'pot',      file:'Pot.fbx'},
-  {key:'city',     file:'city.fbx'},
+  {key:'city',     file:'japanese_village.fbx'},
 ];
 const TOTAL=LOAD_LIST.length,RAW={};
 function onEachLoaded(){
@@ -800,12 +800,14 @@ function spawnEnemy(){
   group.scale.setScalar(TYPE_SCALE[type]);
   const hpBar=makeHpBar(type);
 
+  // Village spawn points: user X,Y -> Three.js X,Z (Y=up always 0)
   const SPAWN_POINTS=[
-    [90,0,20],[90,0,-30],[-90,0,20],[-90,0,-30],
-    [0,0,90],[0,0,-60],[50,0,90],[-50,0,90],
-    [50,0,-60],[-50,0,-60],[80,0,55],[-80,0,55],
-    [80,0,-10],[-80,0,-10],[35,0,50],[-35,0,50],
-    [60,0,-40],[-60,0,-40],[0,0,0],[20,0,-30],
+    [12,0,-8],[-12,0,-8],[0,0,25],
+    [18,0,10],[-18,0,10],[-4,0,20],[4,0,20],
+    [45,0,-10],[52,0,15],[-10,0,48],
+    [-14,0,55],[-6,0,55],
+    [-40,0,-42],[-55,0,-42],
+    [30,0,-40],[-30,0,-40],
   ];
   const sp=SPAWN_POINTS[Math.floor(Math.random()*SPAWN_POINTS.length)];
   let spawnPos=new THREE.Vector3(sp[0],0,sp[2]);
@@ -1198,7 +1200,7 @@ function doRestart(){
     document.getElementById('btn-domain').classList.remove('dom-ready');
     document.getElementById('joystick-knob').style.transform='translate(-50%,-50%)';
   }
-  playerGroup.position.set(0,0,0);playerGroup.rotation.y=0;
+  playerGroup.position.set(0,0,-58);playerGroup.rotation.y=0;
   modelTilt.rotation.x=0;
   yaw=0;pitch=0.28;over=false;introPlaying=false;
   document.getElementById('de-ov').classList.remove('on');
@@ -1215,6 +1217,7 @@ function doRestart(){
 
 function startGame(){
   buildPlayerSlots(selectedChar);
+  playerGroup.position.set(0,0,-58);
   document.getElementById('start-screen').style.display='none';
   document.getElementById('hud').style.display='block';
   started=true;
