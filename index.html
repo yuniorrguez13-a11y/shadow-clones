@@ -666,21 +666,26 @@ function onAllLoaded(){
   if(RAW['city']){
     const city=RAW['city'];
     // Measure what scale FBXLoader gave us
+    city.updateMatrixWorld(true);
     const tmpBox=new THREE.Box3().setFromObject(city);
-    const cityMaxY=tmpBox.max.y - tmpBox.min.y;
-    // Target: buildings ~20 units tall so a 1.78-unit character looks correct
-    // Raw data shows buildings reach ~29.5 units — if FBXLoader kept full scale, cityMaxY≈79
-    // If FBXLoader applied /100, cityMaxY≈0.79. Scale to hit target 20 units.
-    const targetHeight=20;
-    if(cityMaxY < 5){
-      // Loaded too small (FBXLoader applied /100) — scale back up
-      city.scale.setScalar(targetHeight / cityMaxY);
-    }
-    // Center city horizontally so player starts in middle of it
+    const cityMaxY=tmpBox.max.y-tmpBox.min.y;
+    const citySizeX=tmpBox.max.x-tmpBox.min.x;
+    const citySizeZ=tmpBox.max.z-tmpBox.min.z;
+    // Target: buildings ~12 units tall so a 1.78-unit character looks correct
+    const targetHeight=12;
+    // Target footprint ~80 units so it fits the 240-unit play area
+    const targetFootprint=80;
+    const maxDim=Math.max(citySizeX,citySizeZ,cityMaxY,0.01);
+    // Scale by height first, then constrain by footprint
+    let scale=targetHeight/Math.max(cityMaxY,0.01);
+    const footprintScale=targetFootprint/maxDim;
+    scale=Math.min(scale,footprintScale);
+    city.scale.setScalar(scale);
     city.updateMatrixWorld(true);
     const centeredBox=new THREE.Box3().setFromObject(city);
-    city.position.x -= (centeredBox.min.x+centeredBox.max.x)/2;
-    city.position.z -= (centeredBox.min.z+centeredBox.max.z)/2;
+    city.position.x=-(centeredBox.min.x+centeredBox.max.x)/2;
+    city.position.z=-(centeredBox.min.z+centeredBox.max.z)/2;
+    city.position.y=-centeredBox.min.y;
     setupShadows(city);
     scene.add(city);
     // Atmosphere
