@@ -338,27 +338,69 @@ renderer.setSize(innerWidth,innerHeight);
 renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.2;
+renderer.toneMappingExposure=0.85;
+
+const SKY_COL=0x223052,FOG_COL=0x223052,FOG_DENS=0.013;
 const scene=new THREE.Scene();
-scene.fog=new THREE.FogExp2(0x050812,0.008);
-scene.background=new THREE.Color(0x050812);
-const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,0.1,400);
-scene.add(new THREE.AmbientLight(0x223355,2.4));
-const sun=new THREE.DirectionalLight(0x8899cc,2.2);
-sun.position.set(30,80,20);sun.castShadow=true;
+scene.background=new THREE.Color(SKY_COL);
+scene.fog=new THREE.FogExp2(FOG_COL,FOG_DENS);
+function resetAtmosphere(){scene.fog=new THREE.FogExp2(FOG_COL,FOG_DENS);scene.background.setHex(SKY_COL);}
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,0.1,500);
+
+/* Dusk lighting. Sky/ground bounce carries the base exposure so nothing reads as a
+   silhouette, and a single soft key light does the shaping. */
+scene.add(new THREE.HemisphereLight(0x6f8dc8,0x2b2f36,0.95));
+scene.add(new THREE.AmbientLight(0x4b5a80,0.22));
+const sun=new THREE.DirectionalLight(0xbcd0ff,1.7);
+sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);
-sun.shadow.camera.near=1;sun.shadow.camera.far=400;
-sun.shadow.camera.left=-160;sun.shadow.camera.right=160;
-sun.shadow.camera.top=160;sun.shadow.camera.bottom=-160;
-scene.add(sun);
-const pLight=new THREE.PointLight(0x0055ff,4,28);
+sun.shadow.camera.near=1;sun.shadow.camera.far=220;
+/* The shadow camera follows the player with a tight frustum: ~23 texels per metre.
+   The old fixed ±160 box spread the same 2048 map over 320m — 6m per texel — which is
+   what made every shadow edge crawl and shimmer as the camera moved. */
+const SHADOW_EXT=45;
+sun.shadow.camera.left=-SHADOW_EXT;sun.shadow.camera.right=SHADOW_EXT;
+sun.shadow.camera.top=SHADOW_EXT;sun.shadow.camera.bottom=-SHADOW_EXT;
+sun.shadow.bias=-0.0006;sun.shadow.normalBias=0.05;
+sun.shadow.camera.updateProjectionMatrix();
+scene.add(sun);scene.add(sun.target);
+const SUN_OFF=new THREE.Vector3(38,62,26);
+
+/* Character aura. Steady — it used to orbit the player and pulse its intensity every
+   frame, which read as the whole scene flickering. */
+const pLight=new THREE.PointLight(0x0055ff,3.2,20,2);
 scene.add(pLight);
 
 /* ══ MAP ══ */
-const MAP=120,COLS=[],PLATFORMS=[];
+let MAP=120;
+const COLS=[],PLATFORMS=[];
+/* The village generates ~750 colliders, so bucket them into a uniform grid — a linear
+   scan would run thousands of box tests per frame across every enemy's path probes. */
+const CELL=8;
+let colGrid=new Map();
+const cellKey=(cx,cz)=>cx+','+cz;
+function rebuildColGrid(){
+  colGrid=new Map();
+  COLS.forEach(c=>{
+    for(let cx=Math.floor(c.minX/CELL);cx<=Math.floor(c.maxX/CELL);cx++)
+      for(let cz=Math.floor(c.minZ/CELL);cz<=Math.floor(c.maxZ/CELL);cz++){
+        const k=cellKey(cx,cz);let b=colGrid.get(k);
+        if(!b)colGrid.set(k,b=[]);
+        b.push(c);
+      }
+  });
+}
 const addCol=(cx,cz,hw,hd,topY=999)=>COLS.push({minX:cx-hw,maxX:cx+hw,minZ:cz-hd,maxZ:cz+hd,topY});
-const isBlocked=(px,pz,r,py=0)=>COLS.some(c=>
-  px+r>c.minX&&px-r<c.maxX&&pz+r>c.minZ&&pz-r<c.maxZ&&py<c.topY-0.1);
+function isBlocked(px,pz,r,py=0){
+  for(let cx=Math.floor((px-r)/CELL);cx<=Math.floor((px+r)/CELL);cx++)
+    for(let cz=Math.floor((pz-r)/CELL);cz<=Math.floor((pz+r)/CELL);cz++){
+      const b=colGrid.get(cellKey(cx,cz));
+      if(!b)continue;
+      for(const c of b)
+        if(px+r>c.minX&&px-r<c.maxX&&pz+r>c.minZ&&pz-r<c.maxZ&&py<c.topY-0.1)return true;
+    }
+  return false;
+}
 function slide(pos,dx,dz,r,py=0){
   if(!isBlocked(pos.x+dx,pos.z+dz,r,py)){pos.x+=dx;pos.z+=dz;}
   else if(!isBlocked(pos.x+dx,pos.z,r,py)){pos.x+=dx;}
@@ -366,22 +408,26 @@ function slide(pos,dx,dz,r,py=0){
   pos.x=Math.max(-MAP+2,Math.min(MAP-2,pos.x));
   pos.z=Math.max(-MAP+2,Math.min(MAP-2,pos.z));
 }
-// Ground is always Y=0. No mesh-based platforms — city is visual only.
+// Ground is always Y=0. No mesh-based platforms — the village terrain is flattened to match.
 function getSurfaceAt(x,z){ return 0; }
 
-// Invisible boundary walls
-(function addWalls(){
+// Invisible boundary walls. Rebuilt whenever MAP changes, so this wipes COLS first —
+// call it before any scenery colliders are added.
+function rebuildBounds(){
+  COLS.length=0;
   const M=MAP;
   addCol( 0, -M, M+2, 2);
   addCol( 0,  M, M+2, 2);
   addCol(-M,  0, 2, M+2);
   addCol( M,  0, 2, M+2);
-})();
+}
+rebuildBounds();rebuildColGrid();
 
+let groundMesh=null;
 (function buildBaseMap(){
-  const g=new THREE.Mesh(new THREE.PlaneGeometry(MAP*2,MAP*2),
-    new THREE.MeshLambertMaterial({color:0x060810}));
-  g.rotation.x=-Math.PI/2; g.receiveShadow=true; scene.add(g);
+  groundMesh=new THREE.Mesh(new THREE.PlaneGeometry(MAP*2,MAP*2),
+    new THREE.MeshLambertMaterial({color:0x141a26}));
+  groundMesh.rotation.x=-Math.PI/2; groundMesh.receiveShadow=true; scene.add(groundMesh);
 })();
 
 /* ══ ASSET LOADING ══ */
@@ -422,22 +468,47 @@ LOAD_LIST.forEach(({key,file})=>{
   fbxL.load(file,obj=>{RAW[key]=obj;onEachLoaded();},undefined,()=>{RAW[key]=null;console.warn('missing:',file);onEachLoaded();});
 });
 
+/* Every material in the village FBX imports with emissive #ffffff, which renders the whole
+   place flat and unlit — so emissive gets zeroed. Lantern glow is the exception. */
+const matDone=new WeakSet();
+function fixMaterials(mesh){
+  (Array.isArray(mesh.material)?mesh.material:[mesh.material]).forEach(m=>{
+    if(!m||matDone.has(m))return;
+    matDone.add(m);
+    const glow=m.name==='M_LanGlow';
+    if(m.emissive)m.emissive.setHex(glow?0xff9a3c:0x000000);
+    if(m.emissiveMap)m.emissiveMap=null;
+    m.emissiveIntensity=glow?1.4:0;
+    m.toneMapped=true;
+    m.transparent=false;m.opacity=1;m.alphaTest=0;
+    if(m.alphaMap)m.alphaMap=null;
+  });
+}
 function setupShadows(obj){
   obj.traverse(c=>{
     if(!c.isMesh)return;
     c.castShadow=true;c.receiveShadow=true;
-    (Array.isArray(c.material)?c.material:[c.material]).forEach(m=>{
-      if(!m)return;
-      if(m.emissive)m.emissive.set(0,0,0);
-      if(m.emissiveMap)m.emissiveMap=null;
-      m.emissiveIntensity=0;m.toneMapped=true;
-      m.transparent=false;m.opacity=1;m.alphaTest=0;
-      if(m.alphaMap)m.alphaMap=null;
-    });
+    fixMaterials(c);
   });
 }
 function fitHeight(obj,h){const box=new THREE.Box3().setFromObject(obj);obj.scale.setScalar(h/Math.max(box.max.y-box.min.y,0.01));}
 function groundObj(obj){const box=new THREE.Box3().setFromObject(obj);obj.position.y=-box.min.y;}
+/* The moment in a jump clip where the feet actually leave the floor, read off the hip
+   track. gojojump crouches for the first 28% of its 1.88s — launching on frame 0 would
+   look wrong, and waiting for the whole clip is what made jumping feel broken. */
+function findLaunchTime(clip){
+  const fallback=(clip?.duration??0.6)*0.28;
+  if(!clip)return fallback;
+  const t=clip.tracks.find(tr=>/(hips|pelvis|root|armature)\.position$/i.test(tr.name));
+  if(!t||t.values.length<6)return fallback;
+  const ys=[];
+  for(let i=1;i<t.values.length;i+=3)ys.push(t.values[i]);
+  const mn=Math.min(...ys),mx=Math.max(...ys);
+  if(mx-mn<1e-4)return fallback;
+  const idx=ys.findIndex(v=>v>mn+(mx-mn)*0.5);
+  return idx>0&&t.times[idx]!=null?t.times[idx]:fallback;
+}
+
 function makeSlot(raw,looping,targetH=1.82){
   if(!raw)return null;
   setupShadows(raw);fitHeight(raw,targetH);groundObj(raw);
@@ -451,7 +522,7 @@ function makeSlot(raw,looping,targetH=1.82){
     action.play();
     if(!looping)action.paused=true;
   }
-  return{scene:raw,mixer,action,duration:clip?.duration??0.7};
+  return{scene:raw,mixer,action,clip,duration:clip?.duration??0.7,launchT:0};
 }
 
 /* ══ PLAYER GROUP ══ */
@@ -480,16 +551,20 @@ let deKills=0,deReady=false,domainOn=false;
 let enemies=[],vfx=[];
 
 /* ══ JUMP STATE ══ */
-const JUMP_VEL=38,GRAVITY=-52;
+const JUMP_VEL=30,GRAVITY=-62;
 let playerY=0,playerVY=0,onGround=true,jumpTimer=0;
-let jumpWindup=false,jumpWindupT=0;
-const JUMP_LAUNCH_T=0.98; // seconds into animation when character actually launches
+/* Jumps launch on the frame you press. The clip is started just before its own takeoff
+   frame (see JUMP_ANTICIPATE) so you still see the push-off instead of the crouch that
+   used to play for a full second before anything happened. */
+const JUMP_ANTICIPATE=0.12,JUMP_TIMESCALE=1.35;
 let mobileJump=false;
 
 /* ══ INPUT — PC ══ */
 const keys={};
 let yaw=0,pitch=0.28,locked=false;
-let clickNow=false,camDist=16;
+// Tuned for a 1.8m character in a real-scale village; it used to sit at 16 because the
+// whole map was three times too small.
+let clickNow=false,camDist=9;
 
 if(!isMobile){
   addEventListener('keydown',e=>{
@@ -507,7 +582,7 @@ if(!isMobile){
     pitch=Math.max(-0.08,Math.min(0.72,pitch));
   });
   document.addEventListener('mousedown',e=>{if(e.button===0&&!isPaused)clickNow=true;});
-  document.addEventListener('wheel',e=>{camDist=Math.max(5,Math.min(40,camDist+e.deltaY*0.022));},{passive:true});
+  document.addEventListener('wheel',e=>{camDist=Math.max(4,Math.min(26,camDist+e.deltaY*0.014));},{passive:true});
 }
 
 /* ══ INPUT — MOBILE ══ */
@@ -551,7 +626,7 @@ if(isMobile){
     e.preventDefault();
     if(e.touches.length===2&&pinchDist!==null){
       const nd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-      camDist=Math.max(5,Math.min(40,camDist-(nd-pinchDist)*0.05));
+      camDist=Math.max(4,Math.min(26,camDist-(nd-pinchDist)*0.035));
       pinchDist=nd;return;
     }
     for(const t of e.changedTouches){
@@ -613,12 +688,15 @@ function spawnPot(x,z){
   scene.add(glow);
   pots.push({mesh:raw,glow,x,z,alive:true,bobT:Math.random()*Math.PI*2,respawnT:0});
 }
+// Snapped to open ground — a pot dropped inside a house can never be picked up.
+function potSpot(){
+  const ang=Math.random()*Math.PI*2,r=12+Math.random()*Math.min(38,MAP-14);
+  return findClearSpot(1.2,Math.cos(ang)*r,Math.sin(ang)*r);
+}
 function initPots(){
-  const spots=[[20,20],[-20,20],[20,-20],[-20,-20],[0,35],[-35,0],[35,0],[0,-35],[30,-30],[-30,30]];
   for(let i=0;i<POT_COUNT;i++){
-    const [x,z]=spots[i%spots.length];
-    const ox=x+(Math.random()-.5)*8,oz=z+(Math.random()-.5)*8;
-    spawnPot(ox,oz);
+    const p=potSpot();
+    spawnPot(p.x,p.z);
   }
 }
 function tickPots(dt){
@@ -627,10 +705,8 @@ function tickPots(dt){
     if(!p.alive){
       p.respawnT-=dt;
       if(p.respawnT<=0){
-        const ang=Math.random()*Math.PI*2,r=15+Math.random()*40;
-        const nx=Math.cos(ang)*r,nz=Math.sin(ang)*r;
-        p.x=Math.max(-MAP+8,Math.min(MAP-8,nx));
-        p.z=Math.max(-MAP+8,Math.min(MAP-8,nz));
+        const np=potSpot();
+        p.x=np.x;p.z=np.z;
         p.mesh.position.set(p.x,0,p.z);
         p.glow.position.set(p.x,0.5,p.z);
         p.mesh.visible=true;p.glow.visible=true;p.alive=true;
@@ -654,6 +730,179 @@ function tickPots(dt){
   });
 }
 
+/* ══ VILLAGE ══ */
+/* The FBX is authored in centimetres — house walls measure 272 units, the main road 500 —
+   so deriving the scale from the model's own footprint puts it in metres. The old code
+   clamped the footprint to 80 units, squashing a 248m village to a third of its size:
+   that is why the character towered over the houses and the layout looked nonsensical. */
+const VILLAGE_SPAN=248;
+let SPAWN_POINTS=[],PLAYER_SPAWN=new THREE.Vector3(0,0,0);
+
+const GROUND_MATS=new Set(['M_Grass','M_Dirt','M_Water','M_Ground','M_Tatami','M_Futon']);
+const FOLIAGE_MATS=new Set(['M_Leaves','M_Cherry','M_Rice']);
+const BUILDING_MATS=new Set(['M_WoodD','M_WoodL','M_Shoji','M_RoofTile','M_Thatch','M_IntWall','M_StoneDk']);
+const matNames=m=>(Array.isArray(m.material)?m.material:[m.material]).filter(Boolean).map(x=>x.name);
+
+/* The model's terrain undulates ±0.33m around y=0 while every road, path and grass decal
+   sits flat at y≈0 — so bumps punched up through the paths and z-fought the game's own
+   ground plane, which is a good part of why the ground shimmered. Flatten it to y=0. */
+function flattenGround(mesh){
+  mesh.updateWorldMatrix(true,false);
+  const inv=new THREE.Matrix4().copy(mesh.matrixWorld).invert();
+  const pos=mesh.geometry.attributes.position,v=new THREE.Vector3();
+  for(let i=0;i<pos.count;i++){
+    v.fromBufferAttribute(pos,i).applyMatrix4(mesh.matrixWorld);
+    v.y=0;
+    v.applyMatrix4(inv);
+    pos.setXYZ(i,v.x,v.y,v.z);
+  }
+  pos.needsUpdate=true;
+  mesh.geometry.computeVertexNormals();
+  mesh.geometry.computeBoundingBox();
+  mesh.geometry.computeBoundingSphere();
+}
+
+/* A few of the model's dirt roads are laid straight under house footprints. Slide each one
+   perpendicular to its length by up to 4m and keep the offset that leaves the least road
+   buried — but only where the road is meaningfully clashing and the move clearly helps. */
+function declashRoads(meshes,boxes){
+  const builds=[];
+  meshes.forEach(m=>{
+    if(!matNames(m).some(x=>BUILDING_MATS.has(x)))return;
+    const bb=boxes.get(m);
+    if(bb.max.y<0.6||bb.min.y>2.5)return;
+    if(Math.max(bb.max.x-bb.min.x,bb.max.z-bb.min.z)>25)return;
+    builds.push(bb);
+  });
+  if(!builds.length)return;
+  const buried=(bb,d,alongX)=>{
+    const x0=bb.min.x+(alongX?d:0),x1=bb.max.x+(alongX?d:0);
+    const z0=bb.min.z+(alongX?0:d),z1=bb.max.z+(alongX?0:d);
+    let s=0;
+    for(const q of builds)
+      s+=Math.max(0,Math.min(x1,q.max.x)-Math.max(x0,q.min.x))*
+         Math.max(0,Math.min(z1,q.max.z)-Math.max(z0,q.min.z));
+    return s;
+  };
+  meshes.forEach(m=>{
+    if(!matNames(m).includes('M_Dirt'))return;
+    const bb=boxes.get(m);
+    const alongX=(bb.max.z-bb.min.z)>(bb.max.x-bb.min.x); // long in Z → slide in X
+    const base=buried(bb,0,alongX);
+    if(base<0.5)return;
+    let best=0,bestC=base;
+    for(let d=-4;d<=4.0001;d+=0.25){
+      const c=buried(bb,d,alongX);
+      if(c<bestC-1e-4||(Math.abs(c-bestC)<1e-4&&Math.abs(d)<Math.abs(best))){bestC=c;best=d;}
+    }
+    if(!best||bestC>base*0.8)return;
+    const pInv=new THREE.Matrix4().copy(m.parent.matrixWorld).invert();
+    const o=new THREE.Vector3().applyMatrix4(pInv);
+    const t=new THREE.Vector3(alongX?best:0,0,alongX?0:best).applyMatrix4(pInv);
+    m.position.add(t.sub(o));
+    m.updateMatrixWorld(true);
+    boxes.set(m,new THREE.Box3().setFromObject(m));
+  });
+}
+
+function placeVillage(city){
+  city.updateMatrixWorld(true);
+  const raw=new THREE.Box3().setFromObject(city);
+  city.scale.setScalar(VILLAGE_SPAN/Math.max(raw.max.x-raw.min.x,raw.max.z-raw.min.z,0.01));
+  /* y=0 in the model already IS the walkable surface (roads and paths sit at y≈0), so the
+     village is never re-seated vertically. The old "drop the bounding box onto the floor"
+     lifted the whole place clear of the player. */
+  city.position.set(0,0,0);
+  city.updateMatrixWorld(true);
+  const b=new THREE.Box3().setFromObject(city);
+  city.position.x=-(b.min.x+b.max.x)/2;
+  city.position.z=-(b.min.z+b.max.z)/2;
+  city.updateMatrixWorld(true);
+
+  const meshes=[];
+  city.traverse(o=>{if(o.isMesh)meshes.push(o);});
+  const boxes=new Map(meshes.map(m=>[m,new THREE.Box3().setFromObject(m)]));
+
+  // Flatten the terrain slab — the largest mesh wearing the ground material.
+  let terrain=null,terrainArea=0;
+  meshes.forEach(m=>{
+    if(!matNames(m).includes('M_Ground'))return;
+    const bb=boxes.get(m),a=(bb.max.x-bb.min.x)*(bb.max.z-bb.min.z);
+    if(a>terrainArea){terrainArea=a;terrain=m;}
+  });
+  if(terrain){flattenGround(terrain);boxes.set(terrain,new THREE.Box3().setFromObject(terrain));}
+
+  // The play area is the walled compound, so you can never wander off into empty void.
+  let compound=null;
+  meshes.forEach(m=>{if(/^SW/.test(m.name))compound=compound?compound.union(boxes.get(m)):boxes.get(m).clone();});
+  MAP=compound
+    ? Math.max(30,Math.min(Math.abs(compound.min.x),compound.max.x,Math.abs(compound.min.z),compound.max.z)-1)
+    : VILLAGE_SPAN*0.24;
+  rebuildBounds();
+  if(groundMesh)groundMesh.visible=false;
+
+  declashRoads(meshes,boxes);
+
+  /* Solid scenery. Without it you walked straight through every house, which is most of
+     why the map read as buildings dumped at random on top of the dirt paths. */
+  meshes.forEach(m=>{
+    const mm=matNames(m);
+    const bb=boxes.get(m);
+    const sx=bb.max.x-bb.min.x,sy=bb.max.y-bb.min.y,sz=bb.max.z-bb.min.z;
+    /* Ground decals and terrain casting shadows onto themselves produced the crawling
+       acne all over the map. Everything still receives shadows. */
+    m.castShadow=sy>=0.6&&Math.max(sx,sz)<=60;
+    m.receiveShadow=true;
+    fixMaterials(m);
+    if(mm.some(x=>GROUND_MATS.has(x)||FOLIAGE_MATS.has(x)))return;
+    if(bb.max.y<0.7)return;   // kerbs, decals, floor mats — walk over them
+    if(bb.min.y>1.6)return;   // roof overhangs and canopies clear your head
+    if(sx>40&&sz>40)return;   // terrain-sized slabs
+    addCol((bb.min.x+bb.max.x)/2,(bb.min.z+bb.max.z)/2,
+           Math.max(sx/2-0.12,0.08),Math.max(sz/2-0.12,0.08));
+  });
+  rebuildColGrid();
+  scene.add(city);
+
+  // Warm lantern fill, placed on the model's own glow meshes.
+  meshes.filter(m=>matNames(m).includes('M_LanGlow'))
+    .map(m=>boxes.get(m).getCenter(new THREE.Vector3()))
+    .sort((a,b)=>a.lengthSq()-b.lengthSq()).slice(0,8)
+    .forEach(p=>{
+      const l=new THREE.PointLight(0xffa042,3.5,12,2);
+      l.position.copy(p);scene.add(l);
+    });
+}
+
+/* Spawn points are derived from the finished map instead of hard-coded. The old fixed list
+   sat outside the village footprint entirely, which is why the player kept starting off
+   the map and enemies appeared in the surrounding void. */
+function findClearSpot(r,x0=0,z0=0){
+  for(let ring=0;ring<=MAP-4;ring+=2){
+    const n=Math.max(1,Math.round(ring*3));
+    for(let i=0;i<n;i++){
+      const a=i/n*Math.PI*2;
+      const x=x0+Math.cos(a)*ring,z=z0+Math.sin(a)*ring;
+      if(Math.abs(x)>MAP-4||Math.abs(z)>MAP-4)continue;
+      if(!isBlocked(x,z,r))return new THREE.Vector3(x,0,z);
+    }
+  }
+  return new THREE.Vector3(x0,0,z0);
+}
+function buildSpawnPoints(){
+  PLAYER_SPAWN=findClearSpot(2.2,0,0);
+  SPAWN_POINTS=[];
+  for(let a=0;a<48;a++)
+    for(const r of [20,28,36,44,50]){
+      const ang=a/48*Math.PI*2;
+      const x=Math.cos(ang)*r,z=Math.sin(ang)*r;
+      if(Math.abs(x)>MAP-4||Math.abs(z)>MAP-4)continue;
+      if(isBlocked(x,z,1.3))continue;
+      SPAWN_POINTS.push(new THREE.Vector3(x,0,z));
+    }
+  if(!SPAWN_POINTS.length)SPAWN_POINTS.push(new THREE.Vector3(0,0,Math.min(30,MAP-6)));
+}
+
 /* ══ AFTER ALL LOADED ══ */
 function onAllLoaded(){
   nTemplates.idle  =RAW['n_idle'];
@@ -662,43 +911,8 @@ function onAllLoaded(){
   nTemplates.attack=RAW['n_attack'];
   Object.values(nTemplates).forEach(t=>{if(!t)return;setupShadows(t);fitHeight(t,1.76);t.rotation.set(0,0,0);});
 
-  // Place city — visual only, no collision mesh processing
-  if(RAW['city']){
-    const city=RAW['city'];
-    // Measure what scale FBXLoader gave us
-    city.updateMatrixWorld(true);
-    const tmpBox=new THREE.Box3().setFromObject(city);
-    const cityMaxY=tmpBox.max.y-tmpBox.min.y;
-    const citySizeX=tmpBox.max.x-tmpBox.min.x;
-    const citySizeZ=tmpBox.max.z-tmpBox.min.z;
-    // Target: buildings ~12 units tall so a 1.78-unit character looks correct
-    const targetHeight=12;
-    // Target footprint ~80 units so it fits the 240-unit play area
-    const targetFootprint=80;
-    const maxDim=Math.max(citySizeX,citySizeZ,cityMaxY,0.01);
-    // Scale by height first, then constrain by footprint
-    let scale=targetHeight/Math.max(cityMaxY,0.01);
-    const footprintScale=targetFootprint/maxDim;
-    scale=Math.min(scale,footprintScale);
-    city.scale.setScalar(scale);
-    city.updateMatrixWorld(true);
-    const centeredBox=new THREE.Box3().setFromObject(city);
-    city.position.x=-(centeredBox.min.x+centeredBox.max.x)/2;
-    city.position.z=-(centeredBox.min.z+centeredBox.max.z)/2;
-    city.position.y=-centeredBox.min.y;
-    setupShadows(city);
-    scene.add(city);
-    // Atmosphere
-    scene.fog=new THREE.FogExp2(0x050812, 0.007);
-    scene.background=new THREE.Color(0x050812);
-    // Street point lights
-    [[-30,6,-20],[30,6,-20],[0,6,30],[-30,6,40],[30,6,40],
-     [-60,6,0],[60,6,0],[0,6,-50],[50,6,-50],[-50,6,60],[50,6,60]]
-    .forEach(([x,y,z])=>{
-      const l=new THREE.PointLight(0x2244aa,3,50);
-      l.position.set(x,y,z); scene.add(l);
-    });
-  }
+  if(RAW['city'])placeVillage(RAW['city']);
+  buildSpawnPoints();
 
   initPots();
   document.getElementById('loading').style.display='none';
@@ -720,6 +934,13 @@ function buildPlayerSlots(charKey){
   G.jump  =makeSlot(RAW[prefix+'jump'],  false,h);
   G.midair=makeSlot(RAW[prefix+'midair'],true, h);
   Object.values(G).forEach(s=>{if(s)modelTilt.add(s.scene);});
+  if(G.jump){
+    G.jump.launchT=findLaunchTime(G.jump.clip);
+    if(G.jump.action)G.jump.action.timeScale=JUMP_TIMESCALE;
+  }
+  // Keep both characters' swings around the same length — yuji's punch clip is 2s raw.
+  if(G.attack?.action)
+    G.attack.action.timeScale=Math.min(2.4,Math.max(1,G.attack.duration/0.9));
   document.getElementById('hp-lbl-txt').textContent=charDef.hudLabel;
   document.getElementById('de-lbl').textContent=charDef.specialLabel;
   document.getElementById('de-tip').textContent=charDef.specialTip;
@@ -736,7 +957,7 @@ function buildPlayerSlots(charKey){
 /* ══ WAVE SCALING ══ */
 function waveStats(n){
   return{baseHp:60+(n-1)*18,baseSpd:3.2+(n-1)*0.22,damage:10+(n-1)*3,
-         atkInt:Math.max(1.5,6.0-(n-1)*0.45),windUp:Math.max(0.4,1.0-(n-1)*0.07)};
+         atkInt:Math.max(1.5,6.0-(n-1)*0.45)};
 }
 
 /* ══ HP BARS (scene-level, always visible) ══ */
@@ -774,6 +995,16 @@ function pickType(){
 const TYPE_SCALE={normal:1,wraith:0.82,berserker:1.05,fortress:1.25,giant:2.0};
 const TYPE_SCORE={normal:100,wraith:120,berserker:150,fortress:180,giant:300};
 
+/* Measured off ninja_attack: the katana leaves the guard at 45.5% of the clip, peaks at
+   48.9% and has followed through by 54.5%, reaching 0.77m from the body at the hilt.
+   Damage now lands inside that window and only inside it. The raw clip is 5.2s of mostly
+   goofy wind-up, so it is played at 2.2× to keep the tell readable without being a joke. */
+const ATK_TIMESCALE=2.2,ATK_CONTACT=0.489,ATK_WINDOW=0.05;
+/* Sword reach from the enemy's centre, in metres, before the per-type size multiplier.
+   The old value was a flat 3.5m — twice the length of the animation — so you took hits
+   from well outside anything the blade could touch. */
+const ATK_REACH=1.75;
+
 function spawnEnemy(){
   const st=waveStats(wave);
   const type=pickType();
@@ -787,8 +1018,20 @@ function spawnEnemy(){
     clone.position.y=-box.min.y;clone.visible=false;clone.rotation.set(0,0,0);
     const mixer=new THREE.AnimationMixer(clone);
     const clip=tmpl.animations?.[0];let action=null;
-    if(clip){action=mixer.clipAction(clip);action.setLoop(THREE.LoopRepeat,Infinity);action.play();}
-    NS[k]={scene:clone,mixer,action};group.add(clone);
+    if(clip){
+      action=mixer.clipAction(clip);
+      if(k==='attack'){
+        /* One swing per commitment, restarted from frame 0 every time. It used to loop
+           free-running from spawn, so whichever frame happened to be showing when the
+           damage timer fired had nothing to do with where the sword actually was. */
+        action.setLoop(THREE.LoopOnce,1);
+        action.clampWhenFinished=true;
+        action.timeScale=ATK_TIMESCALE;
+      }else action.setLoop(THREE.LoopRepeat,Infinity);
+      action.play();
+    }
+    NS[k]={scene:clone,mixer,action,duration:clip?.duration??1};
+    group.add(clone);
   });
   if(!Object.keys(NS).length){
     const fb=new THREE.Mesh(new THREE.CylinderGeometry(.4,.4,1.7,8),new THREE.MeshLambertMaterial({color:0x334455}));
@@ -805,46 +1048,44 @@ function spawnEnemy(){
   group.scale.setScalar(TYPE_SCALE[type]);
   const hpBar=makeHpBar(type);
 
-  // Village spawn points: user X,Y -> Three.js X,Z (Y=up always 0)
-  const SPAWN_POINTS=[
-    [12,0,-8],[-12,0,-8],[0,0,25],
-    [18,0,10],[-18,0,10],[-4,0,20],[4,0,20],
-    [45,0,-10],[52,0,15],[-10,0,48],
-    [-14,0,55],[-6,0,55],
-    [-40,0,-42],[-55,0,-42],
-    [30,0,-40],[-30,0,-40],
-  ];
-  const sp=SPAWN_POINTS[Math.floor(Math.random()*SPAWN_POINTS.length)];
-  let spawnPos=new THREE.Vector3(sp[0],0,sp[2]);
-  let attempts=0;
-  while(attempts<12&&enemies.some(e=>e.alive&&e.group.position.distanceTo(spawnPos)<10)){
-    const sp2=SPAWN_POINTS[Math.floor(Math.random()*SPAWN_POINTS.length)];
-    spawnPos=new THREE.Vector3(sp2[0],0,sp2[2]);
-    attempts++;
+  /* Pick an open spot on the village floor that is neither inside a building nor right on
+     top of the player or another enemy. */
+  const pick=()=>SPAWN_POINTS[Math.floor(Math.random()*SPAWN_POINTS.length)]||new THREE.Vector3();
+  let spawnPos=pick().clone();
+  for(let attempts=0;attempts<24;attempts++){
+    const clearOfPlayer=spawnPos.distanceTo(playerGroup.position)>16;
+    const clearOfPack=!enemies.some(e=>e.alive&&e.group.position.distanceTo(spawnPos)<6);
+    if(clearOfPlayer&&clearOfPack)break;
+    spawnPos=pick().clone();
   }
   group.position.copy(spawnPos);
   scene.add(group);
 
-  // Per-type stat modifiers
+  // Per-type stat modifiers. reach multiplies ATK_REACH, then the model's own size.
   const mods={
-    normal:{hp:1,  spd:1,   dmg:1,   atkInt:1,  hitR:3.5},
-    wraith:{hp:.6, spd:2.5, dmg:.8,  atkInt:.8, hitR:2.8},
-    berserker:{hp:1,spd:.75,dmg:2.5, atkInt:.7, hitR:3.2},
-    fortress:{hp:3, spd:.55,dmg:.8,  atkInt:1.4,hitR:3.5},
-    giant:   {hp:3, spd:1.5,dmg:3,   atkInt:.7, hitR:5.0},
+    normal:{hp:1,  spd:1,   dmg:1,   atkInt:1,  reach:1},
+    wraith:{hp:.6, spd:2.5, dmg:.8,  atkInt:.8, reach:1},
+    berserker:{hp:1,spd:.75,dmg:2.5, atkInt:.7, reach:1.05},
+    fortress:{hp:3, spd:.55,dmg:.8,  atkInt:1.4,reach:1.05},
+    giant:   {hp:3, spd:1.5,dmg:3,   atkInt:.7, reach:1.15},
   };
   const m=mods[type];
   const maxHp=Math.round(st.baseHp*m.hp);
+  const scale=TYPE_SCALE[type];
   const hpBarWorldY=type==='giant'?7.5:type==='fortress'?4.5:3.2;
+  const swingDur=(NS.attack?.duration??2.2)/ATK_TIMESCALE;
   enemies.push({
     group,NS,nShow,hpBar,type,isGiant,
     hp:maxHp,maxHp,alive:true,
-    state:'chase',atkTimer:0,
+    state:'chase',
+    swingT:0,swingDur,restT:0,hasHit:false,
     atkInt:Math.max(0.6,st.atkInt*m.atkInt),
-    windUp:st.windUp,
     damage:Math.round(st.damage*m.dmg),
     speed:(st.baseSpd+Math.random())*m.spd,
-    hitRange:m.hitR,hpBarY:hpBarWorldY,
+    // Sword reach, and the enemy's own girth for the player's hit test.
+    hitRange:ATK_REACH*m.reach*scale,
+    bodyRadius:0.45*scale,
+    hpBarY:hpBarWorldY,
     scoreVal:TYPE_SCORE[type],
     lastPos:group.position.clone(),stuckT:0,
     wanderA:Math.random()*Math.PI*2,
@@ -911,7 +1152,7 @@ function tickDomain(dt){
     if(!dQueue.length){
       domainOn=false;
       document.getElementById('de-ov').classList.remove('on');
-      scene.fog=new THREE.FogExp2(0x050812,.008);
+      resetAtmosphere();
       setTimeout(()=>{wave++;startWave(wave);announce('WAVE '+wave,2);},1200);
       return;
     }
@@ -937,18 +1178,26 @@ function tickDomain(dt){
   }
 }
 
-/* ══ ATTACK (animation-duration based) ══ */
+/* ══ ATTACK ══ */
+/* Driven off the frame clock rather than a chain of setTimeouts, which kept firing while
+   the game was paused and left the hit window open after the swing had ended. */
+const ATK_OPEN=0.18,ATK_CLOSE=0.62,ATK_END=0.94;
+let atkT=0,atkDur=0.7,slashT=0;
 function doAttack(){
-  const dur=(G.attack?.duration??0.7)*1000;
+  atkDur=(G.attack?.duration??0.7)/(G.attack?.action?.timeScale||1);
   atkActive=true;atkWindow=false;hitSet.clear();
-  atkCD=G.attack?.duration??charDef.speed;
+  atkCD=atkDur+0.1;
+  atkT=0;slashT=atkDur*0.22;
   showPlayer('attack');
   const sl=document.getElementById('slash');
   sl.style.opacity='1';sl.style.transform=`translate(-50%,-50%) rotate(${(Math.random()*50-25).toFixed(1)}deg)`;
-  setTimeout(()=>sl.style.opacity='0',dur*.22);
-  setTimeout(()=>{atkWindow=true;},dur*.18);
-  setTimeout(()=>{atkWindow=false;},dur*.72);
-  setTimeout(()=>{atkActive=false;showPlayer(onGround?'idle':'midair');},dur*.96);
+}
+function tickAttack(dt){
+  if(slashT>0){slashT-=dt;if(slashT<=0)document.getElementById('slash').style.opacity='0';}
+  if(!atkActive)return;
+  atkT+=dt;
+  atkWindow=atkT>=atkDur*ATK_OPEN&&atkT<=atkDur*ATK_CLOSE;
+  if(atkT>=atkDur*ATK_END){atkActive=false;atkWindow=false;showPlayer(onGround?'idle':'midair');}
 }
 
 /* ══ PLAYER TICK ══ */
@@ -962,6 +1211,7 @@ function tickPlayer(dt){
 
   if(atkCD>0)atkCD-=dt;
   if(clickNow&&atkCD<=0&&!atkActive)doAttack();
+  tickAttack(dt);
   if(!isMobile&&keys['KeyE']&&deReady&&!domainOn)activateSpecial();
 
   _fwd.set(-Math.sin(yaw),0,-Math.cos(yaw));
@@ -978,16 +1228,17 @@ function tickPlayer(dt){
   }
   const moving=dx!==0||dz!==0;
 
-  // Jump windup — play animation, launch at 0.98s
-  const jumpPressed=(keys['Space']||mobileJump)&&onGround&&!jumpWindup;
-  if(jumpPressed){jumpWindup=true;jumpWindupT=0;showPlayer('jump');}
-  mobileJump=false;
-  if(jumpWindup){
-    jumpWindupT+=dt;
-    if(jumpWindupT>=JUMP_LAUNCH_T){
-      playerVY=JUMP_VEL;onGround=false;jumpTimer=0;jumpWindup=false;
-    }
+  /* Jump launches on the frame you press. The clip is started just shy of its own takeoff
+     frame so the push-off reads immediately, instead of running a full second of crouch
+     before the character finally left the ground. */
+  if((keys['Space']||mobileJump)&&onGround&&!atkActive){
+    playerVY=JUMP_VEL;onGround=false;jumpTimer=0;
+    showPlayer('jump');
+    // Seek past the crouch whether or not showPlayer had to swap the model in.
+    const j=G.jump;
+    if(j?.action){j.action.time=Math.max(0,j.launchT-JUMP_ANTICIPATE*JUMP_TIMESCALE);j.action.paused=false;}
   }
+  mobileJump=false;
 
   if(!onGround){
     jumpTimer+=dt;
@@ -1022,7 +1273,7 @@ function tickPlayer(dt){
   const sprinting=isMobile?mobileSprint&&moving:(keys['ShiftLeft']||keys['ShiftRight'])&&moving;
   const spd=sprinting?charDef.sprintSpeed:charDef.speed;
 
-  if(moving&&!atkActive&&!jumpWindup){
+  if(moving&&!atkActive){
     const len=Math.sqrt(dx*dx+dz*dz);
     const nx=dx/len*spd*dt,nz=dz/len*spd*dt;
     const bx=playerGroup.position.x,bz=playerGroup.position.z;
@@ -1030,12 +1281,13 @@ function tickPlayer(dt){
     const mdx=playerGroup.position.x-bx,mdz=playerGroup.position.z-bz;
     if(Math.abs(mdx)+Math.abs(mdz)>0.0005)playerGroup.rotation.y=Math.atan2(mdx,mdz);
     if(onGround)showPlayer(sprinting?'run':'walk');
-  }else if(!atkActive&&onGround&&!jumpWindup)showPlayer('idle');
+  }else if(!atkActive&&onGround)showPlayer('idle');
 
-  // Air animation — play full jump clip, then switch to midair
+  // Air animation — let the leap play out, then hold the midair loop.
   if(!onGround&&!atkActive){
-    const jumpDur=G.jump?.duration??0.5;
-    if(jumpTimer<jumpDur)showPlayer('jump');
+    const j=G.jump;
+    const airDur=j?Math.max(0.1,(j.duration-j.launchT)/JUMP_TIMESCALE):0.4;
+    if(jumpTimer<airDur)showPlayer('jump');
     else showPlayer('midair');
   }
 
@@ -1047,7 +1299,9 @@ function tickPlayer(dt){
       const yDiff=Math.abs(toE.y);
       toE.y=0;
       if(yDiff>2.5)return; // too far above or below
-      if(toE.length()<e.hitRange&&toE.clone().normalize().dot(facing)>0.05){
+      // Your own weapon reach — this used to read the *enemy's* attack range instead.
+      const reach=charDef.atkRange+e.bodyRadius;
+      if(toE.length()<reach&&toE.clone().normalize().dot(facing)>0.05){
         hitSet.add(e);
         const dmg=e.isGiant?Math.floor(charDef.atkDmg*.6):charDef.atkDmg;
         e.hp-=dmg;
@@ -1079,21 +1333,47 @@ function tickEnemies(dt){
 
     const yGap=Math.abs(playerGroup.position.y-e.group.position.y);
 
+    /* A swing is a committed animation, not a countdown. Damage lands only in the frames
+       where the blade is actually sweeping, and only if you are still inside its reach and
+       in front of the enemy at that instant — so backing off or sidestepping mid-swing
+       makes it whiff instead of hitting you from across the street. */
     if(e.state==='attack'){
-      if(dist>(e.hitRange)||yGap>2.5){e.state='chase';e.atkTimer=0;e.nShow('walk');return;}
-      facePoint(e.group,pp.x,pp.z);
-      e.nShow('attack');
-      e.atkTimer-=dt;
-      if(e.atkTimer<=0){
-        e.atkTimer=e.atkInt;
-        if(!domainOn&&yGap<2.5){hp-=e.damage;shakeAmt=e.type==='giant'?0.9:e.type==='berserker'?0.7:0.4;if(hp<=0){hp=0;triggerOver();}}
+      e.swingT+=dt;
+      const contactT=e.swingDur*ATK_CONTACT;
+      // Track the player during the wind-up, then commit — no turning to follow a dodge.
+      if(e.swingT<contactT-e.swingDur*ATK_WINDOW)facePoint(e.group,pp.x,pp.z);
+      if(!e.hasHit&&e.swingT>=contactT){
+        e.hasHit=true;
+        const facing=new THREE.Vector3(Math.sin(e.group.rotation.y),0,Math.cos(e.group.rotation.y));
+        const inFront=dist>0.001&&_toP.clone().normalize().dot(facing)>0.35;
+        if(!domainOn&&dist<=e.hitRange&&yGap<2.0&&inFront){
+          hp-=e.damage;
+          shakeAmt=e.type==='giant'?0.9:e.type==='berserker'?0.7:0.4;
+          spawnHit(playerGroup.position.clone().add(new THREE.Vector3(0,1.1,0)),0xff2244);
+          if(hp<=0){hp=0;triggerOver();}
+        }
+      }
+      if(e.swingT>=e.swingDur){
+        // Back to chasing between swings rather than standing still through the cooldown.
+        e.state='chase';
+        e.restT=Math.max(0.3,e.atkInt-e.swingDur);
+        e.nShow('walk');
       }
       return;
     }
+    if(e.restT>0)e.restT-=dt;
 
-    const atkThresh=e.hitRange*0.7;
-    if(dist<atkThresh&&yGap<2.0&&!domainOn){e.state='attack';e.atkTimer=e.windUp;e.nShow('attack');return;}
-    if(dist>62){e.nShow('idle');facePoint(e.group,pp.x,pp.z);return;}
+    // Commit slightly inside the blade's reach so there is room to retreat out of it.
+    const atkThresh=e.hitRange*0.85;
+    if(dist<atkThresh&&yGap<2.0&&!domainOn&&e.restT<=0){
+      e.state='attack';e.swingT=0;e.hasHit=false;
+      e.nShow('attack');
+      const a=e.NS.attack?.action;
+      if(a){a.reset();a.timeScale=ATK_TIMESCALE;a.play();}
+      return;
+    }
+    /* Enemies used to give up and stand still past 62m. Across the full compound that is a
+       reachable distance, and a wave that never closes never clears. They always come. */
 
     const desired=_toP.clone().normalize();
     e.stuckT+=dt;
@@ -1139,7 +1419,10 @@ function tickEnemies(dt){
 }
 
 /* ══ WAVE + HUD ══ */
-let waveClear=false,annTmr=0;
+/* Starts true: the game is live for ~300ms before startWave(1) queues anything, and
+   "no enemies queued and none alive" was reading as an instant wave-1 clear — free points
+   and a jump straight to wave 2 a few seconds in. */
+let waveClear=true,annTmr=0;
 function startWave(n){spawnQ=5+(n-1)*3;spawnT=0.5;waveClear=false;document.getElementById('wv-num').textContent='WAVE '+n;}
 let spawnInterval=0;
 function checkWave(dt){
@@ -1197,20 +1480,21 @@ function doRestart(){
   vfx.forEach(v=>scene.remove(v.mesh));
   enemies=[];vfx=[];
   score=0;wave=1;hp=MAX_HP;deKills=0;deReady=false;domainOn=false;
-  spawnQ=0;atkActive=false;atkWindow=false;atkCD=0;dTarget=null;dQueue=[];
-  stillTimer=0;playerY=0;playerVY=0;onGround=true;jumpTimer=0;jumpWindup=false;jumpWindupT=0;
+  spawnQ=0;waveClear=true;atkActive=false;atkWindow=false;atkCD=0;atkT=0;slashT=0;dTarget=null;dQueue=[];
+  document.getElementById('slash').style.opacity='0';
+  stillTimer=0;playerY=0;playerVY=0;onGround=true;jumpTimer=0;
   mobileMove={x:0,z:0};mobileSprint=false;isPaused=false;
   if(isMobile){
     document.getElementById('btn-sprint').classList.remove('spr-on');
     document.getElementById('btn-domain').classList.remove('dom-ready');
     document.getElementById('joystick-knob').style.transform='translate(-50%,-50%)';
   }
-  playerGroup.position.set(0,0,-58);playerGroup.rotation.y=0;
+  playerGroup.position.copy(PLAYER_SPAWN);playerGroup.rotation.y=0;
   modelTilt.rotation.x=0;
   yaw=0;pitch=0.28;over=false;introPlaying=false;
   document.getElementById('de-ov').classList.remove('on');
   document.getElementById('pause-menu').classList.remove('open');
-  scene.fog=new THREE.FogExp2(0x050812,.008);scene.background.set(0x050812);
+  resetAtmosphere();
   document.getElementById('over-screen').style.display='none';
   document.getElementById('hud').style.display='block';
   if(isMobile)document.getElementById('mobile-controls').classList.add('visible');
@@ -1222,7 +1506,7 @@ function doRestart(){
 
 function startGame(){
   buildPlayerSlots(selectedChar);
-  playerGroup.position.set(0,0,-58);
+  playerGroup.position.copy(PLAYER_SPAWN);
   document.getElementById('start-screen').style.display='none';
   document.getElementById('hud').style.display='block';
   started=true;
@@ -1236,15 +1520,33 @@ document.getElementById('restart-btn').addEventListener('click',doRestart);
 document.getElementById('restart-btn').addEventListener('touchstart',e=>{e.preventDefault();doRestart();},{passive:false});
 
 /* ══ CAMERA ══ */
-const camTgt=new THREE.Vector3(),camLook=new THREE.Vector3();
+const camTgt=new THREE.Vector3(),camLook=new THREE.Vector3(),_camDir=new THREE.Vector3();
+/* Now that buildings are solid the camera has to stop at them too, or standing next to a
+   house buries the view inside a wall. Walk the boom arm outwards and stop at the first
+   obstruction. */
+function camBoomLimit(from,to){
+  _camDir.copy(to).sub(from);
+  const len=_camDir.length();
+  if(len<0.01)return len;
+  _camDir.divideScalar(len);
+  const steps=Math.max(2,Math.ceil(len/0.5));
+  for(let i=1;i<=steps;i++){
+    const d=len*i/steps;
+    if(isBlocked(from.x+_camDir.x*d,from.z+_camDir.z*d,0.35))return Math.max(1.6,d-0.5);
+  }
+  return len;
+}
 function tickCamera(){
   const bx=Math.sin(yaw)*Math.cos(pitch)*camDist;
   const by=Math.sin(pitch)*camDist+1.5;
   const bz=Math.cos(yaw)*Math.cos(pitch)*camDist;
   const sh=shakeAmt>0?(Math.random()-.5)*shakeAmt:0;
-  camTgt.set(playerGroup.position.x+bx+sh,playerGroup.position.y+by+sh*.4,playerGroup.position.z+bz);
   camLook.set(playerGroup.position.x,playerGroup.position.y+1.5,playerGroup.position.z);
-  camera.position.lerp(camTgt,.11);camera.lookAt(camLook);
+  camTgt.set(playerGroup.position.x+bx+sh,playerGroup.position.y+by+sh*.4,playerGroup.position.z+bz);
+  const lim=camBoomLimit(camLook,camTgt);
+  camTgt.copy(camLook).addScaledVector(_camDir,lim);
+  camTgt.y=Math.max(camTgt.y,0.9);
+  camera.position.lerp(camTgt,.16);camera.lookAt(camLook);
   if(shakeAmt>0)shakeAmt=Math.max(0,shakeAmt-.18);
 }
 
@@ -1258,8 +1560,12 @@ function loop(){
     if(annTmr>0){annTmr-=dt;if(annTmr<=0)document.getElementById('ann').style.opacity='0';}
   }
   tickCamera();
-  pLight.intensity=4+Math.sin(Date.now()*.0018)*2;
-  pLight.position.set(playerGroup.position.x+Math.sin(Date.now()*.0008)*5,4,playerGroup.position.z+Math.cos(Date.now()*.0008)*5);
+  // Key light rides with the player so the tight shadow frustum always covers the action.
+  const pp=playerGroup.position;
+  sun.position.copy(pp).add(SUN_OFF);
+  sun.target.position.copy(pp);
+  sun.target.updateMatrixWorld();
+  pLight.position.set(pp.x,2.2,pp.z);
   if(domainOn)scene.background.setRGB(.015+Math.sin(Date.now()*.003)*.006,0,.05);
   renderer.render(scene,camera);
   clickNow=false;
